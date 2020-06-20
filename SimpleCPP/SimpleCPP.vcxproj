@@ -63,10 +63,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeBuildCommandLine>gcc</NMakeBuildCommandLine>
-    <NMakeOutput>SimpleCPP.exe</NMakeOutput>
+    <NMakeBuildCommandLine>make</NMakeBuildCommandLine>
+    <NMakeOutput>hellomake.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>C:\Users\chaos\Desktop\ChaoticThunderEngine\SimpleCPP\include;$(IncludePath)</IncludePath>
+    <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>
+    </NMakeCleanCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeBuildCommandLine>gcc</NMakeBuildCommandLine>
