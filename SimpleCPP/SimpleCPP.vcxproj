@@ -68,8 +68,7 @@
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <IncludePath>C:\Users\chaos\Desktop\ChaoticThunderEngine\SimpleCPP\include;$(IncludePath)</IncludePath>
     <NMakeReBuildCommandLine>make</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>
-    </NMakeCleanCommandLine>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeBuildCommandLine>gcc</NMakeBuildCommandLine>

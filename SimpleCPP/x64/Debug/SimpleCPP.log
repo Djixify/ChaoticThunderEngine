@@ -1,4 +1,4 @@
 ﻿  ! was unexpected at this time.
-  Makefile:9: recipe for target 'initialize' failed
+  Makefile:7: recipe for target 'initialize' failed
   make: *** [initialize] Error 255
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.MakeFile.Targets(44,5): error MSB3073: The command "make" exited with code 2.
