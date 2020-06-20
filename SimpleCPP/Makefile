@@ -1,11 +1,14 @@
-IDIR=/include
-
 CC=g++
-CFLAGS=-I$(IDIR)
-DEPS = hellomake.h
+CFLAGS=-I$(INCLUDES)
+DEPS=hellomake.h
+
+all: hellomake clean
 
 %.o: %.cpp $(DEPS)
-	$(CC) -o $@ -c $< $(CFLAGS)
+	g++ -o $@ -c $< -Iinclude
 
 hellomake: hellomake.o hellofunc.o
 	g++ -o hellomake hellomake.o hellofunc.o
+
+clean: 
+	rm hellomake.o hellofunc.o
