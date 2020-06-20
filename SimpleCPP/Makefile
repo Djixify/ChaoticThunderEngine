@@ -1,11 +1,10 @@
 CC=g++
-CFLAGS=-I$(INCLUDES)
-DEPS=hellomake.h
+CFLAGS=-Wall -Wextra -Werror -Iinclude
 
 all: hellomake clean
 
-%.o: %.cpp $(DEPS)
-	g++ -o $@ -c $< -Iinclude
+%.o: %.cpp
+	g++ -o $@ -c $< $(CFLAGS)
 
 hellomake: hellomake.o hellofunc.o
 	g++ -o hellomake hellomake.o hellofunc.o
