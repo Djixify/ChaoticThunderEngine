@@ -66,6 +66,7 @@
     <NMakeBuildCommandLine>gcc</NMakeBuildCommandLine>
     <NMakeOutput>SimpleCPP.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <IncludePath>C:\Users\chaos\Desktop\ChaoticThunderEngine\SimpleCPP\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakeBuildCommandLine>gcc</NMakeBuildCommandLine>
@@ -85,6 +86,11 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="hellomake.cpp" />
+    <ClCompile Include="hellofunc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\hellomake.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
