@@ -1,9 +1,8 @@
 #include <iostream>
-#include <hellomake.h>
 
 int main() {
     // call a function in another file
-    myPrintHelloMake();
+    std::cout << "Hello world" << std::endl;
 
     return(0);
 }
