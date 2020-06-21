@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="debug.cpp" />
     <ClCompile Include="exampleFunc.cpp" />
-    <ClCompile Include="Program.cpp" />
+    <ClCompile Include="program.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\exampleHeader.h" />
+    <ClInclude Include="debug.h" />
+    <ClInclude Include="exampleHeader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
