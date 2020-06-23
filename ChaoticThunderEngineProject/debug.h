@@ -178,7 +178,7 @@ namespace Debug
                             tempstring = tempstring.substr(0, tempstring.find_last_not_of('0') + 1);
                             break;
                         case 's': //"string"
-                            tempstring = std::string(va_arg(valist, char*));
+                            tempstring = va_arg(valist, std::string);
                             break;
                         default:
                             throw std::runtime_error("Format not supproted");
