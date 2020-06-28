@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <filesystem>
 #include "exampleHeader.h"
 #include "debug.h"
 #include "fileUtility.h"
@@ -14,15 +16,13 @@ int main() {
     Debug::Logger::console("%10d ::: %-15d ::: %10f", 9001, 42, 23.2);
     Debug::Logger::console("%10d ::: %-15d ::: %10f", 69, 360, 1000.2);
 
-    std::wstring currentPath = FileUtility::currentDirectory<256>();
-    std::wstring parent = FileUtility::getParent(currentPath);
-    std::wstring firstuwu = FileUtility::combinePath(currentPath, "Somefile.uwu");
-    std::wstring seconduwu = FileUtility::combinePath(currentPath, L"Somefile.uwu");
+    std::string currentPath = FileUtility::currentDirectory();
+    std::string parent = FileUtility::getParent(currentPath);
+    std::string firstuwu = FileUtility::combinePath(currentPath, "Somefile.uwu");
 
-    std::wcout << currentPath << std::endl;
-    std::wcout << parent << std::endl;
-    std::wcout << firstuwu << std::endl;
-    std::wcout << seconduwu << std::endl;
+    std::cout << currentPath << std::endl;
+    std::cout << parent << std::endl;
+    std::cout << firstuwu << std::endl;
 
     Debug::Logger* tmp = new Debug::Logger(std::cout);
 
@@ -37,18 +37,20 @@ int main() {
     tmp->log("Test");
     (*tmp).log("Test");
 
-    /*
-    //Create some file stream here
-    Debug::Logger logger(some streams);
+    std::ofstream filestream("Test.log"); //huh, no path required...
+    Debug::Logger logger(filestream);
 
     logger.log("Hello from the log! 2");
 
     logger.log("Im a title", "Hello from the log! 3");
 
-    logger.log(std::string("Im your execution path!: "), FileUtility::currentDirectory<256>());
+    logger.log("Im your execution path!: %s", FileUtility::currentDirectory());
 
-    //close file stream here
-    */
+    printf("%d\n", logger.isvalid());
+
+    filestream.close();
+
+    printf("%d\n", logger.isvalid());
 
     return(0);
 }
