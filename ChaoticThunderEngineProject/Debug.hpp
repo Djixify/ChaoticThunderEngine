@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DEBUG_LOGGING_MODULE
+#define DEBUG_LOGGING_MODULE
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -6,32 +7,78 @@
 #include <stdarg.h>
 namespace Debug
 {
+    enum class Level {
+        CONSTRUCTION = 1,
+        DESTRUCTION = 2,
+        COPY = 4,
+        WRITING = 8,
+        READING = 16,
+        CONTEXT = 32,
+        INFO = 64,
+        WARNING = 128
+    };
+
+    std::ostream* defaultoutstream = &std::cout;
+    int loglevels = (int)Level::INFO | (int)Level::WARNING;
+
     class Logger
     {
     private:
-        std::string filename;
-        std::ostream* outputFileStream;
+        std::string _filename;
+        std::ostream* _outputFileStream;
+        int _loglevels = loglevels;
+        static std::string levelToString(Level level) {
+            switch (level)
+            {
+            case Level::CONSTRUCTION:
+                return "[CONSTRUCT]";
+            case Level::DESTRUCTION:
+                return "[DESTRUCT] ";
+            case Level::COPY:
+                return "[COPY]     ";
+            case Level::WRITING:
+                return "[WRITE]    ";
+            case Level::READING:
+                return "[READ]     ";
+            case Level::CONTEXT:
+                return "[CONTEXT]  ";
+            case Level::INFO:
+                return "[INFO]     ";
+            case Level::WARNING:
+                return "[WARNING]  ";
+            default:
+                return "";
+            };
+        }
     public:
         Logger(std::ostream& stream) {
             if (stream.good())
-                outputFileStream = &stream;
+                _outputFileStream = &stream;
             else
                 throw "Could not open file, likely does not exist";
         }
 
-        static void console(std::string format, ...)
+        ~Logger() {
+            _outputFileStream->flush();
+        }
+
+        static void Console(Level level, std::string format, ...)
         {
+            if (((int)level & loglevels) == 0)
+                return;
+
             std::time_t t = std::time(0);
             std::tm now = {};
             localtime_s(&now, &t);
 
-            std::cout
+            *defaultoutstream
+                << levelToString(level)
                 << "["
                 << (now.tm_year + 1900) << '/'
                 << (now.tm_mon > 8 ? //Ensures constant spacing, range: 0, 11
                     std::to_string(now.tm_mon + 1) :
                     std::to_string(0).append(std::to_string(now.tm_mon + 1))) << '/'
-                << (now.tm_mday > 9 ? //Ensures constant spacing, range: 1, 31 (DO NOT ASK ME WHY THEY DECIDED THAT IT SHOULD BE 0 INDEXED FOR THE MONTH BUT NOT DAY?!?!?!)
+                << (now.tm_mday > 9 ? //Ensures constant spacing, range: 1, 31
                     std::to_string(now.tm_mday) :
                     std::to_string(0).append(std::to_string(now.tm_mday))) << "-"
                 << now.tm_hour << ":"
@@ -89,41 +136,45 @@ namespace Debug
 
                         if (offset != 0) {
                             if (tempstring.size() >= offset)
-                                std::cout << tempstring;
+                                *defaultoutstream << tempstring;
                             else {
                                 if (leftOrientated) {
-                                    std::cout << tempstring;
-                                    for (i = tempstring.size(); i <= offset; i++)
-                                        std::cout << ' ';
+                                    *defaultoutstream << tempstring;
+                                    for (i = (int)tempstring.size(); i <= offset; i++)
+                                        *defaultoutstream << ' ';
                                 }
                                 else {
-                                    for (i = tempstring.size(); i <= offset; i++)
-                                        std::cout << ' ';
-                                    std::cout << tempstring;
+                                    for (i = (int)tempstring.size(); i <= offset; i++)
+                                        *defaultoutstream << ' ';
+                                    *defaultoutstream << tempstring;
                                 }
                             }
                         }
                         else
-                            std::cout << tempstring;
+                            *defaultoutstream << tempstring;
                         break;
                     default:
-                        std::cout << *str_ptr;
+                        *defaultoutstream << *str_ptr;
                         break;
                 }
             }
             va_end(valist);
-            std::cout << std::endl;
+
+            *defaultoutstream << std::endl;
         }
 
-        void log(std::string format, ...)
-        {
-            if (outputFileStream->good())
+        void Log(Level level, std::string format, ...) {
+            if (((int)level & loglevels) == 0)
+                return;
+
+            if (_outputFileStream->good())
             {
                 std::time_t t = std::time(0);
                 std::tm now = {};
                 localtime_s(&now, &t);
 
-                (*outputFileStream)
+                (*_outputFileStream)
+                    << levelToString(level)
                     << "["
                     << (now.tm_year + 1900) << '/'
                     << (now.tm_mon > 8 ? //Ensures constant spacing, range: 0, 11
@@ -191,27 +242,27 @@ namespace Debug
                             else {
                                 if (leftOrientated) {
                                     std::cout << tempstring;
-                                    for (i = tempstring.size(); i <= offset; i++)
+                                    for (i = (int)tempstring.size(); i <= offset; i++)
                                         std::cout << ' ';
                                 }
                                 else {
-                                    for (i = tempstring.size(); i <= offset; i++)
-                                        (*outputFileStream) << ' ';
-                                    (*outputFileStream) << tempstring;
+                                    for (i = (int)tempstring.size(); i <= offset; i++)
+                                        (*_outputFileStream) << ' ';
+                                    (*_outputFileStream) << tempstring;
                                 }
                             }
                         }
                         else
-                            (*outputFileStream) << tempstring;
+                            (*_outputFileStream) << tempstring;
                         break;
                     default:
-                        (*outputFileStream) << *str_ptr;
+                        (*_outputFileStream) << *str_ptr;
                         break;
                     }
                 }
                 va_end(valist);
-                (*outputFileStream) << std::endl;
-                outputFileStream->flush();
+                (*_outputFileStream) << std::endl;
+                _outputFileStream->flush();
             }
             else
             {
@@ -219,9 +270,11 @@ namespace Debug
             }
         }
 
-        bool isvalid()
+        bool IsValid()
         {
-            return outputFileStream->good();
+            return _outputFileStream->good();
         }
     };
 }
+
+#endif
