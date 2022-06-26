@@ -8,15 +8,9 @@ class Exception : public std::exception {
 private:
     std::string message;
 public:
-    Exception* SetMessage(std::string msg) {
-        this->message = msg;
-        return this;
-    }
+    Exception* SetMessage(std::string msg);
 
-    virtual const char* what() const throw()
-    {
-        return message.c_str();
-    }
+    virtual const char* what() const throw();
 };
 
 #endif

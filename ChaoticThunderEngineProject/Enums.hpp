@@ -83,27 +83,6 @@ enum class attribute_type {
     UINT32 = GL_UNSIGNED_INT
 };
 
-int AttributeSize(attribute_type attr) {
-    switch (attr) {
-    case attribute_type::FLOAT16:
-        return 2;
-    case attribute_type::FLOAT32:
-        return 4;
-    case attribute_type::FLOAT64:
-        return 8;
-    case attribute_type::INT8:
-        return 1;
-    case attribute_type::INT16:
-        return 2;
-    case attribute_type::INT32:
-        return 4;
-    case attribute_type::UINT8:
-        return 1;
-    case attribute_type::UINT16:
-        return 2;
-    case attribute_type::UINT32:
-        return 4;
-    }
-}
+int AttributeSize(attribute_type attr);
 
 #endif

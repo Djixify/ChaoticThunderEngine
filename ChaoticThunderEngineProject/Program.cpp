@@ -93,7 +93,7 @@ int main(int argc, const char* argv[]) {
 
     try {
         Controller::Instance()->AddWindow(&mainwindow);
-        Controller::Instance()->AddWindow(&secondarywindow);
+        //Controller::Instance()->AddWindow(&secondarywindow);
         // get version info
         const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
         const GLubyte* version = glGetString(GL_VERSION); // version as a string

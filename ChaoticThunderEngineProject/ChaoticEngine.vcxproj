@@ -22,6 +22,10 @@
     <ClCompile Include="..\GLAD\src\glad.c" />
     <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="Enums.cpp" />
+    <ClCompile Include="Exception.cpp" />
+    <ClCompile Include="FileUtility.cpp" />
     <ClCompile Include="program.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Window.cpp" />

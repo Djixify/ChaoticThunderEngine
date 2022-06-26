@@ -16,6 +16,9 @@ ArrayBuffer::ArrayBuffer(Window& window) : _window(window) {
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex array buffer at %d", this->_bindingID);
 }
 
+char empty_arraybuffer = 0;
+ArrayBuffer* ArrayBuffer::none = (ArrayBuffer*)&empty_arraybuffer;
+
 ArrayBuffer::~ArrayBuffer() {
     while (_vbos.size() > 0) {
         delete &_vbos.back();
@@ -107,9 +110,8 @@ VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(unsigned int byte_size, void* 
 ///       Vertex data buffer        ///
 ///////////////////////////////////////
 
-VertexDataBuffer::VertexDataBuffer(ArrayBuffer& parent, buffer_storage_type storage_type) : _parent(parent) {
+VertexDataBuffer::VertexDataBuffer(ArrayBuffer& parent, buffer_storage_type storage_type) : _parent(parent), _storage_type(storage_type) {
     _parent.SetActive();
-    _storage_type = storage_type;
     _buffer_size = 0;
 
     glGenBuffers(1, &_bindingID);
@@ -193,9 +195,8 @@ VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(unsigned int count, unsig
 ///       Vertex index buffer       ///
 ///////////////////////////////////////
 
-VertexIndexBuffer::VertexIndexBuffer(VertexDataBuffer& parent, buffer_storage_type storage_type) : _parent(parent) {
+VertexIndexBuffer::VertexIndexBuffer(VertexDataBuffer& parent, buffer_storage_type storage_type) : _parent(parent), _storage_type(storage_type) {
     _parent.SetActive();
-    _storage_type = storage_type;
     _initial_capacity = 0;
 
     glGenBuffers(1, &_bindingID);
@@ -238,4 +239,12 @@ void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_bindingID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, indicies, this->_storage_type);
     _initial_capacity = count;
+}
+
+void VertexIndexBuffer::Draw() {
+
+}
+
+void VertexIndexBuffer::Draw(int offset, int count) {
+
 }
