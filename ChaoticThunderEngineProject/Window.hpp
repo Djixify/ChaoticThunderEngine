@@ -10,7 +10,7 @@ class Window {
 private:
     GLFWwindow* _glfwwindow;
     Shader* _shaders[40];
-    int _shader_count = 0;
+    int _shader_count;
 public:
     Window(std::string title, int width, int height);
     void AddShader(Shader& shader);

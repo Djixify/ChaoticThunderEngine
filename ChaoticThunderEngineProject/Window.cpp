@@ -2,10 +2,10 @@
 #include "Debug.hpp"
 #include "Controller.hpp"
 
-Window::Window(std::string title, int width, int height)
+Window::Window(std::string title, int width, int height) : _shader_count(0), _shaders{0}
 {
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
+    _glfwwindow = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    if (_glfwwindow == NULL)
     {
         Debug::Logger::Console(Debug::Level::WARNING, "Failed to make window instance");
         glfwTerminate();
@@ -23,7 +23,7 @@ void Window::RemoveShader(int i)
 
 GLFWwindow* Window::GetGLContext() const
 {
-    return nullptr;
+    return _glfwwindow;
 }
 
 void Window::SetActive() const

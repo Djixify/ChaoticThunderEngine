@@ -102,11 +102,12 @@ void Controller::AddWindow(Window* w) {
 
     _windows[_window_count] = w;
 
+    if (_context_window < 0)
+        this->SetContextWindow(_window_count);
+
     glfwSetWindowFocusCallback(_windows[_window_count]->GetGLContext(), _defaultProcessFocus);
     glfwSetFramebufferSizeCallback(_windows[_window_count]->GetGLContext(), _defaultProcessResize);
 
-    if (_context_window < 0)
-        this->SetContextWindow(_window_count);
 
     _window_count++;
 }

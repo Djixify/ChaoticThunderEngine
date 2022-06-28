@@ -83,6 +83,11 @@ int main(int argc, const char* argv[]) {
 
     TestFunction();
 
+    if (!glfwInit()) {
+        return -1;
+    }
+
+
     std::string fragmentshaderfolder = "fragmentshaders";
     std::string circlepatternfragment = "circlepattern.frag";
     std::string trianglevertex = "triangle.vert";
