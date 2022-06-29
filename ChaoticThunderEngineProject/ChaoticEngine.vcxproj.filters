@@ -45,9 +45,6 @@
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\GLAD\src\glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="Exception.cpp">
       <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GLAD\src\glad.c">
+      <Filter>Source Files\GLAD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
