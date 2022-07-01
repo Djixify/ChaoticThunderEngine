@@ -40,14 +40,6 @@ void Controller::Init() {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-        //Initialize ImGUI (for parameter testing in window)
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        ImGui::StyleColorsClassic();
-        ImGui_ImplOpenGL3_Init("#version 330");
-
         _instance->_windows = (Window**)malloc(sizeof(Window*) * _instance->_window_capacity);
     }
 }
@@ -123,8 +115,6 @@ void Controller::AddWindow(Window* w) {
 
     glfwSetWindowFocusCallback(_windows[_window_count]->GetGLContext(), _defaultProcessFocus);
     glfwSetFramebufferSizeCallback(_windows[_window_count]->GetGLContext(), _defaultProcessResize);
-
-    ImGui_ImplGlfw_InitForOpenGL(_windows[_window_count]->GetGLContext(), true);
 
     _window_count++;
 }

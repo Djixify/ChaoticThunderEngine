@@ -89,6 +89,7 @@ static void glfw_error_callback(int error, const char* description)
 bool show_demo_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 void RenderImGUI(GLFWwindow* window) {
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -204,6 +205,14 @@ int main(int argc, const char* argv[]) {
     };
 #endif
 
+    //Initialize ImGUI (for parameter testing in window)
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui::StyleColorsClassic();
+    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplGlfw_InitForOpenGL(mainwindow.GetGLContext(), true);
 
     std::string shaderfolder = FileUtility::CombinePath(2, FileUtility::CurrentDirectory(), fragmentshaderfolder);
     load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
@@ -269,6 +278,7 @@ int main(int argc, const char* argv[]) {
             ProcessInput(context);
 
             RenderImGUI(context);
+
             //triangleshader.Use();
             //indexmainbuffer->SetActive();
             //indexmainbuffer->Draw();
