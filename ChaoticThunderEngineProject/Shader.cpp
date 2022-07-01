@@ -80,7 +80,7 @@ Shader::Shader(Window& window, int count, load_shader path...) : _window(window)
     //Check for success
     VerifyShader(window, program_id);
 
-    //Recover used resources
+    //Recover used resources, as the shaders are now built into the program
     for (int i = 0; i < count; i++)
         glDeleteShader(shaders[i]);
 
@@ -92,7 +92,7 @@ Shader::Shader(Window& window, int count, load_shader path...) : _window(window)
 Shader::~Shader() {
     glDeleteProgram(_id);
     _buffermap.clear();
-    delete this;
+    //delete this;
 }
 
 unsigned int Shader::GetID() const

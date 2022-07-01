@@ -7,8 +7,9 @@ struct vertex_attribute {
     bool normalized;
     GLuint location;
     GLint count;
-    GLuint offset;
+    GLuint stride;
     attribute_type type;
+    GLuint offset;
 };
 
 #endif

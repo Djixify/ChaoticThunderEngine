@@ -47,39 +47,51 @@ void ArrayBuffer::AddAttribute(GLuint location, GLint count, attribute_type attr
     if (count > 4 || count < 0)
         Controller::Instance()->ThrowException("Invalid count given for attribute, can only accept between 1 and 4");
 
-    for (vertex_attribute vattr : _attributes) {
-        if (vattr.location == location) {
+    for (int i = 0; i < _attributes.size(); i++) {
+        if (_attributes[i].location == location) {
             Controller::Instance()->ThrowException("Location was already added, use set to overwrite");
         }
     }
 
     GLuint stride = 0;
-    for (vertex_attribute vattr : _attributes) {
-        stride += vattr.count * AttributeSize(vattr.type);
+    for (int i = 0; i < _attributes.size(); i++) {
+        stride += _attributes[i].count * AttributeSize(_attributes[i].type);
     }
     stride += count * AttributeSize(attr);
-    vertex_attribute newvattr{ normalized, location, count, stride, attr };
+    vertex_attribute newvattr{ normalized, -1, count, stride, attr };
 
     _attributes.push_back(newvattr);
 
     GLuint offset = 0;
-    for (vertex_attribute vattr : _attributes) {
+    for (int i = 0; i < _attributes.size(); i++) {
+        _attributes[i].location = i;
+        _attributes[i].stride = stride;
+        _attributes[i].offset = offset;
+        glEnableVertexAttribArray(_attributes[i].location);
         glVertexAttribPointer(
-            vattr.location,                  //Location (used as reference in GLSL)
-            vattr.count,                     //Number of values in attribute
-            (GLuint)vattr.type,              //Type
-            vattr.normalized ? GL_TRUE : GL_FALSE,
-            stride,                         //Stride 
-            (void*)(offset)                 //Vertex offset
+            _attributes[i].location,                       //Location (used as reference in GLSL)
+            _attributes[i].count,                          //Number of values in attribute
+            (GLuint)_attributes[i].type,                   //Type
+            _attributes[i].normalized ? GL_TRUE : GL_FALSE,
+            _attributes[i].stride,                         //Stride 
+            (void*)(_attributes[i].offset)                 //Vertex offset
         );
-        offset += vattr.count * AttributeSize(vattr.type);
-        glEnableVertexAttribArray(vattr.location);
+        offset += _attributes[i].count * AttributeSize(_attributes[i].type);
     }
 }
 
 void ArrayBuffer::SetAttribute(GLuint location, GLint count, attribute_type attr, bool normalized)
 {
-    Controller::Instance()->ThrowException("Not implemented");
+    for (int i = 0; i < _attributes.size(); i++) {
+        glVertexAttribPointer(
+            _attributes[i].location,                       //Location (used as reference in GLSL)
+            _attributes[i].count,                          //Number of values in attribute
+            (GLuint)_attributes[i].type,                   //Type
+            _attributes[i].normalized ? GL_TRUE : GL_FALSE,
+            _attributes[i].stride,                         //Stride 
+            (void*)(_attributes[i].offset)                 //Vertex offset
+        );
+    }
 }
 
 void ArrayBuffer::RemoveAttribute(GLuint location)
@@ -150,15 +162,15 @@ unsigned int VertexDataBuffer::GetID() { return _bindingID; }
 void VertexDataBuffer::SetActive() {
     _parent.SetActive();
 
-    Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context data buffer: %d", _bindingID);
+    Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context data buffer: %d", this->_bindingID);
     
-    glBindBuffer(GL_ARRAY_BUFFER, _bindingID);
+    //glBindBuffer(GL_ARRAY_BUFFER, this->_bindingID);
 }
 
 void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
     this->SetActive();
 
-    if (_buffer_size > 0 && byte_size > _buffer_size)
+    if (this->_buffer_size > 0 && byte_size > this->_buffer_size)
         Controller::Instance()->ThrowException("Tried to write index array to buffer larger than initial capacity");
 
     Debug::Logger::Console(Debug::Level::WRITING, "Writing %d bytes of data buffer %d", byte_size, this->_bindingID);
@@ -168,6 +180,7 @@ void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
 
 void VertexDataBuffer::Draw()
 {
+    this->SetActive();
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
@@ -242,7 +255,8 @@ void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
 }
 
 void VertexIndexBuffer::Draw() {
-
+    // draw points 0-3 from the currently bound VAO with current in-use shader
+    //glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void VertexIndexBuffer::Draw(int offset, int count) {

@@ -1,13 +1,15 @@
-#include <glad/glad.h>
 #include <iostream>
 #include <fstream>
 #include <numbers>
 #include <filesystem>
-//#include <GL\glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Debug.hpp"
 #include "FileUtility.hpp"
 #include "Controller.hpp"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #define PI 3.14159265358979323846
 
@@ -79,14 +81,61 @@ void WindowSizeChanged(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
+bool show_demo_window = false;
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+void RenderImGUI(GLFWwindow* window) {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
+
+    static float f = 0.0f;
+    static int counter = 0;
+
+    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+    ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+
+    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+        counter++;
+    ImGui::SameLine();
+    ImGui::Text("counter = %d", counter);
+
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+
+
+    ImGui::Render();
+    int display_w, display_h;
+    glfwGetFramebufferSize(window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 int main(int argc, const char* argv[]) {
 
     TestFunction();
 
-    if (!glfwInit()) {
-        return -1;
-    }
+    glfwSetErrorCallback(glfw_error_callback);
 
+    Controller::Init();
+
+    std::ofstream filestream("Test2.log"); //huh, no path required...
+    Debug::defaultoutstream = &filestream;
+    Debug::Logger::Console(Debug::Level::INFO, "Test from static override");
 
     std::string fragmentshaderfolder = "fragmentshaders";
     std::string circlepatternfragment = "circlepattern.frag";
@@ -94,16 +143,20 @@ int main(int argc, const char* argv[]) {
     std::string trianglefragment = "triangle.frag";
 
     Window mainwindow("Main window", 400, 400);
-    Window secondarywindow("Secondary window", 400, 400);
+    //Window secondarywindow("Secondary window", 400, 400);
 
     try {
         Controller::Instance()->AddWindow(&mainwindow);
-        Controller::Instance()->AddWindow(&secondarywindow);
+        //Controller::Instance()->AddWindow(&secondarywindow);
         // get version info
         const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
         const GLubyte* version = glGetString(GL_VERSION); // version as a string
+        const GLubyte* vendor = glGetString(GL_VENDOR); // vecndor as a string
+        const GLubyte* GLSLversion = glGetString(GL_SHADING_LANGUAGE_VERSION); // version of GLSL as a string
         printf("Renderer: %s\n", renderer);
-        printf("OpenGL version supported %s\n", version);
+        printf("OpenGL version supported: %s\n", version);
+        printf("Vendor of GPU: %s\n", vendor);
+        printf("GLSL version: %s\n", GLSLversion);
         int nrAttributes;
         glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
         std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
@@ -151,9 +204,10 @@ int main(int argc, const char* argv[]) {
     };
 #endif
 
+
     std::string shaderfolder = FileUtility::CombinePath(2, FileUtility::CurrentDirectory(), fragmentshaderfolder);
     load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
-    Shader circleShader(secondarywindow, 1, circleshaderinfo);
+    //Shader circleShader(secondarywindow, 1, circleshaderinfo);
     load_shader trianglevertexinfo{ VERTEX, FileUtility::CombinePath(2, shaderfolder, trianglevertex) };
     load_shader trianglefragmentinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, trianglefragment) };
     Shader triangleshader(mainwindow, 2, trianglevertexinfo, trianglefragmentinfo);
@@ -161,35 +215,90 @@ int main(int argc, const char* argv[]) {
     Controller::Instance()->FirstWindow()->AddShader(triangleshader);
     ArrayBuffer* arraymainbuffer = triangleshader.AddArrayBuffer("positions");
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
+
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(vertices) * 4, vertices);
     VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(vertex_indices1), vertex_indices1);
+    
+    glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+
+    //TEST
+    float points[] = {
+       0.0f,  0.5f,  0.0f,
+       0.5f, -0.5f,  0.0f,
+      -0.5f, -0.5f,  0.0f
+    };
+    /*
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    GLuint vbo = 0;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+
+    //glBindVertexArray(vao);
+    //glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    */
+
+    GLuint shader_programme = triangleshader.GetID();
+    //TEST
 
     int counter = 0;
     bool shouldClose = false;
+    glViewport(0, 0, 400, 400);
+
+    glEnable(GL_DEPTH_TEST); // enable depth-testing
+    glDepthFunc(GL_LESS); // Closest object to the camera will be dra
+
+    //ImGui_ImplGlfw_InitForOpenGL(mainwindow.GetGLContext(), true);
+    //ImGui_ImplOpenGL3_Init("#version 330");
+
+
     while (!shouldClose)
     {
         for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
             //Debug::Logger::console("Displaying window " + i);
-            ProcessInput(Controller::Instance()->GetContextWindow()->GetGLContext());
+            GLFWwindow* context = Controller::Instance()->GetContextWindow()->GetGLContext();
+            ProcessInput(context);
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            triangleshader.Use();
-            indexmainbuffer->SetActive();
-            indexmainbuffer->Draw();
+            RenderImGUI(context);
+            //triangleshader.Use();
+            //indexmainbuffer->SetActive();
+            //indexmainbuffer->Draw();
+
+
+            glUseProgram(shader_programme);
+            //arraymainbuffer->SetActive();
+            datamainbuffer->SetActive();
+            //arraymainbuffer->SetAttribute(0, 0, attribute_type::INT8, false);
+            //datamainbuffer->Draw();
+            //glBindVertexArray(vao);
+            // draw points 0-3 from the currently bound VAO with current in-use shader
+            glDrawElements(GL_TRIANGLES, 3, GL_FLOAT, (void*)0);
+            glBindVertexArray(0);
 
             glfwSwapBuffers(Controller::Instance()->GetContextWindow()->GetGLContext());
             counter++;
             glfwPollEvents();
         }
 
+
         //Debug::Logger::console("%d", Controller::Instance()->GetWindowCount());
 
         for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++)
             shouldClose |= glfwWindowShouldClose(Controller::Instance()->GetWindow(i)->GetGLContext());
-        if (shouldClose)
-            break;
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
 }

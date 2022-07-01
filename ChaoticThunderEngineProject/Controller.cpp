@@ -1,5 +1,7 @@
 
 #include "Controller.hpp"
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_glfw.h>
 
 void _defaultProcessFocus(GLFWwindow* window, int gl_message) {
     if (gl_message == GL_TRUE) {
@@ -19,13 +21,16 @@ void _defaultProcessResize(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-Controller* Controller::_instance = 0;
+Controller* Controller::_instance = nullptr;
 
-Controller* Controller::Instance() {
-    if (_instance == 0) {
+void Controller::Init() {
+    if (_instance == nullptr) {
         _instance = new Controller();
 
-        glfwInit();
+
+        //Initialize GLFW
+        if (!glfwInit())
+            _instance->ThrowException("Could not initialize controller as GLFW failed to initialize");
         //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -35,8 +40,19 @@ Controller* Controller::Instance() {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+        //Initialize ImGUI (for parameter testing in window)
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        ImGui::StyleColorsClassic();
+        ImGui_ImplOpenGL3_Init("#version 330");
+
         _instance->_windows = (Window**)malloc(sizeof(Window*) * _instance->_window_capacity);
     }
+}
+
+Controller* Controller::Instance() {
     return _instance;
 }
 
@@ -108,6 +124,7 @@ void Controller::AddWindow(Window* w) {
     glfwSetWindowFocusCallback(_windows[_window_count]->GetGLContext(), _defaultProcessFocus);
     glfwSetFramebufferSizeCallback(_windows[_window_count]->GetGLContext(), _defaultProcessResize);
 
+    ImGui_ImplGlfw_InitForOpenGL(_windows[_window_count]->GetGLContext(), true);
 
     _window_count++;
 }

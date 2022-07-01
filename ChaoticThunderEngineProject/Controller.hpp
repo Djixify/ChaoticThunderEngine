@@ -24,6 +24,10 @@ private:
     Exception runtime_err;
 public:
     /// <summary>
+    /// Initializes the static instance of the controller and glfw to make code more readable
+    /// </summary>
+    static void Init();
+    /// <summary>
     /// Returns a singleton instance of the class
     /// </summary>
     static Controller* Instance();

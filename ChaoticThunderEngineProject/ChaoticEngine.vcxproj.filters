@@ -37,6 +37,9 @@
     <Filter Include="Header Files\GLAD">
       <UniqueIdentifier>{8b57f10e-4786-4bc1-b765-f33820774aa6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ImGUI">
+      <UniqueIdentifier>{ad94e90e-5599-4497-8551-92911054ee7a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="program.cpp">
@@ -69,9 +72,16 @@
     <ClCompile Include="..\GLAD\src\glad.c">
       <Filter>Source Files\GLAD</Filter>
     </ClCompile>
+    <ClCompile Include="..\packages\ImGui.Docking.1.88.1\build\native\imgui_impl_glfw.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\packages\ImGui.Docking.1.88.1\build\native\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug.hpp">
