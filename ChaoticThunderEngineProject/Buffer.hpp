@@ -49,12 +49,10 @@ private:
     unsigned int _buffer_size;
     std::vector<VertexIndexBuffer> _ebos;
 
-    //VertexDataBuffer(ArrayBuffer& parent = ArrayBuffer::none, buffer_storage_type storage_type = STATIC);
+    VertexDataBuffer(ArrayBuffer& parent = *ArrayBuffer::none, buffer_storage_type storage_type = STATIC);
     friend class ArrayBuffer;
 public:
-    VertexDataBuffer(ArrayBuffer& parent = *ArrayBuffer::none, buffer_storage_type storage_type = STATIC);
-    
-    
+
     static VertexDataBuffer* none;
     ~VertexDataBuffer();
     VertexDataBuffer& operator=(const VertexDataBuffer&);
@@ -83,7 +81,7 @@ private:
     buffer_storage_type _storage_type;
     unsigned int _initial_capacity;
 
-    VertexIndexBuffer(VertexDataBuffer& parent=*VertexDataBuffer::none, buffer_storage_type storage_type = STATIC);
+    VertexIndexBuffer(VertexDataBuffer& parent = *VertexDataBuffer::none, buffer_storage_type storage_type = STATIC);
     friend class VertexDataBuffer;
 public:
     ~VertexIndexBuffer();

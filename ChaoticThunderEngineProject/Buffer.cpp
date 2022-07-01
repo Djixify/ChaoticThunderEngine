@@ -11,7 +11,7 @@ ArrayBuffer::ArrayBuffer(Window& window) : _window(window) {
 
     glGenVertexArrays(1, &this->_bindingID);
 
-    std::vector<VertexDataBuffer> vertex_data_buffers(8);
+    std::vector<VertexDataBuffer> vertex_data_buffers;
     this->_vbos = vertex_data_buffers;
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex array buffer at %d", this->_bindingID);
 }
