@@ -12,7 +12,7 @@ private:
     Shader* _shaders[40];
     int _shader_count;
 public:
-    Window(std::string title, int width, int height);
+    Window(std::string title, int width, int height, Window* other = nullptr);
     void AddShader(Shader& shader);
     void RemoveShader(int i);
     GLFWwindow* GetGLContext() const;

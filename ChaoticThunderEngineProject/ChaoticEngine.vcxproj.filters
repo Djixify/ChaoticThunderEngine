@@ -34,9 +34,6 @@
     <Filter Include="Source Files\GLAD">
       <UniqueIdentifier>{ad5c1d21-2367-473d-8fd1-98044b5d7fb2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\GLAD">
-      <UniqueIdentifier>{8b57f10e-4786-4bc1-b765-f33820774aa6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\ImGUI">
       <UniqueIdentifier>{ad94e90e-5599-4497-8551-92911054ee7a}</UniqueIdentifier>
     </Filter>

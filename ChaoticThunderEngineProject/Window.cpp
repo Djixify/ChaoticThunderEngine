@@ -2,9 +2,9 @@
 #include "Debug.hpp"
 #include "Controller.hpp"
 
-Window::Window(std::string title, int width, int height) : _shader_count(0), _shaders{0}
+Window::Window(std::string title, int width, int height, Window* other) : _shader_count(0), _shaders{0}
 {
-    _glfwwindow = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    _glfwwindow = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
     {
         Debug::Logger::Console(Debug::Level::WARNING, "Failed to make window instance");

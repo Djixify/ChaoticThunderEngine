@@ -10,12 +10,16 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "Program.h"
 
 #define PI 3.14159265358979323846
 
 #if GL_ES
 precision mediump float;
 #endif
+
+bool show_demo_window = false;
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 void TestFunction() {
 
@@ -86,8 +90,14 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-bool show_demo_window = false;
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+void ClearWindow(GLFWwindow* window) {
+    int display_w, display_h;
+    glfwGetFramebufferSize(window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void RenderImGUI(GLFWwindow* window) {
 
     ImGui_ImplOpenGL3_NewFrame();
@@ -118,11 +128,6 @@ void RenderImGUI(GLFWwindow* window) {
 
 
     ImGui::Render();
-    int display_w, display_h;
-    glfwGetFramebufferSize(window, &display_w, &display_h);
-    glViewport(0, 0, display_w, display_h);
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-    glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
@@ -138,13 +143,8 @@ int main(int argc, const char* argv[]) {
     Debug::defaultoutstream = &filestream;
     Debug::Logger::Console(Debug::Level::INFO, "Test from static override");
 
-    std::string fragmentshaderfolder = "fragmentshaders";
-    std::string circlepatternfragment = "circlepattern.frag";
-    std::string trianglevertex = "triangle.vert";
-    std::string trianglefragment = "triangle.frag";
-
     Window mainwindow("Main window", 400, 400);
-    //Window secondarywindow("Secondary window", 400, 400);
+    //Window secondarywindow("Secondary window", 400, 400, &mainwindow);
 
     try {
         Controller::Instance()->AddWindow(&mainwindow);
@@ -171,19 +171,14 @@ int main(int argc, const char* argv[]) {
 #define SIMPLE true
 #if SIMPLE
     float vertices[] = {
-        -1.0f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f,
-        0.5f,  0.5f, 0.0f
+     0.5f,  0.5f, 0.0f,  // top right
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left 
     };
-    unsigned int vertex_indices1[] = {
-        0, 1, 2,
-        0, 1, 4
-    };
-    unsigned int vertex_indices2[] = {
-        0, 1, 2,
-        0, 1, 3
+    unsigned int indices[] = {  // note that we start from 0!
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
     };
 #else
     float vertices[3 * 25];
@@ -205,56 +200,47 @@ int main(int argc, const char* argv[]) {
     };
 #endif
 
-    //Initialize ImGUI (for parameter testing in window)
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui::StyleColorsClassic();
-    ImGui_ImplOpenGL3_Init("#version 330");
-    ImGui_ImplGlfw_InitForOpenGL(mainwindow.GetGLContext(), true);
+    //Load shaders into main window
+    std::string fragmentshaderfolder = "fragmentshaders";
+    std::string circlepatternfragment = "circlepattern.frag";
+    std::string trianglevertex = "triangle.vert";
+    std::string trianglefragment = "triangle.frag";
 
     std::string shaderfolder = FileUtility::CombinePath(2, FileUtility::CurrentDirectory(), fragmentshaderfolder);
-    load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
+    //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
     //Shader circleShader(secondarywindow, 1, circleshaderinfo);
     load_shader trianglevertexinfo{ VERTEX, FileUtility::CombinePath(2, shaderfolder, trianglevertex) };
     load_shader trianglefragmentinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, trianglefragment) };
     Shader triangleshader(mainwindow, 2, trianglevertexinfo, trianglefragmentinfo);
 
-    Controller::Instance()->FirstWindow()->AddShader(triangleshader);
+    mainwindow.AddShader(triangleshader);
     ArrayBuffer* arraymainbuffer = triangleshader.AddArrayBuffer("positions");
-    arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
-
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(vertices) * 4, vertices);
-    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(vertex_indices1), vertex_indices1);
+    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(indices), indices);
+    arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
     
-    glBindVertexArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
 
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
 
-    //TEST
-    float points[] = {
-       0.0f,  0.5f,  0.0f,
-       0.5f, -0.5f,  0.0f,
-      -0.5f, -0.5f,  0.0f
-    };
-    /*
-    GLuint vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    
+    // ..:: Initialization code :: ..
+    // 1. bind Vertex Array Object
+    glBindVertexArray(VAO);
+    // 2. copy our vertices array in a vertex buffer for OpenGL to use
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // 3. copy our index array in a element buffer for OpenGL to use
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // 4. then set the vertex attributes pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-    GLuint vbo = 0;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-
-    //glBindVertexArray(vao);
-    //glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    */
+    
 
     GLuint shader_programme = triangleshader.GetID();
     //TEST
@@ -266,9 +252,17 @@ int main(int argc, const char* argv[]) {
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be dra
 
-    //ImGui_ImplGlfw_InitForOpenGL(mainwindow.GetGLContext(), true);
-    //ImGui_ImplOpenGL3_Init("#version 330");
 
+    //Initialize ImGUI (for parameter testing in window)
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui::StyleColorsDark();
+    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui_ImplGlfw_InitForOpenGL(mainwindow.GetGLContext(), true);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!shouldClose)
     {
@@ -277,24 +271,37 @@ int main(int argc, const char* argv[]) {
             GLFWwindow* context = Controller::Instance()->GetContextWindow()->GetGLContext();
             ProcessInput(context);
 
-            RenderImGUI(context);
+            ClearWindow(context);
 
             //triangleshader.Use();
             //indexmainbuffer->SetActive();
             //indexmainbuffer->Draw();
 
+            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glUseProgram(shader_programme);
+            /*
             //arraymainbuffer->SetActive();
-            datamainbuffer->SetActive();
+            //datamainbuffer->SetActive();
             //arraymainbuffer->SetAttribute(0, 0, attribute_type::INT8, false);
             //datamainbuffer->Draw();
-            //glBindVertexArray(vao);
+            glBindVertexArray(arraymainbuffer->GetID());
+            //indexmainbuffer->SetActive();
             // draw points 0-3 from the currently bound VAO with current in-use shader
-            glDrawElements(GL_TRIANGLES, 3, GL_FLOAT, (void*)0);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            //glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(0);
+            */
+
+
+            glUseProgram(shader_programme);
+
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
 
-            glfwSwapBuffers(Controller::Instance()->GetContextWindow()->GetGLContext());
+            RenderImGUI(context);
+
+            glfwSwapBuffers(context);
             counter++;
             glfwPollEvents();
         }
