@@ -235,15 +235,17 @@ int main(int argc, const char* argv[]) {
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(vertices) * 4, vertices);
     VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(indices), indices);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
-    
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
+
+
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
 
     unsigned int VBO;
     glGenBuffers(1, &VBO);
 
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+
     
     // ..:: Initialization code :: ..
     // 1. bind Vertex Array Object
