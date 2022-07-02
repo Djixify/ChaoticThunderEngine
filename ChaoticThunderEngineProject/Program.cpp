@@ -4,13 +4,13 @@
 #include <filesystem>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <math.h>
 #include "Debug.hpp"
 #include "FileUtility.hpp"
 #include "Controller.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "Program.h"
 
 #define PI 3.14159265358979323846
 
@@ -69,6 +69,31 @@ void TestFunction() {
     printf("%d\n", logger.IsValid());
 }
 
+void MakeNgon(int input, float radius, float x, float y, unsigned int* indices, float* vertices) {
+    //vertices = new float[(input+1)*3];
+    //indices = new unsigned int[input*3];
+    float current = 0.0f;
+    float stepsize = ((2 * PI) / input);
+    vertices[0] = x + 0.0f;
+    vertices[1] = y + 0.0f;
+    vertices[2] = 0.0f;
+    for (int i = 1; i <= input; i++)
+    {
+
+        vertices[3 * i] = x + radius * sin(current);
+        vertices[(3 * i) + 1] =y + radius * cos(current);
+        vertices[3 * i + 2] = 0.0f;
+
+        indices[3 * (i - 1)] = 0;
+        indices[3 * (i - 1) + 1] = i;
+        indices[3 * (i - 1) + 2] = i + 1;
+
+        current += stepsize;
+
+       
+    }
+    indices[3 * (input - 1) + 2] = 1;
+}
 
 void ProcessInput(GLFWwindow* window)
 {
@@ -168,36 +193,28 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
-#define SIMPLE true
+#define SIMPLE false
 #if SIMPLE
     float vertices[] = {
+     0.0f,  0.7f, 0.0f,  // top center
      0.5f,  0.5f, 0.0f,  // top right
      0.5f, -0.5f, 0.0f,  // bottom right
     -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+    -0.5f,  0.5f, 0.0f,  // top left 
+     0.0f, -0.7f, 0.0f   // bottom center
     };
     unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,   // first triangle
-        1, 2, 3    // second triangle
+        0, 1, 4,   // first triangle
+        1, 2, 3,   // second triangle
+        3, 4, 1,    // third triangle
+        2, 3, 5
     };
 #else
-    float vertices[3 * 25];
-    for (int y = 0; y < 5; y++) {
-        for (int x = 0; x < 5; x++) {
-            vertices[(y * 5 + x) * 3 + 0] = ((float)x - 2.f) / 2.f;
-            vertices[(y * 5 + x) * 3 + 1] = ((float)y - 2.f) / 2.f;
-            vertices[(y * 5 + x) * 3 + 2] = 0.f;
-            Debug::Logger::Console(Debug::Level::INFO, "%d: (%f, %f, %f)", (y * 5 + x), vertices[(y * 5 + x) * 3 + 0], vertices[(y * 5 + x) * 3 + 1], vertices[(y * 5 + x) * 3 + 2]);
-        }
-    }
-    unsigned int vertex_indices1[] = {
-        6, 16, 12,
-        12, 8, 18
-    };
-    unsigned int vertex_indices2[] = {
-        6, 8, 12,
-        12, 16, 18
-    };
+    int n = 6;
+    float vertices[18];
+    unsigned int indices[15];
+
+    MakeNgon(5, 0.5f, 0, 0, indices, vertices);
 #endif
 
     //Load shaders into main window
@@ -296,7 +313,7 @@ int main(int argc, const char* argv[]) {
             glUseProgram(shader_programme);
 
             glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
 
             RenderImGUI(context);
