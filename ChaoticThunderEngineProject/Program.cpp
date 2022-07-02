@@ -69,30 +69,30 @@ void TestFunction() {
     printf("%d\n", logger.IsValid());
 }
 
-void MakeNgon(int input, float radius, float x, float y, unsigned int* indices, float* vertices) {
-    //vertices = new float[(input+1)*3];
-    //indices = new unsigned int[input*3];
+void MakeNgon(int input, float radius, float x, float y, unsigned int* *indices, float* *vertices) {
+    *vertices = new float[(input+1)*3];
+    *indices = new unsigned int[input*3];
     float current = 0.0f;
     float stepsize = ((2 * PI) / input);
-    vertices[0] = x + 0.0f;
-    vertices[1] = y + 0.0f;
-    vertices[2] = 0.0f;
+    (* vertices)[0] = x + 0.0f;
+    (* vertices)[1] = y + 0.0f;
+    (* vertices)[2] = 0.0f;
     for (int i = 1; i <= input; i++)
     {
 
-        vertices[3 * i] = x + radius * sin(current);
-        vertices[(3 * i) + 1] =y + radius * cos(current);
-        vertices[3 * i + 2] = 0.0f;
+        (* vertices)[3 * i] = x + radius * sin(current);
+        (* vertices)[(3 * i) + 1] = y + radius * cos(current);
+        (* vertices)[3 * i + 2] = 0.0f;
 
-        indices[3 * (i - 1)] = 0;
-        indices[3 * (i - 1) + 1] = i;
-        indices[3 * (i - 1) + 2] = i + 1;
+        (* indices)[3 * (i - 1)] = 0;
+        (* indices)[3 * (i - 1) + 1] = i;
+        (* indices)[3 * (i - 1) + 2] = i + 1;
 
         current += stepsize;
 
        
     }
-    indices[3 * (input - 1) + 2] = 1;
+    (* indices)[3 * (input - 1) + 2] = 1;
 }
 
 void ProcessInput(GLFWwindow* window)
@@ -210,11 +210,11 @@ int main(int argc, const char* argv[]) {
         2, 3, 5
     };
 #else
-    int n = 6;
-    float vertices[18];
-    unsigned int indices[15];
+    int n = 10000;
+    float* vertices = 0;
+    unsigned int* indices = 0;
 
-    MakeNgon(5, 0.5f, 0, 0, indices, vertices);
+    MakeNgon(n, 0.5f, 0, 0, &indices, &vertices);
 #endif
 
     //Load shaders into main window
@@ -252,10 +252,10 @@ int main(int argc, const char* argv[]) {
     glBindVertexArray(VAO);
     // 2. copy our vertices array in a vertex buffer for OpenGL to use
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*3*(n+1) , vertices, GL_STATIC_DRAW);
     // 3. copy our index array in a element buffer for OpenGL to use
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*3*n, indices, GL_STATIC_DRAW);
     // 4. then set the vertex attributes pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -315,7 +315,7 @@ int main(int argc, const char* argv[]) {
             glUseProgram(shader_programme);
 
             glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, n*3, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
 
             RenderImGUI(context);
