@@ -193,7 +193,7 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
-#define SIMPLE false
+#define SIMPLE true
 #if SIMPLE
     float vertices[] = {
      0.0f,  0.7f, 0.0f,  // top center
@@ -209,6 +209,7 @@ int main(int argc, const char* argv[]) {
         3, 4, 1,    // third triangle
         2, 3, 5
     };
+    int n = sizeof(indices)/3;
 #else
     int n = 10000;
     float* vertices = 0;
