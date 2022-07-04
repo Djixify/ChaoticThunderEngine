@@ -27,7 +27,8 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Enums.cpp" />
     <ClCompile Include="Exception.cpp" />
-    <ClCompile Include="FileUtility.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="program.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -38,7 +39,8 @@
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="Enums.hpp" />
     <ClInclude Include="Exception.hpp" />
-    <ClInclude Include="FileUtility.hpp" />
+    <ClInclude Include="File.hpp" />
+    <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Structs.hpp" />
     <ClInclude Include="Window.hpp" />
