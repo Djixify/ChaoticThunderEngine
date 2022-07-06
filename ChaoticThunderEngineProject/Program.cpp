@@ -71,35 +71,40 @@ void TestFunction() {
 
 
 void meshgen(float width, float length, int xpart, int ypart, unsigned int* indices, float* vertices) {
-    vertices = new float[3*xpart*ypart];
-    indices = new unsigned int[6*xpart*ypart];
+    vertices = new float[3*xpart*ypart]; // array coordinates times 3 so that each position stores one coordinate axis
+    indices = new unsigned int[6*xpart*ypart]; // indices for 2 triangles for every 4 vertices
     float initial1 = 0.0f;
     float initial2 = 0.0f;
     vertices[0] = width;
     vertices[1] = length;
     vertices[2] = 0.0f;
     indices[0] = 0;
-    for (int i = 1; i = xpart; i++)
+    for (int i = 0; i = xpart; i++) //vertex generation
     {
         vertices[3 * i * ypart] = width - initial1;
         vertices[3 * i * ypart + 1] = length;
         vertices[3 * i * ypart + 2] = 0.0f;
-        for (int j = 1; j = ypart; j++)
+        for (int j = 0; j = ypart; j++)
         {
             initial2 += ypart / length;
-            vertices[3 * (i-1) * ypart + 3 * j] = width - initial1;
-            vertices[3 * (i-1) * ypart + 3 * j + 1] = length - initial2;
-            vertices[3 * (i-1) * ypart + 3 * j + 2] = 0.0f;
-            indices[2 * (i - 1) * ypart + 2 * j - 1] = i * j;
-        
-
-            
-            
-            
+            vertices[3 * (i - 1) * ypart + 3 * j] = width - initial1;
+            vertices[3 * (i - 1) * ypart + 3 * j + 1] = length - initial2;
+            vertices[3 * (i - 1) * ypart + 3 * j + 2] = 0.0f;            
         }
         initial1 += xpart / width;
         initial2 = 0.0f;
     }   
+    int k = 0;
+    for (int i = 0; i = xpart; i++) 
+    {
+        indices[k++] = i * ypart;
+        for (int j = 0; j = ypart; j++) 
+        {
+            indices[k++] = i * ypart + j;
+            indices[k++] = (i+1) * ypart + j;
+        }
+        indices[k++] = (i + 1) * ypart + (ypart - 1);
+    }
 
 }
 
