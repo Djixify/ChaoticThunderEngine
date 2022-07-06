@@ -69,6 +69,43 @@ void TestFunction() {
     printf("%d\n", logger.IsValid());
 }
 
+
+void meshgen(float width, float length, int xpart, int ypart, unsigned int* indices, float* vertices) {
+    vertices = new float[3*xpart*ypart];
+    indices = new unsigned int[6*xpart*ypart];
+    float initial1 = 0.0f;
+    float initial2 = 0.0f;
+    vertices[0] = width;
+    vertices[1] = length;
+    vertices[2] = 0.0f;
+    indices[0] = 0;
+    for (int i = 1; i = xpart; i++)
+    {
+        vertices[3 * i * ypart] = width - initial1;
+        vertices[3 * i * ypart + 1] = length;
+        vertices[3 * i * ypart + 2] = 0.0f;
+        for (int j = 1; j = ypart; j++)
+        {
+            initial2 += ypart / length;
+            vertices[3 * (i-1) * ypart + 3 * j] = width - initial1;
+            vertices[3 * (i-1) * ypart + 3 * j + 1] = length - initial2;
+            vertices[3 * (i-1) * ypart + 3 * j + 2] = 0.0f;
+            indices[2 * (i - 1) * ypart + 2 * j - 1] = i * j;
+        
+
+            
+            
+            
+        }
+        initial1 += xpart / width;
+        initial2 = 0.0f;
+    }   
+
+}
+
+
+
+
 void MakeNgon(int input, float radius, float x, float y, unsigned int* *indices, float* *vertices) {
     *vertices = new float[(input+1)*3];
     *indices = new unsigned int[input*3];
