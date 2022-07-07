@@ -70,18 +70,19 @@ void TestFunction() {
 
 void Mesh(float width, float height, int xpart, int ypart, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     vertices_count = 3 * (xpart + 1) * (ypart + 1);
-    indices_count = 6 * xpart * ypart;
+    indices_count  = 6 * xpart * ypart;
     
     vertices = new float[vertices_count]; // array coordinates times 3 so that each position stores one coordinate axis
-    indices = new unsigned int[indices_count]; // indices for 2 triangles for every 4 vertices
-    float currentx = 0.0f;
-    float currenty = 0.0f;
+    indices  = new unsigned int[indices_count]; // indices for 2 triangles for every 4 vertices
+    float halfwidth = width * 0.5f;
+    float currentx  = -halfwidth;
+    float currenty  = -height * 0.5f;
     float stepsizex = width / xpart;
     float stepsizey = height / ypart;
 
     for (int i = 0; i <= ypart; i++) //vertex generation
     {
-        currentx = 0.0f;
+        currentx = -halfwidth;
         for (int j = 0; j <= xpart; j++)
         {
             vertices[3 * (i * (xpart + 1) + j)]     = currentx;
@@ -95,10 +96,10 @@ void Mesh(float width, float height, int xpart, int ypart, unsigned int*& indice
     for (int i = 0; i < ypart; i++) 
     {
         for (int j = 0; j < xpart; j++) {
-            indices[6 * (i * xpart + j)]     = i * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 1] = i * (xpart + 1) + j + 1;
+            indices[6 * (i * xpart + j)]     = i       * (xpart + 1) + j;
+            indices[6 * (i * xpart + j) + 1] = i       * (xpart + 1) + j + 1;
             indices[6 * (i * xpart + j) + 2] = (i + 1) * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 3] = i * (xpart + 1) + j;
+            indices[6 * (i * xpart + j) + 3] = i       * (xpart + 1) + j;
             indices[6 * (i * xpart + j) + 4] = (i + 1) * (xpart + 1) + j + 1;
             indices[6 * (i * xpart + j) + 5] = (i + 1) * (xpart + 1) + j;
         }
