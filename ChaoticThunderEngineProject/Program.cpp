@@ -67,6 +67,44 @@ void TestFunction() {
     printf("%d\n", logger.IsValid());
 }
 
+
+void Mesh(float width, float height, int xpart, int ypart, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+    vertices_count = 3 * (xpart + 1) * (ypart + 1);
+    indices_count = 6 * xpart * ypart;
+    
+    vertices = new float[vertices_count]; // array coordinates times 3 so that each position stores one coordinate axis
+    indices = new unsigned int[indices_count]; // indices for 2 triangles for every 4 vertices
+    float currentx = 0.0f;
+    float currenty = 0.0f;
+    float stepsizex = width / xpart;
+    float stepsizey = height / ypart;
+
+    for (int i = 0; i <= ypart; i++) //vertex generation
+    {
+        currentx = 0.0f;
+        for (int j = 0; j <= xpart; j++)
+        {
+            vertices[3 * (i * (xpart + 1) + j)]     = currentx;
+            vertices[3 * (i * (xpart + 1) + j) + 1] = currenty;
+            vertices[3 * (i * (xpart + 1) + j) + 2] = 0.0f;
+            currentx += stepsizex;
+        }
+        currenty += stepsizey;
+    }   
+
+    for (int i = 0; i < ypart; i++) 
+    {
+        for (int j = 0; j < xpart; j++) {
+            indices[6 * (i * xpart + j)]     = i * (xpart + 1) + j;
+            indices[6 * (i * xpart + j) + 1] = i * (xpart + 1) + j + 1;
+            indices[6 * (i * xpart + j) + 2] = (i + 1) * (xpart + 1) + j + 1;
+            indices[6 * (i * xpart + j) + 3] = i * (xpart + 1) + j;
+            indices[6 * (i * xpart + j) + 4] = (i + 1) * (xpart + 1) + j + 1;
+            indices[6 * (i * xpart + j) + 5] = (i + 1) * (xpart + 1) + j;
+        }
+    }
+}
+
 void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     vertices_count = (input + 1) * 3; // n + 1 vertices (introducing center vertex)
     indices_count = input * 3; // n triangles
@@ -81,11 +119,11 @@ void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices,
     for (int i = 1; i <= input; i++)
     {
         //Ignore warning, false positive
-        vertices[3 * i] = x + radius * sin(current);
+        vertices[3 * i]     = x + radius * sin(current);
         vertices[3 * i + 1] = y + radius * cos(current);
         vertices[3 * i + 2] = 0.0f;
 
-        indices[3 * (i - 1)] = 0;
+        indices[3 * (i - 1)]     = 0;
         indices[3 * (i - 1) + 1] = i;
         indices[3 * (i - 1) + 2] = i + 1;
 
@@ -173,11 +211,20 @@ int main(int argc, const char* argv[]) {
     vertices_count = sizeof(vertices);
     indices_count = sizeof(indices);
 #else
-    int n = 5;
     float* vertices = 0;
     unsigned int* indices = 0;
 
-    MakeNgon(n, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
+    //MakeNgon(n, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
+    Mesh(0.5, 0.5, 5, 3, indices, indices_count, vertices, vertices_count);
+    int n = indices_count / 3;
+
+    //Debugging mesh information:
+    for (int i = 0; i < vertices_count / 3; i++) {
+        Debug::Logger::Console(Debug::Level::INFO, "Vertex %d: %f, %f, %f", i, vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
+    }
+    for (int i = 0; i < indices_count / 3; i++) {
+        Debug::Logger::Console(Debug::Level::INFO, "Triangle %d: %d, %d, %d", i, indices[3 * i], indices[3 * i + 1], indices[3 * i + 2]);
+    }
 #endif
 
     //Load shaders into main window
@@ -227,7 +274,6 @@ int main(int argc, const char* argv[]) {
     GLuint shader_programme = triangleshader.GetID();
     //TEST
 
-    int counter = 0;
     bool shouldClose = false;
     glViewport(0, 0, 400, 400);
 
@@ -285,7 +331,6 @@ int main(int argc, const char* argv[]) {
 
             glfwSwapBuffers(context);
             glfwPollEvents();
-            counter++;
         }
 
 
