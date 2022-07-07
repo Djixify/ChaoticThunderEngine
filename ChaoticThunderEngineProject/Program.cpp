@@ -6,20 +6,18 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include "Debug.hpp"
-#include "FileUtility.hpp"
+#include "File.hpp"
 #include "Controller.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "Graphics.hpp"
 
 #define PI 3.14159265358979323846
 
 #if GL_ES
 precision mediump float;
 #endif
-
-bool show_demo_window = false;
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 void TestFunction() {
 
@@ -31,10 +29,10 @@ void TestFunction() {
     Debug::Logger::Console(Debug::Level::INFO, "%10d ::: %-15d ::: %10f", 9001, 42, 23.2);
     Debug::Logger::Console(Debug::Level::INFO, "%10d ::: %-15d ::: %10f", 69, 360, 1000.2);
 
-    std::string currentPath = FileUtility::CurrentDirectory();
-    std::string parent = FileUtility::GetParent(currentPath);
+    std::string currentPath = File::CurrentDirectory();
+    std::string parent = File::GetParent(currentPath);
     std::string file = "Somefile.uwu";
-    std::string firstuwu = FileUtility::CombinePath(2, currentPath, file);
+    std::string firstuwu = File::CombinePath(2, currentPath, file);
 
     std::cout << currentPath << std::endl;
     std::cout << parent << std::endl;
@@ -60,7 +58,7 @@ void TestFunction() {
 
     logger.Log(Debug::Level::INFO, "Im a title", "Hello from the log! 3");
 
-    logger.Log(Debug::Level::INFO, "Im your execution path!: %s", FileUtility::CurrentDirectory());
+    logger.Log(Debug::Level::INFO, "Im your execution path!: %s", File::CurrentDirectory());
 
     printf("%d\n", logger.IsValid());
 
@@ -157,47 +155,6 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-void ClearWindow(GLFWwindow* window) {
-    int display_w, display_h;
-    glfwGetFramebufferSize(window, &display_w, &display_h);
-    glViewport(0, 0, display_w, display_h);
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void RenderImGUI(GLFWwindow* window) {
-
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
-    static float f = 0.0f;
-    static int counter = 0;
-
-    ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-    ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-    ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-    if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-        counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
-
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    ImGui::End();
-
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
 int main(int argc, const char* argv[]) {
 
     TestFunction();
@@ -266,11 +223,11 @@ int main(int argc, const char* argv[]) {
     std::string trianglevertex = "triangle.vert";
     std::string trianglefragment = "triangle.frag";
 
-    std::string shaderfolder = FileUtility::CombinePath(2, FileUtility::CurrentDirectory(), fragmentshaderfolder);
+    std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
     //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
     //Shader circleShader(secondarywindow, 1, circleshaderinfo);
-    load_shader trianglevertexinfo{ VERTEX, FileUtility::CombinePath(2, shaderfolder, trianglevertex) };
-    load_shader trianglefragmentinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, trianglefragment) };
+    load_shader trianglevertexinfo{ VERTEX, File::CombinePath(2, shaderfolder, trianglevertex) };
+    load_shader trianglefragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, trianglefragment) };
     Shader triangleshader(mainwindow, 2, trianglevertexinfo, trianglefragmentinfo);
 
     mainwindow.AddShader(triangleshader);
@@ -333,7 +290,7 @@ int main(int argc, const char* argv[]) {
             GLFWwindow* context = Controller::Instance()->GetContextWindow()->GetGLContext();
             ProcessInput(context);
 
-            ClearWindow(context);
+            Graphics::ClearWindow(context);
 
             //triangleshader.Use();
             //indexmainbuffer->SetActive();
@@ -361,11 +318,11 @@ int main(int argc, const char* argv[]) {
             glDrawElements(GL_TRIANGLES, n*3, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
 
-            RenderImGUI(context);
+            Graphics::RenderImGUI(context);
 
             glfwSwapBuffers(context);
-            counter++;
             glfwPollEvents();
+            counter++;
         }
 
 

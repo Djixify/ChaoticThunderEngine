@@ -9,7 +9,7 @@
 #include <cstdarg>
 #include "Debug.hpp"
 
-namespace FileUtility {
+namespace File {
     const char pathSeperator = '/'; //May vary between operations systems
 
     std::string CurrentDirectory();

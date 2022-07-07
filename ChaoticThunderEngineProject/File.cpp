@@ -1,6 +1,6 @@
-#include "FileUtility.hpp"
+#include "File.hpp"
 
-namespace FileUtility {
+namespace File {
     std::string CurrentDirectory() {
         return std::filesystem::current_path().generic_u8string();
     }
