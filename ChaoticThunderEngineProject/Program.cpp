@@ -67,30 +67,31 @@ void TestFunction() {
     printf("%d\n", logger.IsValid());
 }
 
-void MakeNgon(int input, float radius, float x, float y, unsigned int* *indices, float* *vertices) {
-    *vertices = new float[(input+1)*3];
-    *indices = new unsigned int[input*3];
-    float current = 0.0f;
-    float stepsize = ((2 * PI) / input);
-    (* vertices)[0] = x + 0.0f;
-    (* vertices)[1] = y + 0.0f;
-    (* vertices)[2] = 0.0f;
+void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+    vertices_count = (input + 1) * 3; // n + 1 vertices (introducing center vertex)
+    indices_count = input * 3; // n triangles
+    
+    vertices = new float[vertices_count];
+    indices = new unsigned int[indices_count];
+    float current = 0; 
+    float stepsize = (2 * PI) / input;
+    vertices[0] = x + 0.0f;
+    vertices[1] = y + 0.0f;
+    vertices[2] = 0.0f;
     for (int i = 1; i <= input; i++)
     {
+        //Ignore warning, false positive
+        vertices[3 * i] = x + radius * sin(current);
+        vertices[3 * i + 1] = y + radius * cos(current);
+        vertices[3 * i + 2] = 0.0f;
 
-        (* vertices)[3 * i] = x + radius * sin(current);
-        (* vertices)[(3 * i) + 1] = y + radius * cos(current);
-        (* vertices)[3 * i + 2] = 0.0f;
-
-        (* indices)[3 * (i - 1)] = 0;
-        (* indices)[3 * (i - 1) + 1] = i;
-        (* indices)[3 * (i - 1) + 2] = i + 1;
+        indices[3 * (i - 1)] = 0;
+        indices[3 * (i - 1) + 1] = i;
+        indices[3 * (i - 1) + 2] = i + 1;
 
         current += stepsize;
-
-       
     }
-    (* indices)[3 * (input - 1) + 2] = 1;
+    indices[3 * (input - 1) + 2] = 1;
 }
 
 void ProcessInput(GLFWwindow* window)
@@ -125,7 +126,7 @@ int main(int argc, const char* argv[]) {
     Debug::defaultoutstream = &filestream;
     Debug::Logger::Console(Debug::Level::INFO, "Test from static override");
 
-    Window mainwindow("Main window", 400, 400);
+    Window mainwindow("Main window", 800, 800);
     //Window secondarywindow("Secondary window", 400, 400, &mainwindow);
 
     try {
@@ -150,7 +151,8 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
-#define SIMPLE true
+    unsigned int indices_count = 0, vertices_count = 0;
+#define SIMPLE false
 #if SIMPLE
     float vertices[] = {
      0.0f,  0.7f, 0.0f,  // top center
@@ -167,12 +169,15 @@ int main(int argc, const char* argv[]) {
         2, 3, 5
     };
     int n = sizeof(indices)/3;
+
+    vertices_count = sizeof(vertices);
+    indices_count = sizeof(indices);
 #else
-    int n = 10000;
+    int n = 5;
     float* vertices = 0;
     unsigned int* indices = 0;
 
-    MakeNgon(n, 0.5f, 0, 0, &indices, &vertices);
+    MakeNgon(n, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
 #endif
 
     //Load shaders into main window
@@ -190,8 +195,8 @@ int main(int argc, const char* argv[]) {
 
     mainwindow.AddShader(triangleshader);
     ArrayBuffer* arraymainbuffer = triangleshader.AddArrayBuffer("positions");
-    VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(vertices) * 4, vertices);
-    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(indices), indices);
+    VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
+    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
 
 

@@ -4,7 +4,7 @@
 
 Window::Window(std::string title, int width, int height, Window* other) : _shader_count(0), _shaders{0}
 {
-    _glfwwindow = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
+    _glfwwindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
     {
         Debug::Logger::Console(Debug::Level::WARNING, "Failed to make window instance");
