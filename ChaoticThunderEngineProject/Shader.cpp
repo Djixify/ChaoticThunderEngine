@@ -166,18 +166,6 @@ void Shader::RemoveArrayBuffer(const char* label)
     this->RemoveArrayBuffer(slabel);
 }
 
-
-Shader& Shader::operator=(const Shader& other) {
-    if (this != &other) // not a self-assignment
-    {
-        this->_id = other._id;
-        this->_window = other._window;
-        this->_buffermap.clear();
-        this->_buffermap.insert(other._buffermap.begin(), other._buffermap.end());
-    }
-    return *this;
-}
-
 /*
 //Buffer specifically for vertex attributes
 //https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml

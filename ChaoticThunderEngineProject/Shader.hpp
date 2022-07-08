@@ -41,7 +41,7 @@ public:
     void RemoveArrayBuffer(const std::string& label);
     void RemoveArrayBuffer(const char* label);
 
-    Shader& operator=(const Shader&);
+    //Shader& operator=(const Shader&);
 };
 
 
