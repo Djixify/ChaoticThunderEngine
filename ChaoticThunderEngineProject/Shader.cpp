@@ -109,17 +109,115 @@ void Shader::Use()
     glUseProgram(this->GetID());
 }
 
-void Shader::SetUniformFloat(const std::string& name, float value)
+bool Shader::SetUniform(std::string name, float value1)
 {
-    Controller::Instance()->ThrowException("Not implemented yet");
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1f(loc, value1);
+    return res;
 }
 
-void Shader::SetUniformInteger(const std::string& name, int value)
+bool Shader::SetUniform(std::string name, float value1, float value2)
 {
-    Controller::Instance()->ThrowException("Not implemented yet");
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2f(loc, value1, value2);
+    return res;
 }
 
-ArrayBuffer* Shader::AddArrayBuffer(const std::string& label)
+bool Shader::SetUniform(std::string name, float value1, float value2, float value3)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3f(loc, value1, value2, value3);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, float value1, float value2, float value3, float value4)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4f(loc, value1, value2, value3, value4);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int value1)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1i(loc, value1);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int value1, int value2)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2i(loc, value1, value2);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int value1, int value2, int value3)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3i(loc, value1, value2, value3);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int value1, int value2, int value3, int value4)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4i(loc, value1, value2, value3, value4);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, unsigned int value1)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1ui(loc, value1);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, unsigned int value1, unsigned int value2)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2ui(loc, value1, value2);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3ui(loc, value1, value2, value3);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4ui(loc, value1, value2, value3, value4);
+    return res;
+}
+
+ArrayBuffer* Shader::AddArrayBuffer(std::string label)
 {
     if (this->_buffermap.find(label) == this->_buffermap.end()) {
         this->_buffermap[label] = new ArrayBuffer(this->_window);
@@ -130,26 +228,14 @@ ArrayBuffer* Shader::AddArrayBuffer(const std::string& label)
     return this->_buffermap[label];
 }
 
-ArrayBuffer* Shader::AddArrayBuffer(const char* label)
-{
-    std::string slabel(label);
-    return this->AddArrayBuffer(slabel);
-}
-
-ArrayBuffer* Shader::GetArrayBuffer(const std::string& label)
+ArrayBuffer* Shader::GetArrayBuffer(std::string label)
 {
     if (this->_buffermap.find(label) == this->_buffermap.end())
         return nullptr;
     return this->_buffermap[label];
 }
 
-ArrayBuffer* Shader::GetArrayBuffer(const char* label)
-{
-    std::string slabel(label);
-    return this->GetArrayBuffer(slabel);
-}
-
-void Shader::RemoveArrayBuffer(const std::string& label) {
+void Shader::RemoveArrayBuffer(std::string label) {
     ArrayBuffer* buffer = this->GetArrayBuffer(label);
     if (buffer != nullptr) {
         Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed label %s in shader", label);
@@ -158,12 +244,6 @@ void Shader::RemoveArrayBuffer(const std::string& label) {
     }
     else
         Debug::Logger::Console(Debug::Level::DESTRUCTION, "Could not find array buffer by label %s in shader", label);
-}
-
-void Shader::RemoveArrayBuffer(const char* label)
-{
-    std::string slabel(label);
-    this->RemoveArrayBuffer(slabel);
 }
 
 /*

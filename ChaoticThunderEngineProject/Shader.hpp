@@ -32,16 +32,23 @@ public:
     ~Shader();
     unsigned int GetID() const;
     void Use();
-    void SetUniformFloat(const std::string& name, float value);
-    void SetUniformInteger(const std::string& name, int value);
-    ArrayBuffer* AddArrayBuffer(const std::string& label);
-    ArrayBuffer* AddArrayBuffer(const char* label);
-    ArrayBuffer* GetArrayBuffer(const std::string& label);
-    ArrayBuffer* GetArrayBuffer(const char* label);
-    void RemoveArrayBuffer(const std::string& label);
-    void RemoveArrayBuffer(const char* label);
 
-    //Shader& operator=(const Shader&);
+    bool SetUniform(std::string name, float value1);
+    bool SetUniform(std::string name, float value1, float value2);
+    bool SetUniform(std::string name, float value1, float value2, float value3);
+    bool SetUniform(std::string name, float value1, float value2, float value3, float value4);
+    bool SetUniform(std::string name, int value1);
+    bool SetUniform(std::string name, int value1, int value2);
+    bool SetUniform(std::string name, int value1, int value2, int value3);
+    bool SetUniform(std::string name, int value1, int value2, int value3, int value4);
+    bool SetUniform(std::string name, unsigned int value1);
+    bool SetUniform(std::string name, unsigned int value1, unsigned int value2);
+    bool SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3);
+    bool SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4);
+
+    ArrayBuffer* AddArrayBuffer(std::string label);
+    ArrayBuffer* GetArrayBuffer(std::string label);
+    void RemoveArrayBuffer(std::string label);
 };
 
 
