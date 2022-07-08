@@ -37,6 +37,9 @@
     <Filter Include="Source Files\ImGUI">
       <UniqueIdentifier>{ad94e90e-5599-4497-8551-92911054ee7a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{adbf38e7-ba8f-4f67-9d15-e71203a11de0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="program.cpp">

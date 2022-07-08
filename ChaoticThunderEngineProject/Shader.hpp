@@ -4,7 +4,7 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include "Window.hpp"
 #include "Structs.hpp"
 #include "Enums.hpp"
@@ -24,10 +24,11 @@ const char* ReadShaderProgram(const std::string path, bool debug_print = false);
 class Shader {
 private:
     GLuint _id;
-    Window& _window;
-    std::unordered_map<std::string, ArrayBuffer*> _buffermap;
+    Window* _window;
+    std::map<std::string, ArrayBuffer*> _buffermap;
 public:
-    Shader(Window& window, int count, load_shader path...);
+    Shader();
+    Shader(Window* window, int count, load_shader path...);
     ~Shader();
     unsigned int GetID() const;
     void Use();
@@ -39,6 +40,8 @@ public:
     ArrayBuffer* GetArrayBuffer(const char* label);
     void RemoveArrayBuffer(const std::string& label);
     void RemoveArrayBuffer(const char* label);
+
+    Shader& operator=(const Shader&);
 };
 
 

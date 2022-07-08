@@ -4,11 +4,14 @@
 #include <imgui_impl_opengl3.h>
 #include <GLFW\glfw3.h>
 #include <glad\glad.h>
+#include "Window.hpp"
 
 namespace Graphics {
-    void InitializeImGUI(GLFWwindow* window);
-    void ClearWindow(GLFWwindow* window);
-    void RenderImGUI(GLFWwindow* window);
+    void InitializeImGUI(Window* window);
+    void UpdateVariablesImGUI(Window* window);
+    void ClearWindow(Window* window);
+    void RenderImGUI(Window* window);
+    void TerminateImGUI();
 }
 
 #endif

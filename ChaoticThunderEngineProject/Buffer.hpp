@@ -15,14 +15,14 @@ class Window;
 /// </summary>
 class ArrayBuffer {
 private:
-    Window& _window;
+    Window* _window;
     GLuint _bindingID;
     std::vector<VertexDataBuffer> _vbos;
     std::vector<vertex_attribute> _attributes;
 public:
     static ArrayBuffer* none;
 
-    ArrayBuffer(Window& window);
+    ArrayBuffer(Window* window);
     ~ArrayBuffer();
     unsigned int GetID();
     void SetActive();

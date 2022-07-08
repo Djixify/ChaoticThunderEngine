@@ -6,8 +6,8 @@
 ///           Array buffer          ///
 ///////////////////////////////////////
 
-ArrayBuffer::ArrayBuffer(Window& window) : _window(window) {
-    this->_window.SetActive();
+ArrayBuffer::ArrayBuffer(Window* window) : _window(window) {
+    this->_window->SetActive();
 
     glGenVertexArrays(1, &this->_bindingID);
 
@@ -33,7 +33,7 @@ ArrayBuffer::~ArrayBuffer() {
 unsigned int ArrayBuffer::GetID() { return _bindingID; }
 
 void ArrayBuffer::SetActive() {
-    this->_window.SetActive();
+    this->_window->SetActive();
 
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context array buffer: %d", this->_bindingID);
     

@@ -191,7 +191,7 @@ int main(int argc, const char* argv[]) {
     }
 
     unsigned int indices_count = 0, vertices_count = 0;
-#define SIMPLE false
+#define SIMPLE true
 #if SIMPLE
     float vertices[] = {
      0.0f,  0.7f, 0.0f,  // top center
@@ -239,9 +239,9 @@ int main(int argc, const char* argv[]) {
     //Shader circleShader(secondarywindow, 1, circleshaderinfo);
     load_shader trianglevertexinfo{ VERTEX, File::CombinePath(2, shaderfolder, trianglevertex) };
     load_shader trianglefragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, trianglefragment) };
-    Shader triangleshader(mainwindow, 2, trianglevertexinfo, trianglefragmentinfo);
+    Shader triangleshader(&mainwindow, 2, trianglevertexinfo, trianglefragmentinfo);
 
-    mainwindow.AddShader(triangleshader);
+    mainwindow.AddShader("test", triangleshader);
     ArrayBuffer* arraymainbuffer = triangleshader.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
     VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
@@ -276,74 +276,63 @@ int main(int argc, const char* argv[]) {
     //TEST
 
     bool shouldClose = false;
-    glViewport(0, 0, 400, 400);
+    glViewport(0, 0, 800, 800);
 
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be dra
 
 
     //Initialize ImGUI (for parameter testing in window)
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui::StyleColorsDark();
-    ImGui_ImplOpenGL3_Init("#version 330");
-    ImGui_ImplGlfw_InitForOpenGL(mainwindow.GetGLContext(), true);
+    Graphics::InitializeImGUI(Controller::Instance()->GetContextWindow());
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!shouldClose)
     {
-        for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
-            //Debug::Logger::console("Displaying window " + i);
-            GLFWwindow* context = Controller::Instance()->GetContextWindow()->GetGLContext();
-            ProcessInput(context);
+        //Debug::Logger::console("Displaying window " + i);
+        Window* window = Controller::Instance()->GetContextWindow();
+        ProcessInput(window->GetGLContext());
 
-            Graphics::ClearWindow(context);
+        Graphics::ClearWindow(window);
 
-            //triangleshader.Use();
-            //indexmainbuffer->SetActive();
-            //indexmainbuffer->Draw();
+        Graphics::UpdateVariablesImGUI(window);
+        //triangleshader.Use();
+        //indexmainbuffer->SetActive();
+        //indexmainbuffer->Draw();
 
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            /*
-            //arraymainbuffer->SetActive();
-            //datamainbuffer->SetActive();
-            //arraymainbuffer->SetAttribute(0, 0, attribute_type::INT8, false);
-            //datamainbuffer->Draw();
-            glBindVertexArray(arraymainbuffer->GetID());
-            //indexmainbuffer->SetActive();
-            // draw points 0-3 from the currently bound VAO with current in-use shader
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            //glDrawArrays(GL_TRIANGLES, 0, 3);
-            glBindVertexArray(0);
-            */
+        /*
+        //arraymainbuffer->SetActive();
+        //datamainbuffer->SetActive();
+        //arraymainbuffer->SetAttribute(0, 0, attribute_type::INT8, false);
+        //datamainbuffer->Draw();
+        glBindVertexArray(arraymainbuffer->GetID());
+        //indexmainbuffer->SetActive();
+        // draw points 0-3 from the currently bound VAO with current in-use shader
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(0);
+        */
 
 
-            glUseProgram(shader_programme);
+        glUseProgram(shader_programme);
 
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, n*3, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, n*3, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
-            Graphics::RenderImGUI(context);
+        Graphics::RenderImGUI(window);
 
-            glfwSwapBuffers(context);
-            glfwPollEvents();
-        }
-
+        glfwSwapBuffers(window->GetGLContext());
+        glfwPollEvents();
 
         //Debug::Logger::console("%d", Controller::Instance()->GetWindowCount());
 
-        for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++)
-            shouldClose |= glfwWindowShouldClose(Controller::Instance()->GetWindow(i)->GetGLContext());
+        shouldClose |= glfwWindowShouldClose(window->GetGLContext());
     }
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    Graphics::TerminateImGUI();
 
     glfwTerminate();
 }

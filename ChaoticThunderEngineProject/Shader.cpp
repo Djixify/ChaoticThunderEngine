@@ -29,8 +29,8 @@ const char* ReadShaderProgram(const std::string path, bool debug_print) {
     return res;
 }
 
-void VerifyShader(const Window& window, unsigned int shader_id) {
-    window.SetActive();
+void VerifyShader(const Window* window, unsigned int shader_id) {
+    window->SetActive();
     //Check for success
     int  success;
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
@@ -45,8 +45,12 @@ void VerifyShader(const Window& window, unsigned int shader_id) {
     }
 }
 
-Shader::Shader(Window& window, int count, load_shader path...) : _window(window) {
-    _window.SetActive();
+Shader::Shader() : _window(nullptr) {
+
+}
+
+Shader::Shader(Window* window, int count, load_shader path...) : _window(window) {
+    _window->SetActive();
     
     unsigned int* shaders = new unsigned int[count];
 
@@ -160,6 +164,18 @@ void Shader::RemoveArrayBuffer(const char* label)
 {
     std::string slabel(label);
     this->RemoveArrayBuffer(slabel);
+}
+
+
+Shader& Shader::operator=(const Shader& other) {
+    if (this != &other) // not a self-assignment
+    {
+        this->_id = other._id;
+        this->_window = other._window;
+        this->_buffermap.clear();
+        this->_buffermap.insert(other._buffermap.begin(), other._buffermap.end());
+    }
+    return *this;
 }
 
 /*
