@@ -1,4 +1,5 @@
 #include "Graphics.hpp"
+#include "Debug.hpp"
 
 namespace Graphics {
     bool show_demo_window = false;
@@ -22,12 +23,16 @@ namespace Graphics {
         int display_w, display_h;
         glfwGetFramebufferSize(window->GetGLContext(), &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
+        Debug::Logger::ConsoleOpenGLError("During setting viewport in ClearWindow");
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        Debug::Logger::ConsoleOpenGLError("During setting clear color in ClearWindow");
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Debug::Logger::ConsoleOpenGLError("During clear call in ClearWindow");
     }
 
     void UpdateVariablesImGUI(Window* window) {
         glPolygonMode(GL_FRONT_AND_BACK, Graphics::fill_mesh ? GL_FILL : GL_LINE);
+        Debug::Logger::ConsoleOpenGLError("During setting polygonmode");
 
         int scaleloc = glGetUniformLocation(window->GetShader("test")->GetID(), "scale");
         if (scaleloc > -1)

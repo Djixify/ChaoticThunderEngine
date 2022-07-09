@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm.hpp>
 #include <math.h>
 #include "Debug.hpp"
 #include "File.hpp"
@@ -24,7 +25,6 @@ void TestFunction() {
 
     // call a function in another file
     std::cout << "Hello other world!" << std::endl;
-
 
     Debug::Logger::Console(Debug::Level::INFO, "%10d ::: %-15d ::: %10f", 9001, 42, 23.2);
     Debug::Logger::Console(Debug::Level::INFO, "%10d ::: %-15d ::: %10f", 69, 360, 1000.2);
@@ -146,6 +146,7 @@ void ProcessInput(GLFWwindow* window)
 void WindowSizeChanged(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+    Debug::Logger::ConsoleOpenGLError("During setting viewport in window size changed event");
 }
 
 static void glfw_error_callback(int error, const char* description)
@@ -161,9 +162,7 @@ int main(int argc, const char* argv[]) {
 
     Controller::Init();
 
-    std::ofstream filestream("Test2.log"); //huh, no path required...
-    Debug::defaultoutstream = &filestream;
-    Debug::Logger::Console(Debug::Level::INFO, "Test from static override");
+    Debug::loglevels = 511;
 
     Window mainwindow("Main window", 800, 800);
     //Window secondarywindow("Secondary window", 400, 400, &mainwindow);
@@ -176,13 +175,13 @@ int main(int argc, const char* argv[]) {
         const GLubyte* version = glGetString(GL_VERSION); // version as a string
         const GLubyte* vendor = glGetString(GL_VENDOR); // vecndor as a string
         const GLubyte* GLSLversion = glGetString(GL_SHADING_LANGUAGE_VERSION); // version of GLSL as a string
-        printf("Renderer: %s\n", renderer);
-        printf("OpenGL version supported: %s\n", version);
-        printf("Vendor of GPU: %s\n", vendor);
-        printf("GLSL version: %s\n", GLSLversion);
+        Debug::Logger::Console(Debug::Level::INFO, "Renderer: %s", renderer);
+        Debug::Logger::Console(Debug::Level::INFO, "OpenGL version supported: %s", version);
+        Debug::Logger::Console(Debug::Level::INFO, "Vendor of GPU: %s", vendor);
+        Debug::Logger::Console(Debug::Level::INFO, "GLSL version: %s", GLSLversion);
         int nrAttributes;
         glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-        std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
+        Debug::Logger::Console(Debug::Level::INFO, "Maximum nr of vertex attributes supported: %d", nrAttributes);
     }
     catch (const char* ex) {
         std::cerr << ex << std::endl;
@@ -247,7 +246,7 @@ int main(int argc, const char* argv[]) {
     VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
 
-
+    /*
     unsigned int EBO;
     glGenBuffers(1, &EBO);
 
@@ -270,6 +269,7 @@ int main(int argc, const char* argv[]) {
     // 4. then set the vertex attributes pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    */
     
 
     GLuint shader_programme = triangleshader.GetID();
@@ -277,6 +277,7 @@ int main(int argc, const char* argv[]) {
 
     bool shouldClose = false;
     glViewport(0, 0, 800, 800);
+    Debug::Logger::ConsoleOpenGLError("During setting viewport in main");
 
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be dra
@@ -284,8 +285,6 @@ int main(int argc, const char* argv[]) {
 
     //Initialize ImGUI (for parameter testing in window)
     Graphics::InitializeImGUI(Controller::Instance()->GetContextWindow());
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!shouldClose)
     {
@@ -317,10 +316,13 @@ int main(int argc, const char* argv[]) {
 
 
         glUseProgram(shader_programme);
+        Debug::Logger::ConsoleOpenGLError("During setting active shader program");
 
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, n*3, GL_UNSIGNED_INT, 0);
+        arraymainbuffer->SetActive();
+        //glBindVertexArray(VAO);
+        indexmainbuffer->Draw();
         glBindVertexArray(0);
+        Debug::Logger::ConsoleOpenGLError("During resetting active shader program");
 
         Graphics::RenderImGUI(window);
 

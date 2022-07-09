@@ -1,4 +1,5 @@
 #include "Debug.hpp"
+#include <glad\glad.h>
 
 namespace Debug {
     std::string Logger::levelToString(Level level) {
@@ -20,6 +21,8 @@ namespace Debug {
             return "[INFO]     ";
         case Level::WARNING:
             return "[WARNING]  ";
+        case Level::OPENGL:
+            return "[OPENGL]   ";
         default:
             return "";
         };
@@ -38,7 +41,7 @@ namespace Debug {
 
     void Logger::Console(Level level, std::string format, ...)
     {
-        if (((int)level & loglevels) == 0)
+        if (((int)level & loglevels) > 0)
             return;
 
         std::time_t t = std::time(0);
@@ -137,8 +140,37 @@ namespace Debug {
         *defaultoutstream << std::endl;
     }
 
+    void Logger::ConsoleOpenGLError(std::string message) {
+        int error = glGetError();
+        switch ((OpenGLError)error) {
+        case OpenGLError::NONE:
+            break;
+        case OpenGLError::INVALID_ENUM:
+            Console(Level::OPENGL, "Invalid enumeration parameter: " + message);
+            break;
+        case OpenGLError::INVALID_VALUE:
+            Console(Level::OPENGL, "Invalid value parameter: " + message);
+            break;
+        case OpenGLError::INVALID_OPERATION:
+            Console(Level::OPENGL, "Invalid command, not legal for its given set of parameters: " + message);
+            break;
+        case OpenGLError::STACK_OVERFLOW:
+            Console(Level::OPENGL, "Stack overflow: " + message);
+            break;
+        case OpenGLError::STACK_UNDERFLOW:
+            Console(Level::OPENGL, "Stack underflow: " + message);
+            break;
+        case OpenGLError::OUT_OF_MEMORY:
+            Console(Level::OPENGL, "Out of memory: " + message);
+            break;
+        case OpenGLError::INVALID_FRAMEBUFFER_OPERATION:
+            Console(Level::OPENGL, "Attempted read or write to incomplete framebuffer: " + message);
+            break;
+        }
+    }
+
     void Logger::Log(Level level, std::string format, ...) {
-        if (((int)level & loglevels) == 0)
+        if (((int)level & loglevels) > 0)
             return;
 
         if (_outputFileStream->good())
@@ -241,6 +273,35 @@ namespace Debug {
         else
         {
             throw "Stream is inaccessible";
+        }
+    }
+
+    void Logger::LogOpenGLError(std::string message) {
+        int error = glGetError();
+        switch ((OpenGLError)error) {
+        case OpenGLError::NONE:
+            break;
+        case OpenGLError::INVALID_ENUM:
+            Log(Level::OPENGL, "Invalid enumeration parameter: %s", message);
+            break;
+        case OpenGLError::INVALID_VALUE:
+            Log(Level::OPENGL, "Invalid value parameter: %s", message);
+            break;
+        case OpenGLError::INVALID_OPERATION:
+            Log(Level::OPENGL, "Invalid command, not legal for its given set of parameters: %s", message);
+            break;
+        case OpenGLError::STACK_OVERFLOW:
+            Log(Level::OPENGL, "Stack overflow: %s", message);
+            break;
+        case OpenGLError::STACK_UNDERFLOW:
+            Log(Level::OPENGL, "Stack underflow: %s", message);
+            break;
+        case OpenGLError::OUT_OF_MEMORY:
+            Log(Level::OPENGL, "Out of memory: %s", message);
+            break;
+        case OpenGLError::INVALID_FRAMEBUFFER_OPERATION:
+            Log(Level::OPENGL, "Attempted read or write to incomplete framebuffer: %s", message);
+            break;
         }
     }
 

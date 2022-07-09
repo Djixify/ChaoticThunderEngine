@@ -45,6 +45,22 @@ void VerifyShader(const Window* window, unsigned int shader_id) {
     }
 }
 
+void VerifyProgram(const Window* window, unsigned int program_id) {
+    window->SetActive();
+    //Check for success
+    int  success;
+    glGetProgramiv(program_id, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        char infoLog[512];
+        glGetProgramInfoLog(program_id, 512, NULL, infoLog);
+        std::string log = "Failed to link program:\n";
+        log.append(infoLog);
+        log.append("\n");
+        Controller::Instance()->ThrowException(log);
+    }
+}
+
 Shader::Shader() : _window(nullptr) {
 
 }
@@ -63,8 +79,11 @@ Shader::Shader(Window* window, int count, load_shader path...) : _window(window)
 
         //Create and compile the shader
         unsigned int shader_id = glCreateShader((int)shader.type);
+        Debug::Logger::ConsoleOpenGLError("During creation of shader");
         glShaderSource(shader_id, 1, &shadersource, NULL);
+        Debug::Logger::ConsoleOpenGLError("During setting shader source");
         glCompileShader(shader_id);
+        Debug::Logger::ConsoleOpenGLError("During compilation of shader");
 
         //Check for success
         VerifyShader(window, shader_id);
@@ -76,17 +95,23 @@ Shader::Shader(Window* window, int count, load_shader path...) : _window(window)
 
     //Attach shaders to the program
     unsigned int program_id = glCreateProgram();
-    for (int i = 0; i < count; i++)
+    Debug::Logger::ConsoleOpenGLError("During creation of program");
+    for (int i = 0; i < count; i++) {
         glAttachShader(program_id, shaders[i]);
+        Debug::Logger::ConsoleOpenGLError("During attaching shader to program");
+    }
     //Link them together to make up the entire program
     glLinkProgram(program_id);
+    Debug::Logger::ConsoleOpenGLError("During linking shaders in program");
 
     //Check for success
-    VerifyShader(window, program_id);
+    VerifyProgram(window, program_id);
 
     //Recover used resources, as the shaders are now built into the program
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++) {
         glDeleteShader(shaders[i]);
+        Debug::Logger::ConsoleOpenGLError("During deleletion of shader");
+    }
 
     delete[] shaders;
 
@@ -95,6 +120,7 @@ Shader::Shader(Window* window, int count, load_shader path...) : _window(window)
 
 Shader::~Shader() {
     glDeleteProgram(_id);
+    Debug::Logger::ConsoleOpenGLError("During deleletion of program");
     _buffermap.clear();
     //delete this;
 }
@@ -107,6 +133,7 @@ unsigned int Shader::GetID() const
 void Shader::Use()
 {
     glUseProgram(this->GetID());
+    Debug::Logger::ConsoleOpenGLError("During setting program to active");
 }
 
 bool Shader::SetUniform(std::string name, float value1)

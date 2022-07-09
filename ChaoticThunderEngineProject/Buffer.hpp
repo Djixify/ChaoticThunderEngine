@@ -4,6 +4,7 @@
 #include "Enums.hpp"
 #include "Window.hpp"
 #include <vector>
+#include <glad\glad.h>
 
 class VertexIndexBuffer;
 class VertexDataBuffer;

@@ -9,7 +9,9 @@
 ArrayBuffer::ArrayBuffer(Window* window) : _window(window) {
     this->_window->SetActive();
 
-    glGenVertexArrays(1, &this->_bindingID);
+    unsigned int tmp = 0;
+    glGenVertexArrays(1, &tmp);
+    Debug::Logger::ConsoleOpenGLError("During generation of array buffer");
 
     std::vector<VertexDataBuffer> vertex_data_buffers;
     this->_vbos = vertex_data_buffers;
@@ -26,6 +28,7 @@ ArrayBuffer::~ArrayBuffer() {
     }
     _vbos.shrink_to_fit();
     glDeleteVertexArrays(1, &_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During destruction of array buffer");
 
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destoryed vertex array buffer at %d", this->_bindingID);
 }
@@ -38,6 +41,7 @@ void ArrayBuffer::SetActive() {
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context array buffer: %d", this->_bindingID);
     
     glBindVertexArray(_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During setting array buffer as active");
 }
 
 void ArrayBuffer::AddAttribute(GLuint location, GLint count, attribute_type attr, bool normalized)
@@ -68,6 +72,7 @@ void ArrayBuffer::AddAttribute(GLuint location, GLint count, attribute_type attr
         _attributes[i].stride = stride;
         _attributes[i].offset = offset;
         glEnableVertexAttribArray(_attributes[i].location);
+        Debug::Logger::ConsoleOpenGLError("During enabling vertex attribute");
         glVertexAttribPointer(
             _attributes[i].location,                       //Location (used as reference in GLSL)
             _attributes[i].count,                          //Number of values in attribute
@@ -76,13 +81,46 @@ void ArrayBuffer::AddAttribute(GLuint location, GLint count, attribute_type attr
             _attributes[i].stride,                         //Stride 
             (void*)(_attributes[i].offset)                 //Vertex offset
         );
+        Debug::Logger::ConsoleOpenGLError("During setting vertex attribute");
         offset += _attributes[i].count * AttributeSize(_attributes[i].type);
     }
 }
 
 void ArrayBuffer::SetAttribute(GLuint location, GLint count, attribute_type attr, bool normalized)
 {
+    this->SetActive();
+
+    if (count > 4 || count < 0)
+        Controller::Instance()->ThrowException("Invalid count given for attribute, can only accept between 1 and 4");
+
+    vertex_attribute newvattr{ normalized, -1, count, 0, attr };
+
+    bool found = false;
+    int loc = 0;
     for (int i = 0; i < _attributes.size(); i++) {
+        if (_attributes[i].location == location) {
+            found = true;
+            loc = i;
+            _attributes[i] = newvattr;
+        }
+    }
+    if (!found)
+        return; //should probably return bool as indication for success or failure
+
+    GLuint stride = 0;
+    for (int i = 0; i < _attributes.size(); i++) {
+        stride += _attributes[i].count * AttributeSize(_attributes[i].type);
+    }
+
+    _attributes.push_back(newvattr);
+
+    GLuint offset = 0;
+    for (int i = 0; i < _attributes.size(); i++) {
+        _attributes[i].location = i;
+        _attributes[i].stride = stride;
+        _attributes[i].offset = offset;
+        glEnableVertexAttribArray(_attributes[i].location);
+        Debug::Logger::ConsoleOpenGLError("During enabling vertex attribute");
         glVertexAttribPointer(
             _attributes[i].location,                       //Location (used as reference in GLSL)
             _attributes[i].count,                          //Number of values in attribute
@@ -91,6 +129,8 @@ void ArrayBuffer::SetAttribute(GLuint location, GLint count, attribute_type attr
             _attributes[i].stride,                         //Stride 
             (void*)(_attributes[i].offset)                 //Vertex offset
         );
+        Debug::Logger::ConsoleOpenGLError("During setting vertex attribute");
+        offset += _attributes[i].count * AttributeSize(_attributes[i].type);
     }
 }
 
@@ -127,7 +167,9 @@ VertexDataBuffer::VertexDataBuffer(ArrayBuffer& parent, buffer_storage_type stor
     _buffer_size = 0;
 
     glGenBuffers(1, &_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During generating vertex data buffer");
     glBindBuffer(GL_ARRAY_BUFFER, _bindingID);
+    Debug::Logger::ConsoleOpenGLError("During setting buffer as vertex data buffer");
 
     std::vector<VertexIndexBuffer> vertex_index_buffers;
     this->_ebos = vertex_index_buffers;
@@ -141,6 +183,7 @@ VertexDataBuffer::~VertexDataBuffer() {
         _ebos.pop_back();
     }
     glDeleteBuffers(1, &_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During deletion of vertex data buffer");
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed vertex data buffer at %d", _bindingID);
 }
 
@@ -163,8 +206,9 @@ void VertexDataBuffer::SetActive() {
     _parent.SetActive();
 
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context data buffer: %d", this->_bindingID);
-    
-    //glBindBuffer(GL_ARRAY_BUFFER, this->_bindingID);
+
+    glBindBuffer(GL_ARRAY_BUFFER, this->_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During binding vertex data buffer");
 }
 
 void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
@@ -173,22 +217,23 @@ void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
     if (this->_buffer_size > 0 && byte_size > this->_buffer_size)
         Controller::Instance()->ThrowException("Tried to write index array to buffer larger than initial capacity");
 
-    Debug::Logger::Console(Debug::Level::WRITING, "Writing %d bytes of data buffer %d", byte_size, this->_bindingID);
-    glBindBuffer(GL_ARRAY_BUFFER, this->_bindingID);
+    //glBindBuffer(GL_ARRAY_BUFFER, this->_bindingID);
+    //Debug::Logger::ConsoleOpenGLError("During binding vertex data buffer");
     glBufferData(GL_ARRAY_BUFFER, byte_size, data, this->_storage_type);
+    Debug::Logger::ConsoleOpenGLError("During writing to vertex data buffer");
+    Debug::Logger::Console(Debug::Level::WRITING, "Writing %d bytes of data buffer %d", byte_size, this->_bindingID);
 }
 
 void VertexDataBuffer::Draw()
 {
     this->SetActive();
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    //Todo
 }
 
 void VertexDataBuffer::Draw(int offset, int count)
 {
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    this->SetActive();
+    //Todo
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(buffer_storage_type storage_type) {
@@ -213,12 +258,15 @@ VertexIndexBuffer::VertexIndexBuffer(VertexDataBuffer& parent, buffer_storage_ty
     _initial_capacity = 0;
 
     glGenBuffers(1, &_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During generating vertex index buffer");
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bindingID);
+    Debug::Logger::ConsoleOpenGLError("During setting buffer as vertex index buffer");
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex index/element buffer at %d", this->_bindingID);
 }
 
 VertexIndexBuffer::~VertexIndexBuffer() {
     glDeleteBuffers(1, &_bindingID);
+    Debug::Logger::ConsoleOpenGLError("During deletion of vertex index buffer");
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed vertex index/element buffer at %d", _bindingID);
 }
 
@@ -237,9 +285,10 @@ unsigned int VertexIndexBuffer::GetID() { return _bindingID; }
 void VertexIndexBuffer::SetActive() {
     _parent.SetActive();
 
-    Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context index buffer: %d", _bindingID);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bindingID);
+    Debug::Logger::ConsoleOpenGLError("During binding to vertex index buffer");
+    Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context index buffer: %d", _bindingID);
 }
 
 void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
@@ -249,16 +298,22 @@ void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
         Controller::Instance()->ThrowException("Tried to write index array to buffer larger than initial capacity");
 
     Debug::Logger::Console(Debug::Level::WRITING, "Writing %d indicies into index buffer %d", count, this->_bindingID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_bindingID);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_bindingID);
+    //Debug::Logger::ConsoleOpenGLError("During binding to vertex index buffer");
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, indicies, this->_storage_type);
+    Debug::Logger::ConsoleOpenGLError("During writing to vertex index buffer");
     _initial_capacity = count;
 }
 
 void VertexIndexBuffer::Draw() {
     // draw points 0-3 from the currently bound VAO with current in-use shader
     //glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+    Debug::Logger::ConsoleOpenGLError("During drawing of vertex index buffer");
 }
 
 void VertexIndexBuffer::Draw(int offset, int count) {
-
+    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)offset);
+    Debug::Logger::ConsoleOpenGLError("During drawing of vertex index buffer");
 }

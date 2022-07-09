@@ -2,6 +2,7 @@
 #include "Controller.hpp"
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
+#include "Debug.hpp"
 
 void _defaultProcessFocus(GLFWwindow* window, int gl_message) {
     if (gl_message == GL_TRUE) {
@@ -19,6 +20,7 @@ void _defaultProcessFocus(GLFWwindow* window, int gl_message) {
 
 void _defaultProcessResize(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    Debug::Logger::ConsoleOpenGLError("During attempt to resize in event");
 }
 
 Controller* Controller::_instance = nullptr;
@@ -175,6 +177,7 @@ int Controller::GetMaxNumberOfVertexAttributes()
 {
     int n = 0;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &n);
+    Debug::Logger::ConsoleOpenGLError("During attempt to get max number of attributes");
     return n;
 }
 
