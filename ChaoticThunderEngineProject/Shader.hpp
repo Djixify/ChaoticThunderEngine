@@ -27,7 +27,6 @@ private:
     Window* _window;
     std::map<std::string, ArrayBuffer*> _buffermap;
 public:
-    Shader();
     Shader(Window* window, int count, load_shader path...);
     ~Shader();
     unsigned int GetID() const;

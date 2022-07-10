@@ -243,8 +243,8 @@ int main(int argc, const char* argv[]) {
     mainwindow.AddShader("test", &triangleshader);
     ArrayBuffer* arraymainbuffer = triangleshader.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
-    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
+    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
 
     /*
     unsigned int EBO;

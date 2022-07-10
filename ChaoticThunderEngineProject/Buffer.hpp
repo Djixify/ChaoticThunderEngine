@@ -17,12 +17,10 @@ class Window;
 class ArrayBuffer {
 private:
     Window* _window;
-    GLuint _bindingID;
-    std::vector<VertexDataBuffer> _vbos;
+    unsigned int _bindingID;
     std::vector<vertex_attribute> _attributes;
+    std::vector<VertexDataBuffer*> _vbos;
 public:
-    static ArrayBuffer* none;
-
     ArrayBuffer(Window* window);
     ~ArrayBuffer();
     unsigned int GetID();
@@ -44,19 +42,16 @@ public:
 /// </summary>
 class VertexDataBuffer {
 private:
-    ArrayBuffer& _parent;
+    ArrayBuffer* _parent;
     GLuint _bindingID;
     buffer_storage_type _storage_type;
     unsigned int _buffer_size;
-    std::vector<VertexIndexBuffer> _ebos;
+    std::vector<VertexIndexBuffer*> _ebos;
 
-    VertexDataBuffer(ArrayBuffer& parent = *ArrayBuffer::none, buffer_storage_type storage_type = STATIC);
+    VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type storage_type = STATIC);
     friend class ArrayBuffer;
 public:
-
-    static VertexDataBuffer* none;
     ~VertexDataBuffer();
-    VertexDataBuffer& operator=(const VertexDataBuffer&);
     unsigned int GetID();
     void SetActive();
     void Write(unsigned int byte_size, void* data);
@@ -77,16 +72,15 @@ class VertexIndexBuffer {
 private:
     static VertexIndexBuffer none;
 
-    VertexDataBuffer& _parent;
+    VertexDataBuffer* _parent;
     GLuint _bindingID;
     buffer_storage_type _storage_type;
-    unsigned int _initial_capacity;
+    unsigned int _buffer_size;
 
-    VertexIndexBuffer(VertexDataBuffer& parent = *VertexDataBuffer::none, buffer_storage_type storage_type = STATIC);
+    VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_type storage_type = STATIC);
     friend class VertexDataBuffer;
 public:
     ~VertexIndexBuffer();
-    VertexIndexBuffer& operator=(const VertexIndexBuffer&);
     unsigned int GetID();
     void SetActive();
     void Write(unsigned int count, unsigned int* indicies);

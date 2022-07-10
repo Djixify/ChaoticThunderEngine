@@ -61,10 +61,6 @@ void VerifyProgram(const Window* window, unsigned int program_id) {
     }
 }
 
-Shader::Shader() : _window(nullptr) {
-
-}
-
 Shader::Shader(Window* window, int count, load_shader path...) : _window(window) {
     _window->SetActive();
     

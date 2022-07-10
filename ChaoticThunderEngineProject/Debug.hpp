@@ -47,9 +47,9 @@ namespace Debug
         ~Logger();
 
         static void Console(Level level, std::string format, ...);
-        static void ConsoleOpenGLError(std::string message);
+        static void ConsoleOpenGLError(std::string message, bool terminate_if_error = true);
         void Log(Level level, std::string format, ...);
-        void LogOpenGLError(std::string message);
+        void LogOpenGLError(std::string message, bool terminate_if_error = true);
         bool IsValid();
     };
 }

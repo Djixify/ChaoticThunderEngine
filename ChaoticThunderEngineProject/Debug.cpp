@@ -31,8 +31,10 @@ namespace Debug {
     Logger::Logger(std::ostream& stream) {
         if (stream.good())
             _outputFileStream = &stream;
-        else
-            throw "Could not open file, likely does not exist";
+        else {
+            std::exception ex("Stream is inaccessible (not good)");
+            throw ex;
+        }
     }
 
     Logger::~Logger() {
@@ -41,7 +43,7 @@ namespace Debug {
 
     void Logger::Console(Level level, std::string format, ...)
     {
-        if (((int)level & loglevels) > 0)
+        if (((int)level & loglevels) == 0)
             return;
 
         std::time_t t = std::time(0);
@@ -140,11 +142,11 @@ namespace Debug {
         *defaultoutstream << std::endl;
     }
 
-    void Logger::ConsoleOpenGLError(std::string message) {
+    void Logger::ConsoleOpenGLError(std::string message, bool terminate_if_error) {
         int error = glGetError();
         switch ((OpenGLError)error) {
         case OpenGLError::NONE:
-            break;
+            return;
         case OpenGLError::INVALID_ENUM:
             Console(Level::OPENGL, "Invalid enumeration parameter: " + message);
             break;
@@ -167,10 +169,14 @@ namespace Debug {
             Console(Level::OPENGL, "Attempted read or write to incomplete framebuffer: " + message);
             break;
         }
+        if (terminate_if_error > 0) {
+            std::exception ex(message.c_str());
+            throw ex;
+        }
     }
 
     void Logger::Log(Level level, std::string format, ...) {
-        if (((int)level & loglevels) > 0)
+        if (((int)level & loglevels) == 0)
             return;
 
         if (_outputFileStream->good())
@@ -272,15 +278,16 @@ namespace Debug {
         }
         else
         {
-            throw "Stream is inaccessible";
+            std::exception ex("Stream is inaccessible");
+            throw ex;
         }
     }
 
-    void Logger::LogOpenGLError(std::string message) {
+    void Logger::LogOpenGLError(std::string message, bool terminate_if_error) {
         int error = glGetError();
         switch ((OpenGLError)error) {
         case OpenGLError::NONE:
-            break;
+            return;
         case OpenGLError::INVALID_ENUM:
             Log(Level::OPENGL, "Invalid enumeration parameter: %s", message);
             break;
@@ -302,6 +309,10 @@ namespace Debug {
         case OpenGLError::INVALID_FRAMEBUFFER_OPERATION:
             Log(Level::OPENGL, "Attempted read or write to incomplete framebuffer: %s", message);
             break;
+        }
+        if (terminate_if_error > 0) {
+            std::exception ex(message.c_str());
+            throw ex;
         }
     }
 
