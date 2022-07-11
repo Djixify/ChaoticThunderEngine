@@ -5,18 +5,12 @@
 #include <GLFW\glfw3.h>
 #include <string>
 #include <map>
-#include "Window.hpp"
 #include "Structs.hpp"
 #include "Enums.hpp"
 #include "Buffer.hpp"
 
 class ArrayBuffer;
 class Window;
-
-struct load_shader {
-    shader_type type;
-    std::string path;
-};
 
 
 const char* ReadShaderProgram(const std::string path, bool debug_print = false);
@@ -25,8 +19,9 @@ class Shader {
 private:
     GLuint _id;
     Window* _window;
-    std::map<std::string, ArrayBuffer*> _buffermap;
+    void InitializeProgram(std::vector<load_shader> paths);
 public:
+    Shader(Window* window, std::vector<load_shader> paths);
     Shader(Window* window, int count, load_shader path...);
     ~Shader();
     unsigned int GetID() const;
@@ -44,10 +39,6 @@ public:
     bool SetUniform(std::string name, unsigned int value1, unsigned int value2);
     bool SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3);
     bool SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4);
-
-    ArrayBuffer* AddArrayBuffer(std::string label);
-    ArrayBuffer* GetArrayBuffer(std::string label);
-    void RemoveArrayBuffer(std::string label);
 };
 
 

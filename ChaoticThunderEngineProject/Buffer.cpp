@@ -16,12 +16,8 @@ ArrayBuffer::ArrayBuffer(Window* window) : _window(window) {
 }
 
 ArrayBuffer::~ArrayBuffer() {
-    while (_vbos.size() > 0) {
-        VertexDataBuffer* vbo = _vbos.back();
-        _vbos.pop_back();
-        delete vbo;
-    }
-    _vbos.shrink_to_fit();
+    _vbos.clear();
+
     glDeleteVertexArrays(1, &_bindingID);
     Debug::Logger::ConsoleOpenGLError("During destruction of array buffer");
 
@@ -139,14 +135,14 @@ char ArrayBuffer::AttributeCount()
 }
 
 VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(buffer_storage_type storage_type) {
-    this->_vbos.push_back(new VertexDataBuffer(this, storage_type));
-    return this->_vbos.back();
+    this->_vbos.push_back(std::shared_ptr<VertexDataBuffer>(new VertexDataBuffer(this, storage_type)));
+    return this->_vbos.back().get();
 }
 
 VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(unsigned int byte_size, void* data, buffer_storage_type storage_type) {
-    this->_vbos.push_back(new VertexDataBuffer(this, storage_type));
+    this->_vbos.push_back(std::shared_ptr<VertexDataBuffer>(new VertexDataBuffer(this, storage_type)));
     this->_vbos.back()->Write(byte_size, data);
-    return this->_vbos.back();
+    return this->_vbos.back().get();
 }
 
 
@@ -167,11 +163,8 @@ VertexDataBuffer::VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type stor
 }
 
 VertexDataBuffer::~VertexDataBuffer() {
-    while (_ebos.size() > 0) {
-        VertexIndexBuffer* ebo = _ebos.back();
-        _ebos.pop_back();
-        delete ebo;
-    }
+    _ebos.clear();
+
     glDeleteBuffers(1, &_bindingID);
     Debug::Logger::ConsoleOpenGLError("During deletion of vertex data buffer");
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed vertex data buffer at %d", _bindingID);
@@ -197,27 +190,15 @@ void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
     this->_buffer_size = byte_size;
 }
 
-void VertexDataBuffer::Draw()
-{
-    this->SetActive();
-    //Todo
-}
-
-void VertexDataBuffer::Draw(int offset, int count)
-{
-    this->SetActive();
-    //Todo
-}
-
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(buffer_storage_type storage_type) {
-    this->_ebos.push_back(new VertexIndexBuffer(this, storage_type));
-    return this->_ebos.back();
+    this->_ebos.push_back(std::shared_ptr<VertexIndexBuffer>(new VertexIndexBuffer(this, storage_type)));
+    return this->_ebos.back().get();
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(unsigned int count, unsigned int* indicies, buffer_storage_type storage_type) {
-    this->_ebos.push_back(new VertexIndexBuffer(this, storage_type));
+    this->_ebos.push_back(std::shared_ptr<VertexIndexBuffer>(new VertexIndexBuffer(this, storage_type)));
     this->_ebos.back()->Write(count, indicies);
-    return this->_ebos.back();
+    return this->_ebos.back().get();
 }
 
 ///////////////////////////////////////
@@ -235,8 +216,10 @@ VertexIndexBuffer::VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_ty
 }
 
 VertexIndexBuffer::~VertexIndexBuffer() {
-    glDeleteBuffers(1, &_bindingID);
-    Debug::Logger::ConsoleOpenGLError("During deletion of vertex index buffer");
+    try {
+        glDeleteBuffers(1, &_bindingID);
+        Debug::Logger::ConsoleOpenGLError("During deletion of vertex index buffer");
+    } catch (std::runtime_error ex) { }
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed vertex index/element buffer at %d", _bindingID);
 }
 

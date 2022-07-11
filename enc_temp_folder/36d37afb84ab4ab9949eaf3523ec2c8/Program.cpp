@@ -67,8 +67,8 @@ void TestFunction() {
     printf("%d\n", logger.IsValid());
 }
 
-
-void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+/*
+void Mesh(float width, float height, int xpart, int ypart, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     vertices_count = 3 * (xpart + 1) * (ypart + 1);
     indices_count  = 6 * xpart * ypart;
     
@@ -105,8 +105,9 @@ void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& 
         }
     }
 }
+*/
 
-void EquilateralMesh(float width, float height, float triangle_side, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+void Mesh(float width, float height, float triangle_side, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     
     int xpart = (int)((width + triangle_side * 0.5) / triangle_side);
     int ypart = (int)((height + triangle_side * 0.5) / triangle_side);
@@ -139,12 +140,22 @@ void EquilateralMesh(float width, float height, float triangle_side, unsigned in
     for (int i = 0; i < ypart; i++)
     {
         for (int j = 0; j < xpart; j++) {
-            indices[6 * (i * xpart + j)]     = i % 2 == 0 ? i       * (xpart + 1) + j     : i       * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 1] = i % 2 == 0 ? i       * (xpart + 1) + j + 1 : (i + 1) * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 2] = i % 2 == 0 ? (i + 1) * (xpart + 1) + j + 1 : (i + 1) * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 3] = i % 2 == 0 ? i       * (xpart + 1) + j     : i       * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 4] = i % 2 == 0 ? (i + 1) * (xpart + 1) + j + 1 : i       * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 5] = i % 2 == 0 ? (i + 1) * (xpart + 1) + j     : (i + 1) * (xpart + 1) + j;
+            if (i % 2 == 0) {
+                indices[6 * (i * xpart + j)]     = i       * (xpart + 1) + j;
+                indices[6 * (i * xpart + j) + 1] = i       * (xpart + 1) + j + 1;
+                indices[6 * (i * xpart + j) + 2] = (i + 1) * (xpart + 1) + j + 1;
+                indices[6 * (i * xpart + j) + 3] = i       * (xpart + 1) + j;
+                indices[6 * (i * xpart + j) + 4] = (i + 1) * (xpart + 1) + j + 1;
+                indices[6 * (i * xpart + j) + 5] = (i + 1) * (xpart + 1) + j;
+            }
+            else {
+                indices[6 * (i * xpart + j)]     = i       * (xpart + 1) + j + 1;
+                indices[6 * (i * xpart + j) + 1] = (i + 1) * (xpart + 1) + j + 1;
+                indices[6 * (i * xpart + j) + 2] = (i + 1) * (xpart + 1) + j;
+                indices[6 * (i * xpart + j) + 3] = i       * (xpart + 1) + j;
+                indices[6 * (i * xpart + j) + 4] = i       * (xpart + 1) + j + 1;
+                indices[6 * (i * xpart + j) + 5] = (i + 1) * (xpart + 1) + j;
+            }
         }
     }
 }
@@ -257,8 +268,8 @@ int main(int argc, const char* argv[]) {
     unsigned int* indices = 0;
 
     //MakeNgon(n, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
-    //SquareMesh(0.5, 0.5, 5, 3, indices, indices_count, vertices, vertices_count);
-    EquilateralMesh(0.5, 0.5, 0.1, indices, indices_count, vertices, vertices_count);
+    //Mesh(0.5, 0.5, 5, 3, indices, indices_count, vertices, vertices_count);
+    Mesh(0.5, 0.5, 0.1, indices, indices_count, vertices, vertices_count);
 
     //Debugging mesh information:
     for (int i = 0; i < vertices_count / 3; i++) {

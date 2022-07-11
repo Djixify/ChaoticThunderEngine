@@ -1,10 +1,11 @@
 #ifndef ENGINE_BUFFER
 #define ENGINE_BUFFER
 
-#include "Enums.hpp"
-#include "Window.hpp"
 #include <vector>
+#include <memory>
 #include <glad\glad.h>
+#include "Enums.hpp"
+#include "Structs.hpp"
 
 class VertexIndexBuffer;
 class VertexDataBuffer;
@@ -19,7 +20,7 @@ private:
     Window* _window;
     unsigned int _bindingID;
     std::vector<vertex_attribute> _attributes;
-    std::vector<VertexDataBuffer*> _vbos;
+    std::vector<std::shared_ptr<VertexDataBuffer>> _vbos;
 public:
     ArrayBuffer(Window* window);
     ~ArrayBuffer();
@@ -46,17 +47,16 @@ private:
     GLuint _bindingID;
     buffer_storage_type _storage_type;
     unsigned int _buffer_size;
-    std::vector<VertexIndexBuffer*> _ebos;
+    std::vector<std::shared_ptr<VertexIndexBuffer>> _ebos;
 
     VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type storage_type = STATIC);
     friend class ArrayBuffer;
 public:
+    VertexDataBuffer(const VertexDataBuffer& other);
     ~VertexDataBuffer();
     unsigned int GetID();
     void SetActive();
     void Write(unsigned int byte_size, void* data);
-    void Draw();
-    void Draw(int offset, int count);
 
     VertexIndexBuffer* CreateIndexBuffer(buffer_storage_type storage_type = STATIC);
     VertexIndexBuffer* CreateIndexBuffer(unsigned int count, unsigned int* indicies, buffer_storage_type storage_type = STATIC);
@@ -80,6 +80,7 @@ private:
     VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_type storage_type = STATIC);
     friend class VertexDataBuffer;
 public:
+    VertexIndexBuffer(const VertexIndexBuffer& other);
     ~VertexIndexBuffer();
     unsigned int GetID();
     void SetActive();

@@ -61,20 +61,17 @@ void VerifyProgram(const Window* window, unsigned int program_id) {
     }
 }
 
-Shader::Shader(Window* window, int count, load_shader path...) : _window(window) {
-    _window->SetActive();
-    
+void Shader::InitializeProgram(std::vector<load_shader> paths) {
+    int count = paths.size();
     unsigned int* shaders = new unsigned int[count];
 
     //Read each shader and compile them
-    va_list folders;
-    va_start(folders, count);
-    for (int i = 0; i < count; i++) {
-        load_shader shader = va_arg(folders, load_shader);
-        const char* shadersource = ReadShaderProgram(shader.path, false);
+    int i = 0;
+    for (std::vector<load_shader>::iterator path = paths.begin(); path != paths.end(); path++) {
+        const char* shadersource = ReadShaderProgram(path->path, false);
 
         //Create and compile the shader
-        unsigned int shader_id = glCreateShader((int)shader.type);
+        unsigned int shader_id = glCreateShader((int)path->type);
         Debug::Logger::ConsoleOpenGLError("During creation of shader");
         glShaderSource(shader_id, 1, &shadersource, NULL);
         Debug::Logger::ConsoleOpenGLError("During setting shader source");
@@ -82,17 +79,16 @@ Shader::Shader(Window* window, int count, load_shader path...) : _window(window)
         Debug::Logger::ConsoleOpenGLError("During compilation of shader");
 
         //Check for success
-        VerifyShader(window, shader_id);
+        VerifyShader(this->_window, shader_id);
 
         //Add to be stored for later when we compile the entire program if all succeeded
-        shaders[i] = shader_id;
+        shaders[i++] = shader_id;
     }
-    va_end(folders);
 
     //Attach shaders to the program
     unsigned int program_id = glCreateProgram();
     Debug::Logger::ConsoleOpenGLError("During creation of program");
-    for (int i = 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
         glAttachShader(program_id, shaders[i]);
         Debug::Logger::ConsoleOpenGLError("During attaching shader to program");
     }
@@ -101,7 +97,7 @@ Shader::Shader(Window* window, int count, load_shader path...) : _window(window)
     Debug::Logger::ConsoleOpenGLError("During linking shaders in program");
 
     //Check for success
-    VerifyProgram(window, program_id);
+    VerifyProgram(this->_window, program_id);
 
     //Recover used resources, as the shaders are now built into the program
     for (int i = 0; i < count; i++) {
@@ -114,10 +110,26 @@ Shader::Shader(Window* window, int count, load_shader path...) : _window(window)
     this->_id = program_id;
 }
 
+Shader::Shader(Window* window, std::vector<load_shader> paths) : _window(window) {
+    InitializeProgram(paths);
+}
+
+Shader::Shader(Window* window, int count, load_shader path...) : _window(window) {
+    std::vector<load_shader> paths;
+
+    //Read each shader and compile them
+    va_list folders;
+    va_start(folders, count);
+    for (int i = 0; i < count; i++)
+        paths.push_back(va_arg(folders, load_shader));
+    va_end(folders);
+
+    InitializeProgram(paths);
+}
+
 Shader::~Shader() {
-    glDeleteProgram(_id);
+    glDeleteProgram(this->_id);
     Debug::Logger::ConsoleOpenGLError("During deleletion of program");
-    _buffermap.clear();
     //delete this;
 }
 
@@ -240,34 +252,7 @@ bool Shader::SetUniform(std::string name, unsigned int value1, unsigned int valu
     return res;
 }
 
-ArrayBuffer* Shader::AddArrayBuffer(std::string label)
-{
-    if (this->_buffermap.find(label) == this->_buffermap.end()) {
-        this->_buffermap[label] = new ArrayBuffer(this->_window);
-    }
-    else {
-        Controller::Instance()->ThrowException("Buffer label already exists");
-    }
-    return this->_buffermap[label];
-}
 
-ArrayBuffer* Shader::GetArrayBuffer(std::string label)
-{
-    if (this->_buffermap.find(label) == this->_buffermap.end())
-        return nullptr;
-    return this->_buffermap[label];
-}
-
-void Shader::RemoveArrayBuffer(std::string label) {
-    ArrayBuffer* buffer = this->GetArrayBuffer(label);
-    if (buffer != nullptr) {
-        Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed label %s in shader", label);
-        delete buffer;
-        _buffermap.erase(label);
-    }
-    else
-        Debug::Logger::Console(Debug::Level::DESTRUCTION, "Could not find array buffer by label %s in shader", label);
-}
 
 /*
 //Buffer specifically for vertex attributes

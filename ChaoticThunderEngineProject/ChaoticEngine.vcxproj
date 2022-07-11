@@ -129,6 +129,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)\GLEW\include;$(SolutionDir)\GLAD\include;$(SolutionDir)\GLFW\include;$(SolutionDir)\GLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
+      <DisableSpecificWarnings>6386;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

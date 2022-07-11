@@ -1,11 +1,16 @@
 #include "Graphics.hpp"
 #include "Debug.hpp"
+#include <vector>
 
 namespace Graphics {
     bool show_demo_window = false;
     bool fill_mesh = true;
-    float scale = 1.0f;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    float scale_uniform = 1.0f;
+    int selected_shader = 0;
+    int number_of_shaders = 0;
+    std::vector<std::string> shaders;
 
     void InitializeImGUI(Window* window) {
 
@@ -17,6 +22,8 @@ namespace Graphics {
         ImGui::StyleColorsDark();
         ImGui_ImplOpenGL3_Init("#version 330");
         ImGui_ImplGlfw_InitForOpenGL(window->GetGLContext(), true);
+
+        shaders = window->GetShaderLabels();
     }
 
     void ClearWindow(Window* window) {
@@ -34,9 +41,14 @@ namespace Graphics {
         glPolygonMode(GL_FRONT_AND_BACK, Graphics::fill_mesh ? GL_FILL : GL_LINE);
         Debug::Logger::ConsoleOpenGLError("During setting polygonmode");
 
-        int scaleloc = glGetUniformLocation(window->GetShader("test")->GetID(), "scale");
-        if (scaleloc > -1)
-            glUniform1f(scaleloc, scale);
+        if (selected_shader < shaders.size()) {
+            Shader* activeshader = window->GetShader(std::string(shaders[selected_shader]));
+            activeshader->Use();
+
+            int scaleloc = glGetUniformLocation(activeshader->GetID(), "scale");
+            if (scaleloc > -1)
+                glUniform1f(scaleloc, scale_uniform);
+        }
     }
 
     void RenderImGUI(Window* window) {
@@ -51,14 +63,21 @@ namespace Graphics {
         static float f = 0.0f;
         static int counter = 0;
 
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Run-time variables");                          // Create a window called "Hello, world!" and append into it.
 
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        ImGui::Checkbox("Fill mesh", &fill_mesh);               // Edit bools storing our window open/close state
-
-        ImGui::SliderFloat("Scale", &scale, 0.1f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::Checkbox("ImGUI help window", &show_demo_window);
+        ImGui::Text("Rendering");
+        ImGui::Checkbox("Fill mesh", &fill_mesh);
         ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+        const char** items = new const char* [shaders.size()];
+        for (int i = 0; i < shaders.size(); i++)
+            items[i] = shaders[i].c_str();
+
+        ImGui::Combo("Shader program", &selected_shader, items, shaders.size());
+
+        ImGui::Text("Uniforms");
+        ImGui::SliderFloat("Scale", &scale_uniform, 0.1f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
         if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
             counter++;
@@ -71,6 +90,8 @@ namespace Graphics {
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        delete[] items;
     }
 
     void TerminateImGUI() {
