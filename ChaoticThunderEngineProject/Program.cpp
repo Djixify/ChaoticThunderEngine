@@ -162,7 +162,7 @@ int main(int argc, const char* argv[]) {
 
     Controller::Init();
 
-    Debug::loglevels = 511;
+    Debug::SetLogLevels(511 - (int)Debug::Level::CONTEXT);
 
     Window mainwindow("Main window", 800, 800);
     //Window secondarywindow("Secondary window", 400, 400, &mainwindow);
@@ -271,20 +271,18 @@ int main(int argc, const char* argv[]) {
     glEnableVertexAttribArray(0);
     */
     
-
-    GLuint shader_programme = triangleshader.GetID();
-    //TEST
-
     bool shouldClose = false;
     glViewport(0, 0, 800, 800);
     Debug::Logger::ConsoleOpenGLError("During setting viewport in main");
 
-    glEnable(GL_DEPTH_TEST); // enable depth-testing
-    glDepthFunc(GL_LESS); // Closest object to the camera will be dra
 
+
+    glEnable(GL_DEPTH_TEST); // enable depth-testing
+    glDepthFunc(GL_LESS); // Closest object to the camera will be drawn
 
     //Initialize ImGUI (for parameter testing in window)
     Graphics::InitializeImGUI(Controller::Instance()->GetContextWindow());
+
 
     while (!shouldClose)
     {
@@ -292,31 +290,11 @@ int main(int argc, const char* argv[]) {
         Window* window = Controller::Instance()->GetContextWindow();
         ProcessInput(window->GetGLContext());
 
+        triangleshader.Use();
         Graphics::ClearWindow(window);
 
         Graphics::UpdateVariablesImGUI(window);
-        //triangleshader.Use();
-        //indexmainbuffer->SetActive();
-        //indexmainbuffer->Draw();
 
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        /*
-        //arraymainbuffer->SetActive();
-        //datamainbuffer->SetActive();
-        //arraymainbuffer->SetAttribute(0, 0, attribute_type::INT8, false);
-        //datamainbuffer->Draw();
-        glBindVertexArray(arraymainbuffer->GetID());
-        //indexmainbuffer->SetActive();
-        // draw points 0-3 from the currently bound VAO with current in-use shader
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glBindVertexArray(0);
-        */
-
-
-        glUseProgram(shader_programme);
-        Debug::Logger::ConsoleOpenGLError("During setting active shader program");
 
         arraymainbuffer->SetActive();
         //glBindVertexArray(VAO);

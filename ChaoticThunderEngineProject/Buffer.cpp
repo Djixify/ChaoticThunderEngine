@@ -9,8 +9,7 @@
 ArrayBuffer::ArrayBuffer(Window* window) : _window(window) {
     this->_window->SetActive();
 
-    unsigned int tmp = 0;
-    glGenVertexArrays(1, &tmp);
+    glGenVertexArrays(1, &_bindingID);
     Debug::Logger::ConsoleOpenGLError("During generation of array buffer");
 
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex array buffer at %d", this->_bindingID);
@@ -43,8 +42,6 @@ void ArrayBuffer::SetActive() {
 void ArrayBuffer::AddAttribute(GLuint location, GLint count, attribute_type attr, bool normalized)
 {
     this->SetActive();
-
-    _vbos.back()->SetActive();
 
     if (count > 4 || count < 0)
         Controller::Instance()->ThrowException("Invalid count given for attribute, can only accept between 1 and 4");
@@ -249,7 +246,6 @@ unsigned int VertexIndexBuffer::GetID() { return _bindingID; }
 void VertexIndexBuffer::SetActive() {
     this->_parent->SetActive();
 
-
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bindingID);
     Debug::Logger::ConsoleOpenGLError("During binding to vertex index buffer");
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context index buffer: %d", _bindingID);
@@ -266,14 +262,15 @@ void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
 }
 
 void VertexIndexBuffer::Draw() {
-    // draw points 0-3 from the currently bound VAO with current in-use shader
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
+    this->_parent->SetActive();
 
-    glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, this->_buffer_size, GL_UNSIGNED_INT, 0);
     Debug::Logger::ConsoleOpenGLError("During drawing of vertex index buffer");
 }
 
 void VertexIndexBuffer::Draw(int offset, int count) {
+    this->_parent->SetActive();
+
     glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, (void*)offset);
     Debug::Logger::ConsoleOpenGLError("During drawing of vertex index buffer");
 }

@@ -35,6 +35,8 @@ namespace Debug
     static std::ostream* defaultoutstream = &std::cout;
     static int loglevels = (int)Level::INFO | (int)Level::WARNING;
 
+    void SetLogLevels(int newlevels);
+
     class Logger
     {
     private:

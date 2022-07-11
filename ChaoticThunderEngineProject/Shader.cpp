@@ -22,7 +22,7 @@ const char* ReadShaderProgram(const std::string path, bool debug_print) {
 
     fileStream.close();
     if (debug_print)
-    std::cout << std::endl << std::endl << content << std::endl << std::endl;
+        std::cout << std::endl << std::endl << content << std::endl << std::endl;
 
     char* res = new char[content.size() + 1];
     strcpy_s(res, content.size() + 1, content.c_str());

@@ -2,6 +2,11 @@
 #include <glad\glad.h>
 
 namespace Debug {
+
+    void SetLogLevels(int newlevels) {
+        loglevels = newlevels;
+    }
+
     std::string Logger::levelToString(Level level) {
         switch (level)
         {
@@ -39,11 +44,13 @@ namespace Debug {
 
     Logger::~Logger() {
         _outputFileStream->flush();
+        //delete _outputFileStream;
     }
 
     void Logger::Console(Level level, std::string format, ...)
     {
-        if (((int)level & loglevels) == 0)
+        int result = ((int)level) & loglevels;
+        if (result == 0)
             return;
 
         std::time_t t = std::time(0);
@@ -176,7 +183,8 @@ namespace Debug {
     }
 
     void Logger::Log(Level level, std::string format, ...) {
-        if (((int)level & loglevels) == 0)
+        int result = ((int)level) & loglevels;
+        if (result == 0)
             return;
 
         if (_outputFileStream->good())
