@@ -69,6 +69,10 @@ void Shader::InitializeProgram(std::vector<load_shader> paths) {
     int i = 0;
     for (std::vector<load_shader>::iterator path = paths.begin(); path != paths.end(); path++) {
         const char* shadersource = ReadShaderProgram(path->path, false);
+        if (shadersource == NULL) {
+            Controller::Instance()->ThrowException("Shader could not be read at path " + path->path);
+            return;
+        }
 
         //Create and compile the shader
         unsigned int shader_id = glCreateShader((int)path->type);
@@ -140,7 +144,7 @@ unsigned int Shader::GetID() const
 
 void Shader::Use()
 {
-    glUseProgram(this->GetID());
+    glUseProgram(this->_id);
     Debug::Logger::ConsoleOpenGLError("During setting program to active");
 }
 
