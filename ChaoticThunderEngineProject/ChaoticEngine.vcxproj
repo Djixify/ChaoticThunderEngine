@@ -23,6 +23,7 @@
     <ClCompile Include="..\packages\ImGui.Docking.1.88.1\build\native\imgui_impl_glfw.cpp" />
     <ClCompile Include="..\packages\ImGui.Docking.1.88.1\build\native\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Enums.cpp" />
@@ -35,6 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.hpp" />
+    <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Controller.hpp" />
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="Enums.hpp" />
