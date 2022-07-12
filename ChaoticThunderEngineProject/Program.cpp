@@ -275,6 +275,7 @@ int main(int argc, const char* argv[]) {
     std::string trianglevertex = "triangle.vert";
     std::string redtrianglefragment = "trianglered.frag";
     std::string bluetrianglefragment = "triangleblue.frag";
+    std::string greentrianglefragment = "trianglegreen.frag";
 
     std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
     //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
@@ -285,9 +286,11 @@ int main(int argc, const char* argv[]) {
 
     load_shader bluefragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, bluetrianglefragment) };
     //Shader blueshader(&mainwindow, 2, vertexinfo, bluefragmentinfo);
+    load_shader greenfragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, greentrianglefragment) };
 
     mainwindow.AddShader("red", 2, vertexinfo, redfragmentinfo);
     mainwindow.AddShader("blue", 2, vertexinfo, bluefragmentinfo);
+    mainwindow.AddShader("green", 2, vertexinfo, greenfragmentinfo);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
