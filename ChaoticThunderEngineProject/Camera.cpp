@@ -2,9 +2,26 @@
 
 #include <iostream>
 
-void Camera::ProcessKeyboard(Movement direction, float deltaTime)
+//vector constructor
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MoveSpeed(SPEED), Sensitivity(SENSITIVITY), Zoom(ZOOM)
 {
+	Position = position;
+	WorldUp = up;
+	Yaw = yaw;
+	Pitch = pitch;
+	updateCameraVectors();
+}
 
+void Camera::ProcessKeyboard(GLFWwindow *window)
+{
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		Position += Front * MoveSpeed;
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		Position -= Front * MoveSpeed;
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		Position -= RightAxis * MoveSpeed;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		Position += RightAxis * MoveSpeed;
 }
 
 void Camera::ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch = true)

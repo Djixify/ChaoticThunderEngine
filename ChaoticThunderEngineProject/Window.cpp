@@ -5,7 +5,7 @@
 #include "Controller.hpp"
 #include "Shader.hpp"
 
-Window::Window(std::string title, int width, int height, Window* other)
+Window::Window(std::string title, int width, int height, Window* other) : _activecamera(0)
 {
     _glfwwindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
@@ -14,12 +14,16 @@ Window::Window(std::string title, int width, int height, Window* other)
         glfwTerminate();
         Controller::Instance()->ThrowException("Failed to make window instance");
     }
+    Camera* camera = new Camera();
+    
+    _cameras.push_back(std::shared_ptr<Camera>(camera));
 }
 
 Window::~Window() {
 
     _buffers.clear();
     _shaders.clear();
+    _cameras.clear();
 }
 
 void Window::AddShader(std::string shader_name, int count, load_shader shaders...)

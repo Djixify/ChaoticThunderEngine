@@ -26,7 +26,7 @@ class Camera
 {
 public:
 	//function declarations
-	void ProcessKeyboard(Movement direction, float deltaTime);
+	void ProcessKeyboard(GLFWwindow* window);
 	void ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch);
 	void ProcessMouseScroll(float yoffset);
 	void updateCameraVectors();
@@ -48,24 +48,7 @@ public:
 	float Zoom;
 
 	//vector constructor
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MoveSpeed(SPEED), Sensitivity(SENSITIVITY), Zoom(ZOOM)
-	{
-		Position = position;
-		WorldUp = up;
-		Yaw = yaw;
-		Pitch = pitch;
-		updateCameraVectors();
-	}
-	//scalar constructor
-	Camera(float x, float y, float z, float up_x, float up_y, float up_z, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MoveSpeed(SPEED), Sensitivity(SENSITIVITY), Zoom(ZOOM)
-	{
-		Position = glm::vec3(x, y, z);
-		WorldUp = glm::vec3(up_x, up_y, up_z);
-		Yaw = yaw;
-		Pitch = pitch;
-		updateCameraVectors();
-
-	}
+	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
 	
 
 

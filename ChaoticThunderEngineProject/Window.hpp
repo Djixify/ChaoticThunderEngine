@@ -7,12 +7,15 @@
 #include "Buffer.hpp"
 #include "Shader.hpp"
 #include "Structs.hpp"
+#include "Camera.hpp"
 
 class Window {
 private:
     GLFWwindow* _glfwwindow;
     std::map<std::string, std::shared_ptr<Shader>> _shaders;
     std::map<std::string, std::shared_ptr<ArrayBuffer>> _buffers;
+    int _activecamera;
+    std::vector<std::shared_ptr<Camera>> _cameras;
     friend class Shader;
 public:
     Window(std::string title, int width, int height, Window* other = nullptr);
