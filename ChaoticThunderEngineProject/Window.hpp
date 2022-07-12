@@ -20,16 +20,21 @@ private:
 public:
     Window(std::string title, int width, int height, Window* other = nullptr);
     ~Window();
+
+    GLFWwindow* GetGLContext() const;
+    void SetActive() const;
+    void GetSize(int& width, int& height);
+
     void AddShader(std::string shader_name, int count, load_shader shaders...);
     void RemoveShader(std::string shader_name);
     Shader* GetShader(std::string shader_name);
     std::vector<std::string> GetShaderLabels();
-    GLFWwindow* GetGLContext() const;
-    void SetActive() const;
 
     ArrayBuffer* AddArrayBuffer(std::string label);
     ArrayBuffer* GetArrayBuffer(std::string label);
     void RemoveArrayBuffer(std::string label);
+
+    Camera* GetActiveCamera();
 };
 
 #endif

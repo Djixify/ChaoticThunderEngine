@@ -45,9 +45,7 @@ namespace Graphics {
             Shader* activeshader = window->GetShader(std::string(shaders[selected_shader]));
             activeshader->Use();
 
-            int scaleloc = glGetUniformLocation(activeshader->GetID(), "scale");
-            if (scaleloc > -1)
-                glUniform1f(scaleloc, scale_uniform);
+            activeshader->SetUniform("scale", scale_uniform);
         }
     }
 

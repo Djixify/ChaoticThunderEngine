@@ -26,6 +26,10 @@ Window::~Window() {
     _cameras.clear();
 }
 
+void Window::GetSize(int& width, int& height) {
+    glfwGetFramebufferSize(_glfwwindow, &width, &height);
+}
+
 void Window::AddShader(std::string shader_name, int count, load_shader shaders...)
 {
     std::vector<load_shader> paths;
@@ -87,4 +91,8 @@ void Window::RemoveArrayBuffer(std::string label) {
     }
     else
         Debug::Logger::Console(Debug::Level::DESTRUCTION, "Could not find array buffer by label %s in shader", label);
+}
+
+Camera* Window::GetActiveCamera() {
+    return _cameras[_activecamera].get();
 }

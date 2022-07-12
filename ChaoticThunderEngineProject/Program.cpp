@@ -176,14 +176,52 @@ void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices,
     indices[3 * (input - 1) + 2] = 1;
 }
 
-void ProcessInput(GLFWwindow* window)
+float lastX = .0f, lastY = .0f;
+bool firstMouse = true;
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessMouse(xoffset, yoffset, true);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 void WindowSizeChanged(GLFWwindow* window, int width, int height)
@@ -306,14 +344,33 @@ int main(int argc, const char* argv[]) {
     bool shouldClose = false;
     while (!shouldClose)
     {
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         //Debug::Logger::console("Displaying window " + i);
         Window* window = Controller::Instance()->GetContextWindow();
-        ProcessInput(window->GetGLContext());
+        processInput(window->GetGLContext());
 
         mainwindow.GetShader("red")->Use();
         Graphics::ClearWindow(window);
 
         Graphics::UpdateVariablesImGUI(window);
+
+        Camera* camera = window->GetActiveCamera();
+        int width = 0, height = 0;
+        window->GetSize(width, height);
+
+        // pass projection matrix to shader (note that in this case it could change every frame)
+        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 100.0f);
+        window->GetShader("red")->SetUniform("projection", projection);
+
+        window->GetShader()->SetUniform("projection", scale_uniform);
+
+        // camera/view transformation
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("view", view);
+
 
         //glBindVertexArray(VAO);
         indexmainbuffer->Draw();
