@@ -294,7 +294,7 @@ int main(int argc, const char* argv[]) {
     float* vertices = 0;
     unsigned int* indices = 0;
 
-    //MakeNgon(n, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
+    //MakeNgon(6, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
     //SquareMesh(0.5, 0.5, 5, 3, indices, indices_count, vertices, vertices_count);
     EquilateralMesh(0.5, 0.5, 0.1, indices, indices_count, vertices, vertices_count);
 
@@ -308,12 +308,12 @@ int main(int argc, const char* argv[]) {
 #endif
 
     //Load shaders into main window
-    std::string fragmentshaderfolder = "fragmentshaders";
+    std::string fragmentshaderfolder = "shaderprograms";
     std::string circlepatternfragment = "circlepattern.frag";
-    std::string trianglevertex = "triangle.vert";
-    std::string redtrianglefragment = "trianglered.frag";
-    std::string bluetrianglefragment = "triangleblue.frag";
-    std::string greentrianglefragment = "trianglegreen.frag";
+    std::string trianglevertex = "scaling.vert";
+    std::string redtrianglefragment = "red.frag";
+    std::string bluetrianglefragment = "oscillatingblue.frag"; 
+    std::string greentrianglefragment = "green.frag";
 
     std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
     //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
@@ -333,7 +333,7 @@ int main(int argc, const char* argv[]) {
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
     VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
-    arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
+    arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
     
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be drawn
@@ -352,27 +352,9 @@ int main(int argc, const char* argv[]) {
         Window* window = Controller::Instance()->GetContextWindow();
         processInput(window->GetGLContext());
 
-        mainwindow.GetShader("red")->Use();
         Graphics::ClearWindow(window);
-
         Graphics::UpdateVariablesImGUI(window);
 
-        Camera* camera = window->GetActiveCamera();
-        int width = 0, height = 0;
-        window->GetSize(width, height);
-
-        // pass projection matrix to shader (note that in this case it could change every frame)
-        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 100.0f);
-        window->GetShader("red")->SetUniform("projection", projection);
-
-        window->GetShader()->SetUniform("projection", scale_uniform);
-
-        // camera/view transformation
-        glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("view", view);
-
-
-        //glBindVertexArray(VAO);
         indexmainbuffer->Draw();
 
         Graphics::RenderImGUI(window);
