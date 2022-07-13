@@ -274,7 +274,8 @@ int main(int argc, const char* argv[]) {
     std::string circlepatternfragment = "circlepattern.frag";
     std::string trianglevertex = "scaling.vert";
     std::string redtrianglefragment = "red.frag";
-    std::string bluetrianglefragment = "oscillatingblue.frag";
+    std::string bluetrianglefragment = "oscillatingblue.frag"; 
+    std::string greentrianglefragment = "green.frag";
 
     std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
     //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };

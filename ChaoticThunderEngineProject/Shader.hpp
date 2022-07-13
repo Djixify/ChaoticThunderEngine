@@ -5,6 +5,7 @@
 #include <GLFW\glfw3.h>
 #include <string>
 #include <map>
+#include <glm.hpp>
 #include "Structs.hpp"
 #include "Enums.hpp"
 #include "Buffer.hpp"
@@ -31,14 +32,23 @@ public:
     bool SetUniform(std::string name, float value1, float value2);
     bool SetUniform(std::string name, float value1, float value2, float value3);
     bool SetUniform(std::string name, float value1, float value2, float value3, float value4);
+    bool SetUniform(std::string name, glm::vec2 values);
+    bool SetUniform(std::string name, glm::vec3 values);
+    bool SetUniform(std::string name, glm::vec4 values);
     bool SetUniform(std::string name, int value1);
     bool SetUniform(std::string name, int value1, int value2);
     bool SetUniform(std::string name, int value1, int value2, int value3);
     bool SetUniform(std::string name, int value1, int value2, int value3, int value4);
+    bool SetUniform(std::string name, glm::ivec2 values);
+    bool SetUniform(std::string name, glm::ivec3 values);
+    bool SetUniform(std::string name, glm::ivec4 values);
     bool SetUniform(std::string name, unsigned int value1);
     bool SetUniform(std::string name, unsigned int value1, unsigned int value2);
     bool SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3);
     bool SetUniform(std::string name, unsigned int value1, unsigned int value2, unsigned int value3, unsigned int value4);
+    bool SetUniform(std::string name, glm::uvec2 values);
+    bool SetUniform(std::string name, glm::uvec3 values);
+    bool SetUniform(std::string name, glm::uvec4 values);
 };
 
 

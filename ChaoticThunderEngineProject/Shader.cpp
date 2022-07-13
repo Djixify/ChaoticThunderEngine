@@ -184,6 +184,33 @@ bool Shader::SetUniform(std::string name, float value1, float value2, float valu
     return res;
 }
 
+bool Shader::SetUniform(std::string name, glm::vec2 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2f(loc, values.x, values.y);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::vec3 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3f(loc, values.x, values.y, values.z);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::vec4 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4f(loc, values.x, values.y, values.z, values.w);
+    return res;
+}
+
 bool Shader::SetUniform(std::string name, int value1)
 {
     int loc = glGetUniformLocation(_id, name.c_str());
@@ -217,6 +244,42 @@ bool Shader::SetUniform(std::string name, int value1, int value2, int value3, in
     bool res = loc > -1;
     if (res)
         glUniform4i(loc, value1, value2, value3, value4);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec2 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2i(loc, values.x, values.y);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec2 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2i(loc, values.x, values.y);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec3 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3i(loc, values.x, values.y, values.z);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec4 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4i(loc, values.x, values.y, values.z, values.w);
     return res;
 }
 
@@ -256,7 +319,32 @@ bool Shader::SetUniform(std::string name, unsigned int value1, unsigned int valu
     return res;
 }
 
+bool Shader::SetUniform(std::string name, glm::uvec2 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2ui(loc, values.x, values.y);
+    return res;
+}
 
+bool Shader::SetUniform(std::string name, glm::uvec3 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3ui(loc, values.x, values.y, values.z);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::uvec4 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4ui(loc, values.x, values.y, values.z, values.w);
+    return res;
+}
 
 /*
 //Buffer specifically for vertex attributes
