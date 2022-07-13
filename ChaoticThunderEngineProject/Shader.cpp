@@ -184,33 +184,6 @@ bool Shader::SetUniform(std::string name, float value1, float value2, float valu
     return res;
 }
 
-bool Shader::SetUniform(std::string name, glm::vec2 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform2f(loc, values.x, values.y);
-    return res;
-}
-
-bool Shader::SetUniform(std::string name, glm::vec3 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform3f(loc, values.x, values.y, values.z);
-    return res;
-}
-
-bool Shader::SetUniform(std::string name, glm::vec4 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform4f(loc, values.x, values.y, values.z, values.w);
-    return res;
-}
-
 bool Shader::SetUniform(std::string name, int value1)
 {
     int loc = glGetUniformLocation(_id, name.c_str());
@@ -244,42 +217,6 @@ bool Shader::SetUniform(std::string name, int value1, int value2, int value3, in
     bool res = loc > -1;
     if (res)
         glUniform4i(loc, value1, value2, value3, value4);
-    return res;
-}
-
-bool Shader::SetUniform(std::string name, glm::ivec2 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform2i(loc, values.x, values.y);
-    return res;
-}
-
-bool Shader::SetUniform(std::string name, glm::ivec2 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform2i(loc, values.x, values.y);
-    return res;
-}
-
-bool Shader::SetUniform(std::string name, glm::ivec3 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform3i(loc, values.x, values.y, values.z);
-    return res;
-}
-
-bool Shader::SetUniform(std::string name, glm::ivec4 values)
-{
-    int loc = glGetUniformLocation(_id, name.c_str());
-    bool res = loc > -1;
-    if (res)
-        glUniform4i(loc, values.x, values.y, values.z, values.w);
     return res;
 }
 
@@ -319,6 +256,87 @@ bool Shader::SetUniform(std::string name, unsigned int value1, unsigned int valu
     return res;
 }
 
+bool Shader::SetUniform(std::string name, glm::vec1 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1f(loc, values.x);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::vec2 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2f(loc, values.x, values.y);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::vec3 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3f(loc, values.x, values.y, values.z);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::vec4 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4f(loc, values.x, values.y, values.z, values.w);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec1 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1i(loc, values.x);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec2 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform2i(loc, values.x, values.y);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec3 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform3i(loc, values.x, values.y, values.z);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::ivec4 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform4i(loc, values.x, values.y, values.z, values.w);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::uvec1 values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1ui(loc, values.x);
+    return res;
+}
+
 bool Shader::SetUniform(std::string name, glm::uvec2 values)
 {
     int loc = glGetUniformLocation(_id, name.c_str());
@@ -346,12 +364,137 @@ bool Shader::SetUniform(std::string name, glm::uvec4 values)
     return res;
 }
 
-/*
-//Buffer specifically for vertex attributes
-//https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml
-glBindBuffer(GL_ARRAY_BUFFER, b.data_addr);
-glBufferData(GL_ARRAY_BUFFER, data_size, data, b.gl_data_storage_type);
+bool Shader::SetUniform(std::string name, glm::mat2 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix2fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
 
-glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, b.elems_addr);
-glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_size, indices, b.gl_elems_storage_type);
-*/
+bool Shader::SetUniform(std::string name, glm::mat3 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix3fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat4 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix4fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat2x2 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix2fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat2x3 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix2x3fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat2x4 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix2x4fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat3x2 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix3x2fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat3x3 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix3fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat3x4 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix3x4fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat4x2 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix4x2fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat4x3 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix4x3fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, glm::mat4x4 values, bool transpose)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniformMatrix4fv(loc, 1, transpose, glm::value_ptr(values));
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int count, const float* values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1fv(loc, count, values);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int count, const int* values)
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1iv(loc, count, values);
+    return res;
+}
+
+bool Shader::SetUniform(std::string name, int count, const unsigned int* values) 
+{
+    int loc = glGetUniformLocation(_id, name.c_str());
+    bool res = loc > -1;
+    if (res)
+        glUniform1uiv(loc, count, values);
+    return res;
+}
