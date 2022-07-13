@@ -1,8 +1,9 @@
 
-#include "Controller.hpp"
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_glfw.h>
 #include "Debug.hpp"
+#include "Controller.hpp"
+#include "Window.hpp"
 
 void _defaultProcessFocus(GLFWwindow* window, int gl_message) {
     if (gl_message == GL_TRUE) {

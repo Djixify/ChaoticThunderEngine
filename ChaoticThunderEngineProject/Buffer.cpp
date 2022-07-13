@@ -1,6 +1,5 @@
 #include "Buffer.hpp"
-#include "Debug.hpp"
-#include "Controller.hpp"
+#include "Window.hpp"
 
 ///////////////////////////////////////
 ///           Array buffer          ///
@@ -184,7 +183,7 @@ void VertexDataBuffer::SetActive() {
 void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
     this->SetActive();
 
-    glBufferData(GL_ARRAY_BUFFER, byte_size, data, this->_storage_type);
+    glBufferData(GL_ARRAY_BUFFER, byte_size, data, (GLenum)this->_storage_type);
     Debug::Logger::ConsoleOpenGLError("During writing to vertex data buffer");
     Debug::Logger::Console(Debug::Level::WRITING, "Writing %d bytes of data buffer %d", byte_size, this->_bindingID);
     this->_buffer_size = byte_size;
@@ -239,7 +238,7 @@ void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
 
     Debug::Logger::Console(Debug::Level::WRITING, "Writing %d indicies into index buffer %d", count, this->_bindingID);
 
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, indicies, this->_storage_type);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, indicies, (GLenum)this->_storage_type);
     Debug::Logger::ConsoleOpenGLError("During writing to vertex index buffer");
     this->_buffer_size = count;
 }

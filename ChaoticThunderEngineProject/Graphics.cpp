@@ -1,10 +1,10 @@
-#include "Graphics.hpp"
-#include "Debug.hpp"
 #include <vector>
 #include <ctime>
 #include <filesystem>
 #include <string>
 #include <iostream>
+#include "Graphics.hpp"
+#include "Debug.hpp"
 
 namespace Graphics {
     bool show_demo_window = false, show_custom_shader_window = false;
@@ -47,8 +47,6 @@ namespace Graphics {
         ImGui_ImplOpenGL3_Init("#version 330");
         ImGui_ImplGlfw_InitForOpenGL(window->GetGLContext(), true);
 
-        UpdateShaderFiles();
-        window->AddShader("Custom", 2, load_shader{ VERTEX, vertex_shaders[selected_vertex_shader] }, load_shader{ FRAGMENT, fragment_shaders[selected_fragment_shader] });
         programs = window->GetShaderLabels();
 
         start_time = std::clock();
@@ -82,8 +80,6 @@ namespace Graphics {
             if (!activeshader->SetUniform("time", current_time))
                 start_time = now;
         }
-
-
     }
 
     void RenderImGUI(Window* window) {
@@ -119,7 +115,7 @@ namespace Graphics {
             ImGui::Combo("Vertex shader", &selected_vertex_shader, vert_items, vertex_shaders.size());
             ImGui::Combo("Fragment shader", &selected_fragment_shader, frag_items, fragment_shaders.size());
             if (ImGui::Button("Compile")) {
-                window->AddShader("Custom", 2, load_shader{ VERTEX, vertex_shaders[selected_vertex_shader] }, load_shader{ FRAGMENT, fragment_shaders[selected_fragment_shader] });
+                window->AddShader("Custom", 2, load_shader{ shader_type::VERTEX, vertex_shaders[selected_vertex_shader] }, load_shader{ shader_type::FRAGMENT, fragment_shaders[selected_fragment_shader] });
             }
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -138,6 +134,9 @@ namespace Graphics {
         ImGui::Text("Rendering");
         ImGui::Checkbox("Fill mesh", &fill_mesh);
         ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        window->ClearColor.x = clear_color.x;
+        window->ClearColor.y = clear_color.y;
+        window->ClearColor.z = clear_color.z;
 
         const char** items = new const char* [programs.size()];
         for (int i = 0; i < programs.size(); i++)

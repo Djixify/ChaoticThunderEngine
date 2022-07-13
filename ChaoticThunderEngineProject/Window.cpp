@@ -4,8 +4,10 @@
 #include "Debug.hpp"
 #include "Controller.hpp"
 #include "Shader.hpp"
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
-Window::Window(std::string title, int width, int height, Window* other) : _activecamera(0)
+Window::Window(std::string title, int width, int height, Window* other) : _activecamera(0), _activeshader(0)
 {
     _glfwwindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
@@ -14,9 +16,21 @@ Window::Window(std::string title, int width, int height, Window* other) : _activ
         glfwTerminate();
         Controller::Instance()->ThrowException("Failed to make window instance");
     }
+
+    ClearColor = glm::vec4{ 0.5f, 0.5f, 0.5f, 1.0f };
+
+    //Initialize a single camera to be the default view
     Camera* camera = new Camera();
-    
     _cameras.push_back(std::shared_ptr<Camera>(camera));
+
+    //Add bindings to events
+
+
+    //UpdateShaderFiles();
+    //window->AddShader("Custom", 2, load_shader{ shader_type::VERTEX, vertex_shaders[selected_vertex_shader] }, load_shader{ shader_type::FRAGMENT, fragment_shaders[selected_fragment_shader] });
+    //programs = _glfwwindow->GetShaderLabels();
+
+    //start_time = std::clock();
 }
 
 Window::~Window() {
@@ -26,8 +40,82 @@ Window::~Window() {
     _cameras.clear();
 }
 
-void Window::GetSize(int& width, int& height) {
+
+void Window::ProcessKeyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+
+}
+void Window::ProcessKeyContinuous()                                                            
+{
+    /*
+    Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    if (glfwGetKey(_glfwwindow, GLFW_KEY_W) == GLFW_PRESS)
+        camera->ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(_glfwwindow, GLFW_KEY_S) == GLFW_PRESS)
+        camera->ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(_glfwwindow, GLFW_KEY_A) == GLFW_PRESS)
+        camera->ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(_glfwwindow, GLFW_KEY_D) == GLFW_PRESS)
+        camera->ProcessKeyboard(RIGHT, deltaTime);
+    */
+}
+void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)                
+{
+
+}
+void Window::ProcessMouseKeyChanged(GLFWwindow* window, int button, int action, int mods)      
+{
+
+}
+void Window::ProcessMouseKeyContinuous(GLFWwindow* window, int button, int action, int mods)   
+{
+
+}
+void Window::ProcessMouseEnterLeave(GLFWwindow* window, int entered)                           
+{
+
+}
+void Window::ProcessScrollWheel(GLFWwindow* window, double xoffset, double yoffset)            
+{
+
+}
+void Window::ProcessResize(GLFWwindow* window, int width, int height)                          
+{
+    glViewport(0, 0, width, height);
+    Debug::Logger::ConsoleOpenGLError("During setting viewport in window size changed event");
+}
+
+void Window::GetSize(int& width, int& height) 
+{
     glfwGetFramebufferSize(_glfwwindow, &width, &height);
+}
+
+
+void Window::Clear() {
+    int display_w, display_h;
+    glfwGetFramebufferSize(_glfwwindow, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    Debug::Logger::ConsoleOpenGLError("During setting viewport in ClearWindow");
+    glClearColor(ClearColor.x * ClearColor.w, ClearColor.y * ClearColor.w, ClearColor.z * ClearColor.w, ClearColor.w);
+    Debug::Logger::ConsoleOpenGLError("During setting clear color in ClearWindow");
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Debug::Logger::ConsoleOpenGLError("During clear call in ClearWindow");
+}
+
+void Window::UpdateUniforms() {
+
+}
+
+/// <summary>
+/// Determines how the cursor acts when inside the window's context
+/// Normal is the default setting when creating a window
+/// Hidden applies what it says, acts the same as normal, but hides the cursor
+/// Centered is when attaching the camera direction to the mouse so it is bound to the center of the window
+/// </summary>
+/// <param name="input_type">Type of input that the window cursor should use</param>
+void Window::SetCursorInputType(Controls::cursor_input_type input_type) 
+{
+    glfwSetInputMode(_glfwwindow, GLFW_CURSOR, (int)Controls::cursor_input_type::NORMAL);
 }
 
 void Window::AddShader(std::string shader_name, int count, load_shader shaders...)

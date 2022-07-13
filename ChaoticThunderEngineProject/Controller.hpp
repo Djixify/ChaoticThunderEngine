@@ -2,12 +2,13 @@
 #define ENGINE_CONTROLLER_MODULE
 
 #include <glad/glad.h>
-#include "Exception.hpp"
-#include "Window.hpp"
 #include <GLFW\glfw3.h>
 #include <vector>
 #include <cassert>
 #include <iostream>
+#include "Exception.hpp"
+
+class Window;
 
 /// <summary>
 /// The controller is a singleton class managing one or more window instances

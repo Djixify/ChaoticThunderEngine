@@ -3,6 +3,7 @@
 #include "File.hpp"
 #include "Controller.hpp"
 #include "Buffer.hpp"
+#include "Window.hpp"
 
 
 const char* ReadShaderProgram(const std::string path, bool debug_print) {
@@ -364,6 +365,7 @@ bool Shader::SetUniform(std::string name, glm::uvec4 values)
     return res;
 }
 
+/* Depends on preference, keeping 2x2, 3x3 and 4x4 as it is more explicit
 bool Shader::SetUniform(std::string name, glm::mat2 values, bool transpose)
 {
     int loc = glGetUniformLocation(_id, name.c_str());
@@ -390,6 +392,7 @@ bool Shader::SetUniform(std::string name, glm::mat4 values, bool transpose)
         glUniformMatrix4fv(loc, 1, transpose, glm::value_ptr(values));
     return res;
 }
+*/
 
 bool Shader::SetUniform(std::string name, glm::mat2x2 values, bool transpose)
 {

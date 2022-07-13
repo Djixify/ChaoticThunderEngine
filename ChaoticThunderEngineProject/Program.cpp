@@ -213,21 +213,16 @@ void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
+    /*
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-}
-
-void WindowSizeChanged(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-    Debug::Logger::ConsoleOpenGLError("During setting viewport in window size changed event");
+        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(RIGHT, deltaTime);
+    */
 }
 
 static void glfw_error_callback(int error, const char* description)
@@ -318,13 +313,11 @@ int main(int argc, const char* argv[]) {
     std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
     //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
     //Shader circleShader(secondarywindow, 1, circleshaderinfo);
-    load_shader vertexinfo{ VERTEX, File::CombinePath(2, shaderfolder, trianglevertex) };
-    load_shader redfragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, redtrianglefragment) };
-    //Shader redshader(&mainwindow, 2, vertexinfo, redfragmentinfo);
+    load_shader vertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, trianglevertex) };
 
-    load_shader bluefragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, bluetrianglefragment) };
-    //Shader blueshader(&mainwindow, 2, vertexinfo, bluefragmentinfo);
-    load_shader greenfragmentinfo{ FRAGMENT, File::CombinePath(2, shaderfolder, greentrianglefragment) };
+    load_shader redfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, redtrianglefragment) };
+    load_shader bluefragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, bluetrianglefragment) };
+    load_shader greenfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, greentrianglefragment) };
 
     mainwindow.AddShader("red", 2, vertexinfo, redfragmentinfo);
     mainwindow.AddShader("blue", 2, vertexinfo, bluefragmentinfo);
@@ -345,15 +338,29 @@ int main(int argc, const char* argv[]) {
     while (!shouldClose)
     {
         float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
 
         //Debug::Logger::console("Displaying window " + i);
         Window* window = Controller::Instance()->GetContextWindow();
         processInput(window->GetGLContext());
 
-        Graphics::ClearWindow(window);
+        window->Clear();
         Graphics::UpdateVariablesImGUI(window);
+
+        /*
+        Camera* camera = window->GetActiveCamera();
+        int width = 0, height = 0;
+        window->GetSize(width, height);
+
+        // pass projection matrix to shader (note that in this case it could change every frame)
+        glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)width / (float)height, 0.1f, 100.0f);
+        window->GetShader("red")->SetUniform("projection", projection);
+
+        window->GetShader()->SetUniform("projection", scale_uniform);
+
+        // camera/view transformation
+        glm::mat4 view = camera.GetViewMatrix();
+        ourShader.setMat4("view", view);
+        */
 
         indexmainbuffer->Draw();
 

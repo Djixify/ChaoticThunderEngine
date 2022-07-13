@@ -21,6 +21,7 @@ private:
     GLuint _id;
     Window* _window;
     void InitializeProgram(std::vector<load_shader> paths);
+    friend class Window;
 public:
     Shader(Window* window, std::vector<load_shader> paths);
     Shader(Window* window, int count, load_shader path...);
@@ -55,9 +56,6 @@ public:
     bool SetUniform(std::string name, glm::uvec3 values);
     bool SetUniform(std::string name, glm::uvec4 values);
 
-    bool SetUniform(std::string name, glm::mat2 values, bool transpose = GL_FALSE);
-    bool SetUniform(std::string name, glm::mat3 values, bool transpose = GL_FALSE);
-    bool SetUniform(std::string name, glm::mat4 values, bool transpose = GL_FALSE);
     bool SetUniform(std::string name, glm::mat2x2 values, bool transpose = GL_FALSE);
     bool SetUniform(std::string name, glm::mat2x3 values, bool transpose = GL_FALSE);
     bool SetUniform(std::string name, glm::mat2x4 values, bool transpose = GL_FALSE);

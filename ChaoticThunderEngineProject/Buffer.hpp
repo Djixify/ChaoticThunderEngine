@@ -6,6 +6,8 @@
 #include <glad\glad.h>
 #include "Enums.hpp"
 #include "Structs.hpp"
+#include "Debug.hpp"
+#include "Controller.hpp"
 
 class VertexIndexBuffer;
 class VertexDataBuffer;
@@ -32,8 +34,8 @@ public:
     void RemoveAttribute(GLuint location);
     char AttributeCount();
 
-    VertexDataBuffer* CreateVertexBuffer(buffer_storage_type storage_type = STATIC);
-    VertexDataBuffer* CreateVertexBuffer(unsigned int byte_size, void* data, buffer_storage_type storage_type = STATIC);
+    VertexDataBuffer* CreateVertexBuffer(buffer_storage_type storage_type = buffer_storage_type::STATIC);
+    VertexDataBuffer* CreateVertexBuffer(unsigned int byte_size, void* data, buffer_storage_type storage_type = buffer_storage_type::STATIC);
 };
 
 
@@ -49,17 +51,16 @@ private:
     unsigned int _buffer_size;
     std::vector<std::shared_ptr<VertexIndexBuffer>> _ebos;
 
-    VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type storage_type = STATIC);
+    VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type storage_type = buffer_storage_type::STATIC);
     friend class ArrayBuffer;
 public:
-    VertexDataBuffer(const VertexDataBuffer& other);
     ~VertexDataBuffer();
     unsigned int GetID();
     void SetActive();
     void Write(unsigned int byte_size, void* data);
 
-    VertexIndexBuffer* CreateIndexBuffer(buffer_storage_type storage_type = STATIC);
-    VertexIndexBuffer* CreateIndexBuffer(unsigned int count, unsigned int* indicies, buffer_storage_type storage_type = STATIC);
+    VertexIndexBuffer* CreateIndexBuffer(buffer_storage_type storage_type = buffer_storage_type::STATIC);
+    VertexIndexBuffer* CreateIndexBuffer(unsigned int count, unsigned int* indicies, buffer_storage_type storage_type = buffer_storage_type::STATIC);
 };
 
 
@@ -77,10 +78,9 @@ private:
     buffer_storage_type _storage_type;
     unsigned int _buffer_size;
 
-    VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_type storage_type = STATIC);
+    VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_type storage_type = buffer_storage_type::STATIC);
     friend class VertexDataBuffer;
 public:
-    VertexIndexBuffer(const VertexIndexBuffer& other);
     ~VertexIndexBuffer();
     unsigned int GetID();
     void SetActive();
