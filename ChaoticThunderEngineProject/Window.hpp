@@ -22,13 +22,19 @@ private:
     int _activecamera;
     std::vector<std::shared_ptr<Camera>> _cameras;
 
-    float _deltatime = 0.0f, _lastframetime = 0.0f;
+    bool _environment_fill_mesh;
+
+    float _global_uniform_time;
+
+    clock_t _start_time; 
+    float _delta_time;
+    float _current_time;
 
     void ProcessKeyChanged(GLFWwindow* window, int key, int scancode, int action, int mods);
     void ProcessKeyContinuous();
     void ProcessMousePosition(GLFWwindow* window, double xpos, double ypos);
     void ProcessMouseKeyChanged(GLFWwindow* window, int button, int action, int mods);
-    void ProcessMouseKeyContinuous(GLFWwindow* window, int button, int action, int mods);
+    void ProcessMouseKeyContinuous();
     void ProcessMouseEnterLeave(GLFWwindow* window, int entered);
     void ProcessScrollWheel(GLFWwindow* window, double xoffset, double yoffset);
     void ProcessResize(GLFWwindow* window, int width, int height);
@@ -48,7 +54,6 @@ public:
     void GetSize(int& width, int& height);
 
     void Clear();
-    void UpdateUniforms();
 
     void AddShader(std::string shader_name, int count, load_shader shaders...);
     void RemoveShader(std::string shader_name);

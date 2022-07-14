@@ -143,10 +143,17 @@ unsigned int Shader::GetID() const
     return this->_id;
 }
 
-void Shader::Use()
+void Shader::Use(bool update_global_uniforms)
 {
     glUseProgram(this->_id);
     Debug::Logger::ConsoleOpenGLError("During setting program to active");
+
+    if (update_global_uniforms) {
+        clock_t now = std::clock();
+        _window->_current_time = ((float)(now - _window->_start_time)) / 1000.f;
+        if (!this->SetUniform("time", _window->_current_time))
+            _window->_start_time = now;
+    }
 }
 
 bool Shader::SetUniform(std::string name, float value1)

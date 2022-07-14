@@ -7,7 +7,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-Window::Window(std::string title, int width, int height, Window* other) : _activecamera(0), _activeshader(0)
+Window::Window(std::string title, int width, int height, Window* other) : _activecamera(0), _activeshader(0), _environment_fill_mesh(true), _global_uniform_time(.0f), _start_time(std::clock()), _delta_time(.0f), _current_time(.0f)
 {
     _glfwwindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
@@ -30,7 +30,7 @@ Window::Window(std::string title, int width, int height, Window* other) : _activ
     //window->AddShader("Custom", 2, load_shader{ shader_type::VERTEX, vertex_shaders[selected_vertex_shader] }, load_shader{ shader_type::FRAGMENT, fragment_shaders[selected_fragment_shader] });
     //programs = _glfwwindow->GetShaderLabels();
 
-    //start_time = std::clock();
+    //_start_time = std::clock();
 }
 
 Window::~Window() {
@@ -40,11 +40,11 @@ Window::~Window() {
     _cameras.clear();
 }
 
-
 void Window::ProcessKeyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 
 }
+
 void Window::ProcessKeyContinuous()                                                            
 {
     /*
@@ -59,26 +59,32 @@ void Window::ProcessKeyContinuous()
         camera->ProcessKeyboard(RIGHT, deltaTime);
     */
 }
+
 void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)                
 {
 
 }
+
 void Window::ProcessMouseKeyChanged(GLFWwindow* window, int button, int action, int mods)      
 {
 
 }
-void Window::ProcessMouseKeyContinuous(GLFWwindow* window, int button, int action, int mods)   
+
+void Window::ProcessMouseKeyContinuous()   
 {
 
 }
+
 void Window::ProcessMouseEnterLeave(GLFWwindow* window, int entered)                           
 {
 
 }
+
 void Window::ProcessScrollWheel(GLFWwindow* window, double xoffset, double yoffset)            
 {
 
 }
+
 void Window::ProcessResize(GLFWwindow* window, int width, int height)                          
 {
     glViewport(0, 0, width, height);
@@ -100,10 +106,9 @@ void Window::Clear() {
     Debug::Logger::ConsoleOpenGLError("During setting clear color in ClearWindow");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     Debug::Logger::ConsoleOpenGLError("During clear call in ClearWindow");
-}
 
-void Window::UpdateUniforms() {
-
+    glPolygonMode(GL_FRONT_AND_BACK, _environment_fill_mesh ? GL_FILL : GL_LINE);
+    Debug::Logger::ConsoleOpenGLError("During setting polygonmode");
 }
 
 /// <summary>

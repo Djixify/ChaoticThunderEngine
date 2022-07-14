@@ -48,8 +48,6 @@ namespace Graphics {
         ImGui_ImplGlfw_InitForOpenGL(window->GetGLContext(), true);
 
         programs = window->GetShaderLabels();
-
-        start_time = std::clock();
     }
 
     void ClearWindow(Window* window) {
@@ -68,17 +66,11 @@ namespace Graphics {
         Debug::Logger::ConsoleOpenGLError("During setting polygonmode");
 
         programs = window->GetShaderLabels();
-
-        if (programs[selected_program].compare("Custom") == 0 && window->GetShader(programs[selected_program]) != nullptr) {
+        if (window->GetShader(programs[selected_program]) != nullptr) {
             Shader* activeshader = window->GetShader(std::string(programs[selected_program]));
             activeshader->Use();
 
             activeshader->SetUniform("scale", scale_uniform);
-
-            clock_t now = std::clock();
-            current_time = ((float)(now - start_time)) / 1000.f;
-            if (!activeshader->SetUniform("time", current_time))
-                start_time = now;
         }
     }
 

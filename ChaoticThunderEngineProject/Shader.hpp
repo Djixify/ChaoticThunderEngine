@@ -27,9 +27,8 @@ public:
     Shader(Window* window, int count, load_shader path...);
     ~Shader();
     unsigned int GetID() const;
-    void Use();
-
-#
+    void Use(bool update_global_uniforms = true);
+#pragma region Uniforms
     bool SetUniform(std::string name, float value1);
     bool SetUniform(std::string name, float value1, float value2);
     bool SetUniform(std::string name, float value1, float value2, float value3);
@@ -69,6 +68,7 @@ public:
     bool SetUniform(std::string name, int count, const float* values);
     bool SetUniform(std::string name, int count, const int* values);
     bool SetUniform(std::string name, int count, const unsigned int* values);
+#pragma endregion
 };
 
 
