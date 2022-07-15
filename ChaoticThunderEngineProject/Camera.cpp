@@ -4,7 +4,7 @@
 #include "Enums.hpp"
 
 //vector constructor
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MoveSpeed(SPEED), Sensitivity(SENSITIVITY), Zoom(ZOOM)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MoveSpeed(SPEED), Sensitivity(SENSITIVITY), Zoom(ZOOM), Fov(FOV)
 {
 	Position = position;
 	WorldUp = up;
@@ -65,4 +65,8 @@ void Camera::updateCameraVectors()
 	Front = glm::normalize(front);
 	RightAxis = glm::normalize(glm::cross(Front, WorldUp));
 	UpAxis = glm::normalize(glm::cross(RightAxis, Front));
+}
+
+glm::mat4x4 Camera::GetViewMatrix() {
+	return glm::lookAt(Position, Position + Front, WorldUp);
 }

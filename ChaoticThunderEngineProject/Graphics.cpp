@@ -22,6 +22,7 @@ namespace Graphics {
     std::vector<std::string> fragment_shaders;
     clock_t start_time = 0;
     float current_time = 0;
+    int camera_fov = 90;
 
     void UpdateShaderFiles() {
         for (const auto& entry : std::filesystem::directory_iterator("shaderprograms")) {
@@ -69,7 +70,6 @@ namespace Graphics {
         if (window->GetShader(programs[selected_program]) != nullptr) {
             Shader* activeshader = window->GetShader(std::string(programs[selected_program]));
             activeshader->Use();
-
             activeshader->SetUniform("scale", scale_uniform);
         }
     }
@@ -125,10 +125,12 @@ namespace Graphics {
         ImGui::Checkbox("ImGUI help window", &show_demo_window);
         ImGui::Text("Rendering");
         ImGui::Checkbox("Fill mesh", &fill_mesh);
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        ImGui::ColorEdit3("Clear color", (float*)&clear_color); // Edit 3 floats representing a color
         window->ClearColor.x = clear_color.x;
         window->ClearColor.y = clear_color.y;
         window->ClearColor.z = clear_color.z;
+        ImGui::SliderInt("Camera FOV", &camera_fov, 45, 135);
+        window->GetActiveCamera()->Fov = glm::radians((float)camera_fov);
 
         const char** items = new const char* [programs.size()];
         for (int i = 0; i < programs.size(); i++)
@@ -138,6 +140,7 @@ namespace Graphics {
 
         ImGui::Text("Uniforms");
         ImGui::SliderFloat("Scale", &scale_uniform, 0.1f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        window->GetActiveCamera()->Position = glm::vec3(0, 0, scale_uniform);
         std::string time_str = "Time: " + std::to_string(current_time) + " sec";
         ImGui::Text(time_str.c_str());
 

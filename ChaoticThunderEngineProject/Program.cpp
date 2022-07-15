@@ -305,7 +305,8 @@ int main(int argc, const char* argv[]) {
     //Load shaders into main window
     std::string fragmentshaderfolder = "shaderprograms";
     std::string circlepatternfragment = "circlepattern.frag";
-    std::string trianglevertex = "scaling.vert";
+    std::string scalingvertex = "scaling.vert";
+    std::string cameravertex = "camera.vert";
     std::string redtrianglefragment = "red.frag";
     std::string bluetrianglefragment = "oscillatingblue.frag"; 
     std::string greentrianglefragment = "green.frag";
@@ -313,15 +314,16 @@ int main(int argc, const char* argv[]) {
     std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
     //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
     //Shader circleShader(secondarywindow, 1, circleshaderinfo);
-    load_shader vertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, trianglevertex) };
+    load_shader scalingvertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, scalingvertex) };
+    load_shader cameravertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, cameravertex) };
 
     load_shader redfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, redtrianglefragment) };
     load_shader bluefragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, bluetrianglefragment) };
     load_shader greenfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, greentrianglefragment) };
 
-    mainwindow.AddShader("red", 2, vertexinfo, redfragmentinfo);
-    mainwindow.AddShader("blue", 2, vertexinfo, bluefragmentinfo);
-    mainwindow.AddShader("green", 2, vertexinfo, greenfragmentinfo);
+    mainwindow.AddShader("red", 2, scalingvertexinfo, redfragmentinfo);
+    mainwindow.AddShader("blue", 2, scalingvertexinfo, bluefragmentinfo);
+    mainwindow.AddShader("green", 2, cameravertexinfo, greenfragmentinfo);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);

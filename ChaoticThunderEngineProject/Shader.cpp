@@ -154,6 +154,14 @@ void Shader::Use(bool update_global_uniforms)
         if (!this->SetUniform("time", _window->_current_time))
             _window->_start_time = now;
     }
+
+    if (_window->_activecamera > -1) {
+        Camera* camera = _window->_cameras[_window->_activecamera].get();
+        this->SetUniform("view", camera->GetViewMatrix());
+        int width = 1, height = 1;
+        _window->GetSize(width, height);
+        this->SetUniform("projection", glm::perspective((float)camera->Fov, _window->GetAspectRatio(), 0.1f, 100.0f));
+    }
 }
 
 bool Shader::SetUniform(std::string name, float value1)

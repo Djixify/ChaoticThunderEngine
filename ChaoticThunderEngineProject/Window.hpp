@@ -52,6 +52,7 @@ public:
     GLFWwindow* GetGLContext() const;
     void SetActive() const;
     void GetSize(int& width, int& height);
+    float GetAspectRatio();
 
     void Clear();
 

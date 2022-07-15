@@ -7,7 +7,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-Window::Window(std::string title, int width, int height, Window* other) : _activecamera(0), _activeshader(0), _environment_fill_mesh(true), _global_uniform_time(.0f), _start_time(std::clock()), _delta_time(.0f), _current_time(.0f)
+Window::Window(std::string title, int width, int height, Window* other) : _activeshader(0), _environment_fill_mesh(true), _global_uniform_time(.0f), _start_time(std::clock()), _delta_time(.0f), _current_time(.0f)
 {
     _glfwwindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
@@ -22,6 +22,7 @@ Window::Window(std::string title, int width, int height, Window* other) : _activ
     //Initialize a single camera to be the default view
     Camera* camera = new Camera();
     _cameras.push_back(std::shared_ptr<Camera>(camera));
+    _activecamera = 0;
 
     //Add bindings to events
 
@@ -94,6 +95,12 @@ void Window::ProcessResize(GLFWwindow* window, int width, int height)
 void Window::GetSize(int& width, int& height) 
 {
     glfwGetFramebufferSize(_glfwwindow, &width, &height);
+}
+
+float Window::GetAspectRatio() {
+    int width = 0, height = 0;
+    GetSize(width, height);
+    return (float)width / (float)height;
 }
 
 
