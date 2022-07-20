@@ -8,19 +8,21 @@
 #include <vector>
 #include "Enums.hpp"
 
+class Window;
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
-const int FOV = 90;
+const float SPEED = 0.001f;
+const float SENSITIVITY = 0.01f;
+const float FOV = 90.0f;
+const float NEAR_PLANE = 0.1f;
+const float FAR_PLANE = 100.0f;
 
 class Camera
 {
 public:
 	//function declarations
-	void ProcessMovement(Controls::movement_direction direction);
+	void ProcessMovement(Window* window, Controls::movement_direction direction);
 	void ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch);
 	void ProcessMouseScroll(float yoffset);
 	void updateCameraVectors();
@@ -39,8 +41,9 @@ public:
 	//options
 	float MoveSpeed;
 	float Sensitivity;
-	float Zoom;
-	int Fov;
+	float Fov;
+	float Near_plane;
+	float Far_plane;
 
 	//vector constructor
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);

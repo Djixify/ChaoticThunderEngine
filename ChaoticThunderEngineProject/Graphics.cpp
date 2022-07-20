@@ -10,6 +10,8 @@ namespace Graphics {
     bool show_demo_window = false, show_custom_shader_window = false;
     bool fill_mesh = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 camera_position = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    int camera_fov = 90;
 
     float scale_uniform = 1.0f;
     bool has_loaded_shaderfiles = false;
@@ -22,7 +24,6 @@ namespace Graphics {
     std::vector<std::string> fragment_shaders;
     clock_t start_time = 0;
     float current_time = 0;
-    int camera_fov = 90;
 
     void UpdateShaderFiles() {
         for (const auto& entry : std::filesystem::directory_iterator("shaderprograms")) {
@@ -129,8 +130,6 @@ namespace Graphics {
         window->ClearColor.x = clear_color.x;
         window->ClearColor.y = clear_color.y;
         window->ClearColor.z = clear_color.z;
-        ImGui::SliderInt("Camera FOV", &camera_fov, 45, 135);
-        window->GetActiveCamera()->Fov = glm::radians((float)camera_fov);
 
         const char** items = new const char* [programs.size()];
         for (int i = 0; i < programs.size(); i++)
@@ -139,16 +138,31 @@ namespace Graphics {
         ImGui::Combo("Shader program", &selected_program, items, programs.size());
 
         ImGui::Text("Uniforms");
-        ImGui::SliderFloat("Scale", &scale_uniform, 0.1f, 2.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        window->GetActiveCamera()->Position = glm::vec3(0, 0, scale_uniform);
-        std::string time_str = "Time: " + std::to_string(current_time) + " sec";
+        ImGui::SliderFloat("Scale", &scale_uniform, 0.1f, 2.0f);  
+        std::string time_str = "Time: " + std::to_string(window->GetCurrentTimeSec()) + " sec";
         ImGui::Text(time_str.c_str());
 
+        ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
+        Camera* camera = window->GetActiveCamera();
+        glm::vec3 pos = window->GetActiveCamera()->Position;
+        camera_position = ImVec4(pos.x, pos.y, pos.z, 1.0f);
+        ImGui::InputFloat3("Position", (float*)&camera_position); // Edit 3 floats representing a color
+        camera->Position.x = camera_position.x;
+        camera->Position.y = camera_position.y;
+        camera->Position.z = camera_position.z;
 
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
+        //std::string pos_str = "Position: " + std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z);
+        //ImGui::Text(pos_str.c_str());
+        camera_fov = (int)camera->Fov;
+        ImGui::SliderInt("Camera FOV", &camera_fov, 45, 135);
+        camera->Fov = (float)camera_fov;
+        ImGui::SliderFloat("Near plane", &camera->Near_plane, 0.1f, 10.0f);
+        ImGui::SliderFloat("Far plane", &camera->Far_plane, 10.0f, 100.0f);
+
+        //if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+        //    counter++;
+        //ImGui::SameLine();
+        //ImGui::Text("counter = %d", counter);
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();

@@ -106,11 +106,6 @@ void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& 
     }
 }
 
-//TODO: mpofmz
-void Cube(float width, float height, float depth, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
-
-}
-
 void EquilateralMesh(float width, float height, float triangle_side, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     
     int xpart = (int)((width) / triangle_side);

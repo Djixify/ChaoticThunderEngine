@@ -7,7 +7,54 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-Window::Window(std::string title, int width, int height, Window* other) : _activeshader(0), _environment_fill_mesh(true), _global_uniform_time(.0f), _start_time(std::clock()), _delta_time(.0f), _current_time(.0f)
+void _processKeyChanged(GLFWwindow* glfwwindow, int key, int scancode, int action, int mods) {
+    for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
+        Window* window = Controller::Instance()->GetWindow(i);
+        if (window->GetGLContext() == glfwwindow)
+            Controller::Instance()->GetContextWindow()->ProcessKeyChanged(glfwwindow, key, scancode, action, mods);
+    }
+}
+
+void _processMousePosChanged(GLFWwindow* glfwwindow, double xpos, double ypos) {
+    for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
+        Window* window = Controller::Instance()->GetWindow(i);
+        if (window->GetGLContext() == glfwwindow)
+            Controller::Instance()->GetContextWindow()->ProcessMousePosition(glfwwindow, xpos, ypos);
+    }
+}
+
+void _processMouseEnterLeaveChanged(GLFWwindow* glfwwindow, int entered) {
+    for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
+        Window* window = Controller::Instance()->GetWindow(i);
+        if (window->GetGLContext() == glfwwindow)
+            Controller::Instance()->GetContextWindow()->ProcessMouseEnterLeave(glfwwindow, entered == true);
+    }
+}
+
+void _processMouseKeyChanged(GLFWwindow* glfwwindow, int button, int action, int mods) {
+    for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
+        Window* window = Controller::Instance()->GetWindow(i);
+        if (window->GetGLContext() == glfwwindow)
+            Controller::Instance()->GetContextWindow()->ProcessMouseKeyChanged(glfwwindow, button, action, mods);
+    }
+}
+
+void _processMouseWheelChanged(GLFWwindow* glfwwindow, double xoffset, double yoffset) {
+    for (int i = 0; i < Controller::Instance()->GetWindowCount(); i++) {
+        Window* window = Controller::Instance()->GetWindow(i);
+        if (window->GetGLContext() == glfwwindow)
+            Controller::Instance()->GetContextWindow()->ProcessScrollWheel(glfwwindow, xoffset, yoffset);
+    }
+}
+
+Window::Window(std::string title, int width, int height, Window* other) : 
+    _activeshader(0), 
+    _environment_fill_mesh(true), 
+    _start_time(std::clock()), 
+    _delta_time(.0f), 
+    _current_time(.0f),
+    _prev_pos(glm::vec2(.0f)),
+    _invalid_prev_pos(true)
 {
     _glfwwindow = glfwCreateWindow(width, height, "LearnOpenGL", NULL, other == NULL ? NULL : other->GetGLContext());
     if (_glfwwindow == NULL)
@@ -30,8 +77,14 @@ Window::Window(std::string title, int width, int height, Window* other) : _activ
     //UpdateShaderFiles();
     //window->AddShader("Custom", 2, load_shader{ shader_type::VERTEX, vertex_shaders[selected_vertex_shader] }, load_shader{ shader_type::FRAGMENT, fragment_shaders[selected_fragment_shader] });
     //programs = _glfwwindow->GetShaderLabels();
+    //typedef void (* GLFWkeyfun)(GLFWwindow* window, int key, int scancode, int action, int mods);
+    glfwSetKeyCallback(_glfwwindow, _processKeyChanged);
+    glfwSetCursorPosCallback(_glfwwindow, _processMousePosChanged); 
+    glfwSetCursorEnterCallback(_glfwwindow, _processMouseEnterLeaveChanged);
+    glfwSetMouseButtonCallback(_glfwwindow, _processMouseKeyChanged);
+    glfwSetScrollCallback(_glfwwindow, _processMouseWheelChanged);
 
-    //_start_time = std::clock();
+    _start_time = std::clock();
 }
 
 Window::~Window() {
@@ -43,32 +96,52 @@ Window::~Window() {
 
 void Window::ProcessKeyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    Debug::Logger::Console(Debug::Level::INFO, "Keyboard key pressed: key %d, scancode %d, action %d, mods %d", key, scancode, action, mods);
 
+    if (key == (int)Controls::key::Q)
+        SetCursorInputType(Controls::cursor_input_type::CENTERED);
+    else if (key == (int)Controls::key::E)
+        SetCursorInputType(Controls::cursor_input_type::NORMAL);
 }
 
 void Window::ProcessKeyContinuous()                                                            
 {
-    /*
     Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
-    if (glfwGetKey(_glfwwindow, GLFW_KEY_W) == GLFW_PRESS)
-        camera->ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(_glfwwindow, GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(_glfwwindow, GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(_glfwwindow, GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(RIGHT, deltaTime);
-    */
+    if (glfwGetKey(_glfwwindow, (int)Controls::key::W) == GLFW_PRESS)
+        camera->ProcessMovement(this, Controls::movement_direction::FORWARD);
+    if (glfwGetKey(_glfwwindow, (int)Controls::key::S) == GLFW_PRESS)
+        camera->ProcessMovement(this, Controls::movement_direction::BACKWARD);
+    if (glfwGetKey(_glfwwindow, (int)Controls::key::A) == GLFW_PRESS)
+        camera->ProcessMovement(this, Controls::movement_direction::LEFT);
+    if (glfwGetKey(_glfwwindow, (int)Controls::key::D) == GLFW_PRESS)
+        camera->ProcessMovement(this, Controls::movement_direction::RIGHT);
 }
 
 void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)                
 {
+    //Debug::Logger::Console(Debug::Level::INFO, "New mouse pos: %f %f", xpos, ypos);
 
+    if (_invalid_prev_pos) {
+        _prev_pos.x = xpos;
+        _prev_pos.y = ypos;
+        _invalid_prev_pos = false;
+        return;
+    }
+
+    //Do magic with front facing vector
+    glm::vec2 current_pos = glm::vec2(xpos, ypos);
+    glm::vec2 delta_pos = current_pos - _prev_pos;
+    //Debug::Logger::Console(Debug::Level::INFO, "Delta mouse pos: %f %f", delta_pos.x, delta_pos.y);
+
+    Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessMouse(delta_pos.x, delta_pos.y, true);
+
+    _prev_pos = current_pos;
 }
 
 void Window::ProcessMouseKeyChanged(GLFWwindow* window, int button, int action, int mods)      
 {
-
+    Debug::Logger::Console(Debug::Level::INFO, "Mouse key pressed: button %d, action %d, mods %d", button, action, mods);
 }
 
 void Window::ProcessMouseKeyContinuous()   
@@ -76,14 +149,19 @@ void Window::ProcessMouseKeyContinuous()
 
 }
 
-void Window::ProcessMouseEnterLeave(GLFWwindow* window, int entered)                           
+void Window::ProcessMouseEnterLeave(GLFWwindow* window, bool entered)                           
 {
-
+    Debug::Logger::Console(Debug::Level::INFO, entered ? "Entered the window" : "Left the window");
+    if (!entered)
+        _invalid_prev_pos = true;
 }
 
 void Window::ProcessScrollWheel(GLFWwindow* window, double xoffset, double yoffset)            
 {
+    Debug::Logger::Console(Debug::Level::INFO, "Scroll wheel changed: %f %f", xoffset, yoffset);
 
+    Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessMouseScroll(yoffset);
 }
 
 void Window::ProcessResize(GLFWwindow* window, int width, int height)                          
@@ -103,6 +181,9 @@ float Window::GetAspectRatio() {
     return (float)width / (float)height;
 }
 
+glm::vec2 Window::GetMousePos() {
+    return glm::vec2(_prev_pos.x, -_prev_pos.y);
+}
 
 void Window::Clear() {
     int display_w, display_h;
@@ -118,6 +199,21 @@ void Window::Clear() {
     Debug::Logger::ConsoleOpenGLError("During setting polygonmode");
 }
 
+float Window::UpdateTime() {
+    clock_t now = std::clock();
+    _delta_time = ((float)(now - _current_time)) / 1000.0f;
+    _current_time = ((float)(now - _start_time)) / 1000.f;
+    return _current_time;
+}
+
+float Window::GetCurrentTimeSec() {
+    return _current_time;
+}
+
+float Window::GetDeltaTimeSec() {
+    return _delta_time;
+}
+
 /// <summary>
 /// Determines how the cursor acts when inside the window's context
 /// Normal is the default setting when creating a window
@@ -127,7 +223,8 @@ void Window::Clear() {
 /// <param name="input_type">Type of input that the window cursor should use</param>
 void Window::SetCursorInputType(Controls::cursor_input_type input_type) 
 {
-    glfwSetInputMode(_glfwwindow, GLFW_CURSOR, (int)Controls::cursor_input_type::NORMAL);
+    glfwSetInputMode(_glfwwindow, GLFW_CURSOR, (int)input_type);
+    _invalid_prev_pos = true;
 }
 
 void Window::AddShader(std::string shader_name, int count, load_shader shaders...)

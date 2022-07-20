@@ -149,10 +149,8 @@ void Shader::Use(bool update_global_uniforms)
     Debug::Logger::ConsoleOpenGLError("During setting program to active");
 
     if (update_global_uniforms) {
-        clock_t now = std::clock();
-        _window->_current_time = ((float)(now - _window->_start_time)) / 1000.f;
-        if (!this->SetUniform("time", _window->_current_time))
-            _window->_start_time = now;
+        this->SetUniform("time", _window->GetCurrentTimeSec());
+        this->SetUniform("mouse", _window->GetMousePos());
     }
 
     if (_window->_activecamera > -1) {
@@ -160,7 +158,8 @@ void Shader::Use(bool update_global_uniforms)
         this->SetUniform("view", camera->GetViewMatrix());
         int width = 1, height = 1;
         _window->GetSize(width, height);
-        this->SetUniform("projection", glm::perspective((float)camera->Fov, _window->GetAspectRatio(), 0.1f, 100.0f));
+        this->SetUniform("projection", glm::perspective((float)glm::radians(camera->Fov), _window->GetAspectRatio(), camera->Near_plane, camera->Far_plane));
+        //this->SetUniform("projection", glm::mat4(1.0f));
     }
 }
 

@@ -1,10 +1,16 @@
 #include "Camera.hpp"
 
 #include <iostream>
-#include "Enums.hpp"
+#include "Window.hpp"
 
 //vector constructor
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MoveSpeed(SPEED), Sensitivity(SENSITIVITY), Zoom(ZOOM), Fov(FOV)
+Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) : 
+	Front(glm::vec3(0.0f, 0.0f, -1.0f)), 
+	MoveSpeed(SPEED), 
+	Sensitivity(SENSITIVITY), 
+	Fov(FOV),
+	Near_plane(NEAR_PLANE),
+	Far_plane(FAR_PLANE)
 {
 	Position = position;
 	WorldUp = up;
@@ -13,18 +19,17 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) : Fron
 	updateCameraVectors();
 }
 
-void Camera::ProcessMovement(Controls::movement_direction direction)
+void Camera::ProcessMovement(Window* window, Controls::movement_direction direction)
 {
-	/*
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-		Position += Front * MoveSpeed;
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-		Position -= Front * MoveSpeed;
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-		Position -= RightAxis * MoveSpeed;
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		Position += RightAxis * MoveSpeed;
-	*/
+	float velocity = MoveSpeed * window->GetDeltaTimeSec();
+	if (direction == Controls::movement_direction::FORWARD)
+		Position += Front * velocity;
+	if (direction == Controls::movement_direction::BACKWARD)
+		Position -= Front * velocity;
+	if (direction == Controls::movement_direction::LEFT)
+		Position -= RightAxis * velocity;
+	if (direction == Controls::movement_direction::RIGHT)
+		Position += RightAxis * velocity;
 }
 
 void Camera::ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch = true)
@@ -33,7 +38,7 @@ void Camera::ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch
 	yoffset *= Sensitivity;
 
 	Yaw += xoffset;
-	Pitch += yoffset;
+	Pitch += -yoffset;
 
 	// constrained so that excessive pitch won't flip screen
 	if (constrainPitch)
@@ -48,11 +53,11 @@ void Camera::ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch
 
 void Camera::ProcessMouseScroll(float yoffset)
 {
-	Zoom -= (float)yoffset;
-	if (Zoom < 1.0f)
-		Zoom = 1.0f;
-	if (Zoom > 45.0f)
-		Zoom = 45.0f;
+	Fov -= (float)yoffset;
+	if (Fov < 45.0f)
+		Fov = 45.0f;
+	if (Fov > 135.0f)
+		Fov = 135.0f;
 }
 
 void Camera::updateCameraVectors()
