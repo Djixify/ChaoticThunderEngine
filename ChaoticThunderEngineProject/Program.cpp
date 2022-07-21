@@ -109,6 +109,55 @@ void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& 
 //TODO: mpofmz
 void Cube(float width, float height, float depth, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
 
+    vertices_count = 8 * 3;
+    indices_count = 12 * 3;
+
+    vertices = new float[vertices_count];
+    indices = new unsigned int[indices_count];
+    float halfwidth = width * 0.5f;
+    float halfheight = height * 0.5f;
+    float halfdepth = depth * 0.5f;
+
+    int i = 0;
+    int j = 0;
+
+    //front                   
+    // x // y // z //   -  // -x = left // -y = down // -z = away from camera // 0.0 = center world     
+
+    vertices[i++] = -halfwidth; vertices[i++] = halfheight; vertices[i++] = halfdepth; //0  
+    vertices[i++] = halfwidth; vertices[i++] = halfheight; vertices[i++] = halfdepth; //1
+    vertices[i++] = -halfwidth; vertices[i++] = -halfheight; vertices[i++] = halfdepth; //2
+    vertices[i++] = halfwidth; vertices[i++] = -halfheight; vertices[i++] = halfdepth; //3
+
+    //back  
+    vertices[i++] = -halfwidth; vertices[i++] = halfheight; vertices[i++] = -halfdepth; //4
+    vertices[i++] = halfwidth; vertices[i++] = halfheight; vertices[i++] = -halfdepth; //5
+    vertices[i++] = -halfwidth; vertices[i++] = -halfheight; vertices[i++] = -halfdepth; //6
+    vertices[i++] = halfwidth; vertices[i++] = -halfheight; vertices[i++] = -halfdepth; //7
+
+    //front
+    indices[j++] = 0; indices[j++] = 1; indices[j++] = 2; //front left
+    indices[j++] = 1; indices[j++] = 3; indices[j++] = 2; //front right
+
+    //right
+    indices[j++] = 1; indices[j++] = 5; indices[j++] = 3; //right left
+    indices[j++] = 5; indices[j++] = 7; indices[j++] = 3; //right right
+  
+    //back
+    indices[j++] = 5; indices[j++] = 4; indices[j++] = 7; //front left
+    indices[j++] = 4; indices[j++] = 6; indices[j++] = 7; //front right
+
+    //left
+    indices[j++] = 4; indices[j++] = 0; indices[j++] = 6; //right left
+    indices[j++] = 0; indices[j++] = 2; indices[j++] = 6; //right right
+
+    //top
+    indices[j++] = 4; indices[j++] = 5; indices[j++] = 0; //front left
+    indices[j++] = 5; indices[j++] = 1; indices[j++] = 0; //front right
+
+    //bottom
+    indices[j++] = 2; indices[j++] = 3; indices[j++] = 6; //right left
+    indices[j++] = 3; indices[j++] = 7; indices[j++] = 6; //right right
 }
 
 void EquilateralMesh(float width, float height, float triangle_side, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
@@ -271,7 +320,7 @@ int main(int argc, const char* argv[]) {
     }
 
     unsigned int indices_count = 0, vertices_count = 0;
-#define SIMPLE true
+#define SIMPLE false
 #if SIMPLE
     float vertices[] = {
          0.0f,  0.7f, -0.5f,  // top center
@@ -296,8 +345,8 @@ int main(int argc, const char* argv[]) {
 
     //MakeNgon(6, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
     //SquareMesh(0.5, 0.5, 5, 3, indices, indices_count, vertices, vertices_count);
-    EquilateralMesh(0.5, 0.5, 0.1, indices, indices_count, vertices, vertices_count);
-
+    //EquilateralMesh(0.5, 0.5, 0.1, indices, indices_count, vertices, vertices_count);
+    Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
     //Debugging mesh information:
     for (int i = 0; i < vertices_count / 3; i++) {
         Debug::Logger::Console(Debug::Level::INFO, "Vertex %d: %f, %f, %f", i, vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
@@ -328,7 +377,7 @@ int main(int argc, const char* argv[]) {
 
     mainwindow.AddShader("green", 2, cameravertexinfo, greenfragmentinfo);
     mainwindow.AddShader("red", 2, scalingvertexinfo, redfragmentinfo);
-    mainwindow.AddShader("blue", 2, scalingvertexinfo, bluefragmentinfo);
+    mainwindow.AddShader("blue", 2, cameravertexinfo, bluefragmentinfo);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
