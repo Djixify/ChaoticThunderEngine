@@ -19,9 +19,11 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw , float pitch) :
 	updateCameraVectors();
 }
 
-void Camera::ProcessMovement(Window* window, Controls::movement_direction direction)
+void Camera::ProcessMovement(Window* window, Controls::movement_direction direction, Controls::key_modifier mod)
 {
-	float velocity = MoveSpeed * window->GetDeltaTimeSec();
+	float velocity = MoveSpeed * window->GetDeltaTimeSec(); 
+	if (mod == Controls::key_modifier::SHIFT)
+		velocity *= 4;
 	if (direction == Controls::movement_direction::FORWARD)
 		Position += Front * velocity;
 	if (direction == Controls::movement_direction::BACKWARD)

@@ -106,6 +106,90 @@ void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& 
     }
 }
 
+void MeshCube(float sidelength, int partitions, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+    //Remember to not redundantly define same vertices multiple times, hence reuse edge vertices
+    vertices_count = (partitions + 1) * partitions * 4 * 3; //front, right, back, left
+    //vertices_count += (partitions - 1) * (partitions - 1) * 2; //top, bottom
+    vertices = new float[vertices_count * 3];
+    
+    //indices_count = partitions * partitions * 6 * 2 * 3; //n * n squares per side (* 6) each consisting of two triangles (* 2) of three indices each (* 3)
+    indices_count = partitions * partitions * 4 * 2 * 3;
+    indices = new unsigned int[indices_count];
+
+    float half_side = sidelength / 2.0;
+    float stepsize = sidelength / partitions;
+    int current_index_iter = 0;
+
+    for (int side = 0; side < 4; side++) {
+        float current_row = -half_side;
+        for (int row = 0; row <= partitions; row++) {
+            float current_col = -half_side;
+            for (int col = 0; col < partitions; col++) {
+                int offset_side = (side * (partitions + 1) * partitions);
+                int offset_row = (row * partitions);
+                float x = 0, y = 0, z = 0;
+                switch (side) {
+                case 0: //front
+                    x = current_col;
+                    y = current_row;
+                    z = half_side;
+                    break;
+                case 1: //right
+                    x = half_side;
+                    y = current_row;
+                    z = -current_col;
+                    break;
+                case 2: //back
+                    x = -current_col;
+                    y = current_row;
+                    z = -half_side;
+                    break;
+                case 3: //left
+                    x = -half_side;
+                    y = current_row;
+                    z = current_col;
+                    break;
+                }
+                vertices[(offset_side + offset_row + col) * 3 + 0] = x;
+                vertices[(offset_side + offset_row + col) * 3 + 1] = y;
+                vertices[(offset_side + offset_row + col) * 3 + 2] = z;
+
+                if (row < partitions) {
+                    int offset_row_next = ((row + 1) * partitions);
+                    if (col == partitions - 1) {
+                        int offset_side_next = ((side + 1) % 4) * (partitions + 1) * partitions;
+                        indices[current_index_iter++] = offset_side      + offset_row      + col;
+                        indices[current_index_iter++] = offset_side_next + offset_row      + 0;
+                        indices[current_index_iter++] = offset_side      + offset_row_next + col;
+                        indices[current_index_iter++] = offset_side_next + offset_row      + 0;
+                        indices[current_index_iter++] = offset_side_next + offset_row_next + 0;
+                        indices[current_index_iter++] = offset_side      + offset_row_next + col;
+                    }
+                    else {
+                        indices[current_index_iter++] = offset_side + offset_row      + col;
+                        indices[current_index_iter++] = offset_side + offset_row      + col + 1;
+                        indices[current_index_iter++] = offset_side + offset_row_next + col;
+                        indices[current_index_iter++] = offset_side + offset_row      + col + 1;
+                        indices[current_index_iter++] = offset_side + offset_row_next + col + 1;
+                        indices[current_index_iter++] = offset_side + offset_row_next + col;
+                    }
+                }
+                current_col += stepsize;
+            }
+            current_row += stepsize;
+        }
+    }
+
+    while (current_index_iter < indices_count) {
+        indices[current_index_iter++] = 0;
+    }
+
+    //Map points on cube mesh to sphere:
+    //x' = x * sqrt(1.0f - y*y / 2.0f - z*z / 2.0f + y*y*z*z / 3.0)
+    //y' = y * sqrt(1.0f - z*z / 2.0f - x*x / 2.0f + z*z*x*x / 3.0)
+    //z' = z * sqrt(1.0f - x*x / 2.0f - y*y / 2.0f + x*x*y*y / 3.0)
+}
+
 //TODO: mpofmz
 void Cube(float width, float height, float depth, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
 
@@ -344,15 +428,19 @@ int main(int argc, const char* argv[]) {
     unsigned int* indices = 0;
 
     //MakeNgon(6, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
-    //SquareMesh(0.5, 0.5, 5, 3, indices, indices_count, vertices, vertices_count);
-    //EquilateralMesh(0.5, 0.5, 0.1, indices, indices_count, vertices, vertices_count);
-    Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
+    //SquareMesh(2.0, 2.0, 100, 100, indices, indices_count, vertices, vertices_count);
+    EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
+    //Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
+    //MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
+
     //Debugging mesh information:
-    for (int i = 0; i < vertices_count / 3; i++) {
-        Debug::Logger::Console(Debug::Level::INFO, "Vertex %d: %f, %f, %f", i, vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
-    }
-    for (int i = 0; i < indices_count / 3; i++) {
-        Debug::Logger::Console(Debug::Level::INFO, "Triangle %d: %d, %d, %d", i, indices[3 * i], indices[3 * i + 1], indices[3 * i + 2]);
+    if (vertices_count + indices_count < 100) {
+        for (int i = 0; i < vertices_count / 3; i++) {
+            Debug::Logger::Console(Debug::Level::INFO, "Vertex %d: %f, %f, %f", i, vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
+        }
+        for (int i = 0; i < indices_count / 3; i++) {
+            Debug::Logger::Console(Debug::Level::INFO, "Triangle %d: %d, %d, %d", i, indices[3 * i], indices[3 * i + 1], indices[3 * i + 2]);
+        }
     }
 #endif
 
@@ -361,6 +449,7 @@ int main(int argc, const char* argv[]) {
     std::string circlepatternfragment = "circlepattern.frag";
     std::string scalingvertex = "scaling.vert";
     std::string cameravertex = "camera.vert";
+    std::string sinwavevertex = "sinwave.vert";
     std::string redtrianglefragment = "red.frag";
     std::string bluetrianglefragment = "oscillatingblue.frag"; 
     std::string greentrianglefragment = "green.frag";
@@ -370,14 +459,15 @@ int main(int argc, const char* argv[]) {
     //Shader circleShader(secondarywindow, 1, circleshaderinfo);
     load_shader scalingvertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, scalingvertex) };
     load_shader cameravertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, cameravertex) };
+    load_shader sinwavevertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, sinwavevertex) };
 
     load_shader redfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, redtrianglefragment) };
     load_shader bluefragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, bluetrianglefragment) };
     load_shader greenfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, greentrianglefragment) };
 
     mainwindow.AddShader("green", 2, cameravertexinfo, greenfragmentinfo);
-    mainwindow.AddShader("red", 2, scalingvertexinfo, redfragmentinfo);
-    mainwindow.AddShader("blue", 2, cameravertexinfo, bluefragmentinfo);
+    mainwindow.AddShader("red", 2, sinwavevertexinfo, redfragmentinfo);
+    mainwindow.AddShader("blue", 2, scalingvertexinfo, bluefragmentinfo);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);

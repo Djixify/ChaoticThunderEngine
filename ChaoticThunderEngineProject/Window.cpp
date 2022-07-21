@@ -107,14 +107,15 @@ void Window::ProcessKeyChanged(GLFWwindow* window, int key, int scancode, int ac
 void Window::ProcessKeyContinuous()                                                            
 {
     Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    bool shift_held = glfwGetKey(_glfwwindow, (int)Controls::key::LEFT_SHIFT) == GLFW_PRESS;
     if (glfwGetKey(_glfwwindow, (int)Controls::key::W) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::FORWARD);
+        camera->ProcessMovement(this, Controls::movement_direction::FORWARD, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
     if (glfwGetKey(_glfwwindow, (int)Controls::key::S) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::BACKWARD);
+        camera->ProcessMovement(this, Controls::movement_direction::BACKWARD, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
     if (glfwGetKey(_glfwwindow, (int)Controls::key::A) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::LEFT);
+        camera->ProcessMovement(this, Controls::movement_direction::LEFT, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
     if (glfwGetKey(_glfwwindow, (int)Controls::key::D) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::RIGHT);
+        camera->ProcessMovement(this, Controls::movement_direction::RIGHT, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
 }
 
 void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)                

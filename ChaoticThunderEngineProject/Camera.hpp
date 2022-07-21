@@ -22,7 +22,7 @@ class Camera
 {
 public:
 	//function declarations
-	void ProcessMovement(Window* window, Controls::movement_direction direction);
+	void ProcessMovement(Window* window, Controls::movement_direction direction, Controls::key_modifier mod);
 	void ProcessMouse(float xoffset, float yoffset, GLboolean constrainPitch);
 	void ProcessMouseScroll(float yoffset);
 	void updateCameraVectors();

@@ -230,6 +230,7 @@ namespace Controls {
     };
 
     enum class key_modifier {
+        NONE = 0,
         SHIFT = GLFW_MOD_SHIFT,
         CTRL = GLFW_MOD_CONTROL,
         CONTROL = GLFW_MOD_CONTROL,
