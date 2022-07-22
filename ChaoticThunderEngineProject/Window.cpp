@@ -4,6 +4,7 @@
 #include "Debug.hpp"
 #include "Controller.hpp"
 #include "Shader.hpp"
+#include "FlyingCamera.hpp"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
@@ -67,8 +68,8 @@ Window::Window(std::string title, int width, int height, Window* other) :
     ClearColor = glm::vec4{ 0.5f, 0.5f, 0.5f, 1.0f };
 
     //Initialize a single camera to be the default view
-    Camera* camera = new Camera();
-    _cameras.push_back(std::shared_ptr<Camera>(camera));
+    BaseCamera* camera = new FlyingCamera();
+    _cameras.push_back(std::shared_ptr<BaseCamera>(camera));
     _activecamera = 0;
 
     //Add bindings to events
@@ -102,20 +103,15 @@ void Window::ProcessKeyChanged(GLFWwindow* window, int key, int scancode, int ac
         SetCursorInputType(Controls::cursor_input_type::CENTERED);
     else if (key == (int)Controls::key::E)
         SetCursorInputType(Controls::cursor_input_type::NORMAL);
+
+    BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessKeyChanged(key, scancode, action, mods);
 }
 
 void Window::ProcessKeyContinuous()                                                            
 {
-    Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
-    bool shift_held = glfwGetKey(_glfwwindow, (int)Controls::key::LEFT_SHIFT) == GLFW_PRESS;
-    if (glfwGetKey(_glfwwindow, (int)Controls::key::W) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::FORWARD, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
-    if (glfwGetKey(_glfwwindow, (int)Controls::key::S) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::BACKWARD, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
-    if (glfwGetKey(_glfwwindow, (int)Controls::key::A) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::LEFT, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
-    if (glfwGetKey(_glfwwindow, (int)Controls::key::D) == GLFW_PRESS)
-        camera->ProcessMovement(this, Controls::movement_direction::RIGHT, shift_held ? Controls::key_modifier::SHIFT : Controls::key_modifier::NONE);
+    BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessKeyContinuous(this);
 }
 
 void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)                
@@ -134,8 +130,8 @@ void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)
     glm::vec2 delta_pos = current_pos - _prev_pos;
     //Debug::Logger::Console(Debug::Level::INFO, "Delta mouse pos: %f %f", delta_pos.x, delta_pos.y);
 
-    Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
-    camera->ProcessMouse(delta_pos.x, delta_pos.y, true);
+    BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessMousePosition(delta_pos.x, delta_pos.y);
 
     _prev_pos = current_pos;
 }
@@ -143,11 +139,15 @@ void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)
 void Window::ProcessMouseKeyChanged(GLFWwindow* window, int button, int action, int mods)      
 {
     Debug::Logger::Console(Debug::Level::INFO, "Mouse key pressed: button %d, action %d, mods %d", button, action, mods);
+    
+    BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessMouseKeyChanged(button, action, mods);
 }
 
 void Window::ProcessMouseKeyContinuous()   
 {
-
+    BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessMouseKeyContinuous(this);
 }
 
 void Window::ProcessMouseEnterLeave(GLFWwindow* window, bool entered)                           
@@ -161,8 +161,8 @@ void Window::ProcessScrollWheel(GLFWwindow* window, double xoffset, double yoffs
 {
     Debug::Logger::Console(Debug::Level::INFO, "Scroll wheel changed: %f %f", xoffset, yoffset);
 
-    Camera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
-    camera->ProcessMouseScroll(yoffset);
+    BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
+    camera->ProcessScrollWheel(xoffset, yoffset);
 }
 
 void Window::ProcessResize(GLFWwindow* window, int width, int height)                          
@@ -291,6 +291,6 @@ void Window::RemoveArrayBuffer(std::string label) {
         Debug::Logger::Console(Debug::Level::DESTRUCTION, "Could not find array buffer by label %s in shader", label);
 }
 
-Camera* Window::GetActiveCamera() {
+BaseCamera* Window::GetActiveCamera() {
     return _cameras[_activecamera].get();
 }

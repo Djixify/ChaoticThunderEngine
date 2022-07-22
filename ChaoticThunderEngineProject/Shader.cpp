@@ -154,11 +154,11 @@ void Shader::Use(bool update_global_uniforms)
     }
 
     if (_window->_activecamera > -1) {
-        Camera* camera = _window->_cameras[_window->_activecamera].get();
+        BaseCamera* camera = _window->_cameras[_window->_activecamera].get();
         this->SetUniform("view", camera->GetViewMatrix());
         int width = 1, height = 1;
         _window->GetSize(width, height);
-        this->SetUniform("projection", glm::perspective((float)glm::radians(camera->Fov), _window->GetAspectRatio(), camera->Near_plane, camera->Far_plane));
+        this->SetUniform("projection", camera->GetProjectionMatrix(_window));
         //this->SetUniform("projection", glm::mat4(1.0f));
     }
 }

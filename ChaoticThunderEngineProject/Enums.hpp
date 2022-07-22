@@ -86,6 +86,7 @@ enum class attribute_type {
 
 namespace Controls {
     enum class movement_direction {
+        NONE,
         FORWARD,
         BACKWARD,
         LEFT,

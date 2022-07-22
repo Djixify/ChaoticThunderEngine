@@ -143,7 +143,7 @@ namespace Graphics {
         ImGui::Text(time_str.c_str());
 
         ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
-        Camera* camera = window->GetActiveCamera();
+        BaseCamera* camera = window->GetActiveCamera();
         glm::vec3 pos = window->GetActiveCamera()->Position;
         camera_position = ImVec4(pos.x, pos.y, pos.z, 1.0f);
         ImGui::InputFloat3("Position", (float*)&camera_position); // Edit 3 floats representing a color

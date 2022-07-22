@@ -7,7 +7,7 @@
 #include "Buffer.hpp"
 #include "Shader.hpp"
 #include "Structs.hpp"
-#include "Camera.hpp"
+#include "BaseCamera.hpp"
 #include "Debug.hpp"
 
 class Window {
@@ -25,7 +25,7 @@ private:
 
     //Camera related variables
     int _activecamera;
-    std::vector<std::shared_ptr<Camera>> _cameras;
+    std::vector<std::shared_ptr<BaseCamera>> _cameras;
 
     //Variables that change fundamental rendering
     bool _environment_fill_mesh;
@@ -79,7 +79,7 @@ public:
     ArrayBuffer* GetArrayBuffer(std::string label);
     void RemoveArrayBuffer(std::string label);
 
-    Camera* GetActiveCamera();
+    BaseCamera* GetActiveCamera();
 };
 
 #endif

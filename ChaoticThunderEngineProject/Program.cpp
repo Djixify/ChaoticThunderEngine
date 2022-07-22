@@ -314,55 +314,6 @@ void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices,
     indices[3 * (input - 1) + 2] = 1;
 }
 
-float lastX = .0f, lastY = .0f;
-bool firstMouse = true;
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
-
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = xpos;
-    lastY = ypos;
-
-    Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessMouse(xoffset, yoffset, true);
-}
-
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessMouseScroll(static_cast<float>(yoffset));
-}
-
-void processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    /*
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        Controller::Instance()->GetContextWindow()->GetActiveCamera()->ProcessKeyboard(RIGHT, deltaTime);
-    */
-}
-
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -487,7 +438,6 @@ int main(int argc, const char* argv[]) {
 
         //Debug::Logger::console("Displaying window " + i);
         Window* window = Controller::Instance()->GetContextWindow();
-        processInput(window->GetGLContext());
 
         window->Clear();
         window->UpdateTime();
