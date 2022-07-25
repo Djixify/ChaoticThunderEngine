@@ -246,48 +246,9 @@ void Cube(float width, float height, float depth, unsigned int*& indices, unsign
 
 void EquilateralMesh(float width, float height, float triangle_side, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     
-    int xpart = (int)((width) / triangle_side);
-    int ypart = (int)((height) / triangle_side);
-    
-    vertices_count = 3 * (xpart + 1) * (ypart + 1);
-    indices_count = 6 * xpart * ypart;
-
-    vertices = new float[vertices_count]; // array coordinates times 3 so that each position stores one coordinate axis
-    indices = new unsigned int[indices_count]; // indices for 2 triangles for every 4 vertices
-    float halfwidth = width * 0.5f;
-    float currentx = -halfwidth;
-    float currenty = -height * 0.5f;
-    float stepsizex = triangle_side;
-    float stepsizey = std::sqrt( triangle_side * triangle_side - (triangle_side * 0.5) * (triangle_side * 0.5) );
-
-    for (int i = 0; i <= ypart; i++) //vertex generation
-    {
-        currentx = -halfwidth;
-        float offset = i % 2 == 0 ? triangle_side * 0.5 : 0;
-        for (int j = 0; j <= xpart; j++)
-        {
-            vertices[3 * (i * (xpart + 1) + j)] = currentx + offset;
-            vertices[3 * (i * (xpart + 1) + j) + 1] = currenty;
-            vertices[3 * (i * (xpart + 1) + j) + 2] = 0.0f;
-            currentx += stepsizex;
-        }
-        currenty += stepsizey;
-    }
-
-    for (int i = 0; i < ypart; i++)
-    {
-        for (int j = 0; j < xpart; j++) {
-            indices[6 * (i * xpart + j)]     = i % 2 == 0 ? i       * (xpart + 1) + j     : i       * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 1] = i % 2 == 0 ? i       * (xpart + 1) + j + 1 : (i + 1) * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 2] = i % 2 == 0 ? (i + 1) * (xpart + 1) + j + 1 : (i + 1) * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 3] = i % 2 == 0 ? i       * (xpart + 1) + j     : i       * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 4] = i % 2 == 0 ? (i + 1) * (xpart + 1) + j + 1 : i       * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 5] = i % 2 == 0 ? (i + 1) * (xpart + 1) + j     : (i + 1) * (xpart + 1) + j;
-        }
-    }
 }
 
-void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+void EquilateralNPolygon(int input, float radius, float x, float y, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
     vertices_count = (input + 1) * 3; // n + 1 vertices (introducing center vertex)
     indices_count = input * 3; // n triangles
     
@@ -380,9 +341,9 @@ int main(int argc, const char* argv[]) {
 
     //MakeNgon(6, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
     //SquareMesh(2.0, 2.0, 100, 100, indices, indices_count, vertices, vertices_count);
-    EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
+    //EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
     //Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
-    //MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
+    MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
 
     //Debugging mesh information:
     if (vertices_count + indices_count < 100) {

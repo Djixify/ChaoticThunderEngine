@@ -26,7 +26,7 @@ public:
 	float Yaw;
 	float Pitch;
 
-	//attributes
+	//Attributes
 	glm::vec3 Position;
 	glm::vec3 Front;
 	glm::vec3 RightAxis;

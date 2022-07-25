@@ -18,4 +18,29 @@ struct vertex_attribute {
     GLuint offset;
 };
 
+struct vertex_xyz {
+    float x, y, z;
+    vertex_xyz(float x, float y, float z) {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+};
+
+struct vertex_xyz_rgb : vertex_xyz {
+    float r, g, b;
+    vertex_xyz_rgb(float x, float y, float z, float r, float g, float b) : vertex_xyz(x,y,z) {
+        this->r = r;
+        this->g = g;
+        this->b = b;
+    }
+};
+
+struct vertex_xyz_txy : vertex_xyz {
+    float x, y, z, tx, ty;
+    vertex_xyz_txy(float x, float y, float z, float tx, float ty) : vertex_xyz(x, y, z) {
+        this->tx = tx;
+        this->ty = ty;
+    }
+};
 #endif
