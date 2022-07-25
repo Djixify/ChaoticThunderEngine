@@ -106,90 +106,6 @@ void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& 
     }
 }
 
-void MeshCube(float sidelength, int partitions, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
-    //Remember to not redundantly define same vertices multiple times, hence reuse edge vertices
-    vertices_count = (partitions + 1) * partitions * 4 * 3; //front, right, back, left
-    //vertices_count += (partitions - 1) * (partitions - 1) * 2; //top, bottom
-    vertices = new float[vertices_count * 3];
-    
-    //indices_count = partitions * partitions * 6 * 2 * 3; //n * n squares per side (* 6) each consisting of two triangles (* 2) of three indices each (* 3)
-    indices_count = partitions * partitions * 4 * 2 * 3;
-    indices = new unsigned int[indices_count];
-
-    float half_side = sidelength / 2.0;
-    float stepsize = sidelength / partitions;
-    int current_index_iter = 0;
-
-    for (int side = 0; side < 4; side++) {
-        float current_row = -half_side;
-        for (int row = 0; row <= partitions; row++) {
-            float current_col = -half_side;
-            for (int col = 0; col < partitions; col++) {
-                int offset_side = (side * (partitions + 1) * partitions);
-                int offset_row = (row * partitions);
-                float x = 0, y = 0, z = 0;
-                switch (side) {
-                case 0: //front
-                    x = current_col;
-                    y = current_row;
-                    z = half_side;
-                    break;
-                case 1: //right
-                    x = half_side;
-                    y = current_row;
-                    z = -current_col;
-                    break;
-                case 2: //back
-                    x = -current_col;
-                    y = current_row;
-                    z = -half_side;
-                    break;
-                case 3: //left
-                    x = -half_side;
-                    y = current_row;
-                    z = current_col;
-                    break;
-                }
-                vertices[(offset_side + offset_row + col) * 3 + 0] = x;
-                vertices[(offset_side + offset_row + col) * 3 + 1] = y;
-                vertices[(offset_side + offset_row + col) * 3 + 2] = z;
-
-                if (row < partitions) {
-                    int offset_row_next = ((row + 1) * partitions);
-                    if (col == partitions - 1) {
-                        int offset_side_next = ((side + 1) % 4) * (partitions + 1) * partitions;
-                        indices[current_index_iter++] = offset_side      + offset_row      + col;
-                        indices[current_index_iter++] = offset_side_next + offset_row      + 0;
-                        indices[current_index_iter++] = offset_side      + offset_row_next + col;
-                        indices[current_index_iter++] = offset_side_next + offset_row      + 0;
-                        indices[current_index_iter++] = offset_side_next + offset_row_next + 0;
-                        indices[current_index_iter++] = offset_side      + offset_row_next + col;
-                    }
-                    else {
-                        indices[current_index_iter++] = offset_side + offset_row      + col;
-                        indices[current_index_iter++] = offset_side + offset_row      + col + 1;
-                        indices[current_index_iter++] = offset_side + offset_row_next + col;
-                        indices[current_index_iter++] = offset_side + offset_row      + col + 1;
-                        indices[current_index_iter++] = offset_side + offset_row_next + col + 1;
-                        indices[current_index_iter++] = offset_side + offset_row_next + col;
-                    }
-                }
-                current_col += stepsize;
-            }
-            current_row += stepsize;
-        }
-    }
-
-    while (current_index_iter < indices_count) {
-        indices[current_index_iter++] = 0;
-    }
-
-    //Map points on cube mesh to sphere:
-    //x' = x * sqrt(1.0f - y*y / 2.0f - z*z / 2.0f + y*y*z*z / 3.0)
-    //y' = y * sqrt(1.0f - z*z / 2.0f - x*x / 2.0f + z*z*x*x / 3.0)
-    //z' = z * sqrt(1.0f - x*x / 2.0f - y*y / 2.0f + x*x*y*y / 3.0)
-}
-
 //TODO: mpofmz
 void Cube(float width, float height, float depth, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
 
@@ -242,37 +158,6 @@ void Cube(float width, float height, float depth, unsigned int*& indices, unsign
     //bottom
     indices[j++] = 2; indices[j++] = 3; indices[j++] = 6; //right left
     indices[j++] = 3; indices[j++] = 7; indices[j++] = 6; //right right
-}
-
-void EquilateralMesh(float width, float height, float triangle_side, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
-    
-}
-
-void EquilateralNPolygon(int input, float radius, float x, float y, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
-    vertices_count = (input + 1) * 3; // n + 1 vertices (introducing center vertex)
-    indices_count = input * 3; // n triangles
-    
-    vertices = new float[vertices_count];
-    indices = new unsigned int[indices_count];
-    float current = 0; 
-    float stepsize = (2 * PI) / input;
-    vertices[0] = x + 0.0f;
-    vertices[1] = y + 0.0f;
-    vertices[2] = 0.0f;
-    for (int i = 1; i <= input; i++)
-    {
-        //Ignore warning, false positive
-        vertices[3 * i]     = x + radius * sin(current);
-        vertices[3 * i + 1] = y + radius * cos(current);
-        vertices[3 * i + 2] = 0.0f;
-
-        indices[3 * (i - 1)]     = 0;
-        indices[3 * (i - 1) + 1] = i;
-        indices[3 * (i - 1) + 2] = i + 1;
-
-        current += stepsize;
-    }
-    indices[3 * (input - 1) + 2] = 1;
 }
 
 static void glfw_error_callback(int error, const char* description)
