@@ -314,6 +314,65 @@ void MakeNgon(int input, float radius, float x, float y, unsigned int*& indices,
     indices[3 * (input - 1) + 2] = 1;
 }
 
+void Sphere(float stacks, float sectors, float radius, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
+    std::vector<float>vertex;
+    std::vector<unsigned int> index;
+    int i1, i2;
+    float x, y, z;
+    float x1 = 0;
+    float phi = 0;
+    float theta = 0;
+    float sectorstep = (2 * PI) / sectors;
+    float stackstep = PI / stacks;
+    for (int i = 0; i <= stacks; i++)
+    {
+        float phi = PI / 2 - i * stackstep;
+        x1 = radius * cos(phi);
+        z = radius * sin(phi);
+        for (int j = 0; j <= sectors; j++)
+        {
+            theta = j * sectorstep;
+            //vertex calculation
+            x = x1 * cos(theta);
+            y = x1 * sin(theta);
+            vertex.push_back(x);
+            vertex.push_back(y);
+            vertex.push_back(z);
+        }
+    }
+    //indexing
+    for (int i = 0; i < stacks; i++)
+    {
+        i1 = i * (sectors + 1);//current stack
+        i2 = i1 + sectors + 1;//next stack
+
+        for (int j = 0; j < sectors; j++)
+        {
+            if (i != 0)
+            {
+                index.push_back(i1);
+                index.push_back(i2);
+                index.push_back(i1 + 1);
+            }
+            if (i != (stacks - 1))
+            {
+                index.push_back(i1 + 1);
+                index.push_back(i2);
+                index.push_back(i2 + 1);
+            }
+            i1++; i2++;
+        }
+    }
+
+    vertices_count = vertex.size();
+    indices_count = index.size();
+    vertices = new float[vertices_count];
+    indices = new unsigned int[indices_count];
+
+    std::copy(vertex.begin(), vertex.end(), vertices);
+    std::copy(index.begin(), index.end(), indices);
+}
+
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -380,10 +439,10 @@ int main(int argc, const char* argv[]) {
 
     //MakeNgon(6, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
     //SquareMesh(2.0, 2.0, 100, 100, indices, indices_count, vertices, vertices_count);
-    EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
+    //EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
     //Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
     //MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
-
+    Sphere(100, 100, 1, indices, indices_count, vertices, vertices_count);
     //Debugging mesh information:
     if (vertices_count + indices_count < 100) {
         for (int i = 0; i < vertices_count / 3; i++) {
