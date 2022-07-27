@@ -1,21 +1,27 @@
 #ifndef OBJECTS_MESH
 #define OBJECTS_MESH
 
-#include "Structs.hpp"
 #include <vector>
 #include <cmath>
+#define PI 3.14159265358979323846
 
-template <typename T> class Mesh {
+class Mesh {
 private:
-	std::vector<T> _vertices;
-	std::vector<unsigned int> _indices;
 
 	Mesh();
 public:
 	~Mesh();
+	std::vector<float> _vertices;
+	std::vector<unsigned int> _indices;
 
 	static Mesh* SquareTriangleMesh(float width, float height, int xpartitions, int ypartitions) {
 		Mesh* mesh = new Mesh();
+
+        int vertices_count = 3 * (xpartitions + 1) * (ypartitions + 1);
+        int indices_count = 6 * xpartitions * ypartitions;
+
+        mesh->_vertices.resize(vertices_count);
+        mesh->_indices.resize(indices_count);
 
         float halfwidth = width * 0.5f;
         float currentx = -halfwidth;
@@ -28,7 +34,7 @@ public:
             currentx = -halfwidth;
             for (int j = 0; j <= xpartitions; j++)
             {
-                mesh->_vertices[3 * (i * (xpartitions + 1) + j)] = currentx;
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j)]     = currentx;
                 mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 1] = currenty;
                 mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 2] = 0.0f;
                 currentx += stepsizex;
@@ -56,6 +62,12 @@ public:
 
         int xpart = (int)(width / triangle_side_length);
         int ypart = (int)(height / triangle_side_length);
+
+        int vertices_count = 3 * (xpart + 1) * (ypart + 1);
+        int indices_count  = 6 * xpart * ypart;
+
+        mesh->_vertices.resize(vertices_count);
+        mesh->_indices.resize(indices_count);
 
         float halfwidth = width * 0.5f;
         float currentx = -halfwidth;
@@ -95,6 +107,12 @@ public:
 	static Mesh* EquilateralNPolygon(float n, float radius) {
 		Mesh* mesh = new Mesh();
 
+        int vertices_count = (n + 1) * 3; // n + 1 vertices (introducing center vertex)
+        int indices_count = n * 3; // n triangles
+
+        mesh->_vertices.resize(vertices_count);
+        mesh->_indices.resize(indices_count);
+
         float current = 0;
         float stepsize = (2 * PI) / n;
         mesh->_vertices[0] = 0.0f;
@@ -131,46 +149,56 @@ public:
         //front                   
         // x // y // z //   -  // -x = left // -y = down // -z = away from camera // 0.0 = center world     
 
-        mesh->_vertices[i++] = -halfwidth; mesh->_vertices[i++] =  halfheight; mesh->_vertices[i++] = halfdepth; //0  
-        mesh->_vertices[i++] =  halfwidth; mesh->_vertices[i++] =  halfheight; mesh->_vertices[i++] = halfdepth; //1
-        mesh->_vertices[i++] = -halfwidth; mesh->_vertices[i++] = -halfheight; mesh->_vertices[i++] = halfdepth; //2
-        mesh->_vertices[i++] =  halfwidth; mesh->_vertices[i++] = -halfheight; mesh->_vertices[i++] = halfdepth; //3
+        mesh->_vertices.push_back(-halfwidth); mesh->_vertices.push_back(halfheight);  mesh->_vertices.push_back(halfdepth); //0  
+        mesh->_vertices.push_back(halfwidth);  mesh->_vertices.push_back(halfheight);  mesh->_vertices.push_back(halfdepth); //1
+        mesh->_vertices.push_back(-halfwidth); mesh->_vertices.push_back(-halfheight); mesh->_vertices.push_back(halfdepth); //2
+        mesh->_vertices.push_back(halfwidth);  mesh->_vertices.push_back(-halfheight); mesh->_vertices.push_back(halfdepth); //3
 
         //back  
-        mesh->_vertices[i++] = -halfwidth; mesh->_vertices[i++] =  halfheight; mesh->_vertices[i++] = -halfdepth; //4
-        mesh->_vertices[i++] =  halfwidth; mesh->_vertices[i++] =  halfheight; mesh->_vertices[i++] = -halfdepth; //5
-        mesh->_vertices[i++] = -halfwidth; mesh->_vertices[i++] = -halfheight; mesh->_vertices[i++] = -halfdepth; //6
-        mesh->_vertices[i++] =  halfwidth; mesh->_vertices[i++] = -halfheight; mesh->_vertices[i++] = -halfdepth; //7
+        mesh->_vertices.push_back(-halfwidth); mesh->_vertices.push_back(halfheight);  mesh->_vertices.push_back(-halfdepth); //4
+        mesh->_vertices.push_back(halfwidth);  mesh->_vertices.push_back(halfheight);  mesh->_vertices.push_back(-halfdepth); //5
+        mesh->_vertices.push_back(-halfwidth); mesh->_vertices.push_back(-halfheight); mesh->_vertices.push_back(-halfdepth); //6
+        mesh->_vertices.push_back(halfwidth);  mesh->_vertices.push_back(-halfheight); mesh->_vertices.push_back(-halfdepth); //7
 
         //front
-        mesh->_indices[j++] = 0; mesh->_indices[j++] = 1; mesh->_indices[j++] = 2; //front left
-        mesh->_indices[j++] = 1; mesh->_indices[j++] = 3; mesh->_indices[j++] = 2; //front right
+        mesh->_indices.push_back(0); mesh->_indices.push_back(1); mesh->_indices.push_back(2); //front left
+        mesh->_indices.push_back(1); mesh->_indices.push_back(3); mesh->_indices.push_back(2); //front right
 
         //right
-        mesh->_indices[j++] = 1; mesh->_indices[j++] = 5; mesh->_indices[j++] = 3; //right left
-        mesh->_indices[j++] = 5; mesh->_indices[j++] = 7; mesh->_indices[j++] = 3; //right right
+        mesh->_indices.push_back(1); mesh->_indices.push_back(5); mesh->_indices.push_back(3); //right left
+        mesh->_indices.push_back(5); mesh->_indices.push_back(7); mesh->_indices.push_back(3); //right right
 
         //back
-        mesh->_indices[j++] = 5; mesh->_indices[j++] = 4; mesh->_indices[j++] = 7; //front left
-        mesh->_indices[j++] = 4; mesh->_indices[j++] = 6; mesh->_indices[j++] = 7; //front right
+        mesh->_indices.push_back(5); mesh->_indices.push_back(4); mesh->_indices.push_back(7); //front left
+        mesh->_indices.push_back(4); mesh->_indices.push_back(6); mesh->_indices.push_back(7); //front right
 
         //left
-        mesh->_indices[j++] = 4; mesh->_indices[j++] = 0; mesh->_indices[j++] = 6; //right left
-        mesh->_indices[j++] = 0; mesh->_indices[j++] = 2; mesh->_indices[j++] = 6; //right right
+        mesh->_indices.push_back(4); mesh->_indices.push_back(0); mesh->_indices.push_back(6); //right left
+        mesh->_indices.push_back(0); mesh->_indices.push_back(2); mesh->_indices.push_back(6); //right right
 
         //top
-        mesh->_indices[j++] = 4; mesh->_indices[j++] = 5; mesh->_indices[j++] = 0; //front left
-        mesh->_indices[j++] = 5; mesh->_indices[j++] = 1; mesh->_indices[j++] = 0; //front right
+        mesh->_indices.push_back(4); mesh->_indices.push_back(5); mesh->_indices.push_back(0); //front left
+        mesh->_indices.push_back(5); mesh->_indices.push_back(1); mesh->_indices.push_back(0); //front right
 
         //bottom
-        mesh->_indices[j++] = 2; mesh->_indices[j++] = 3; mesh->_indices[j++] = 6; //right left
-        mesh->_indices[j++] = 3; mesh->_indices[j++] = 7; mesh->_indices[j++] = 6; //right right
+        mesh->_indices.push_back(2); mesh->_indices.push_back(3); mesh->_indices.push_back(6); //right left
+        mesh->_indices.push_back(3); mesh->_indices.push_back(7); mesh->_indices.push_back(6); //right right
 
         return mesh;
 	}
 
 	static Mesh* MeshedCube(float sidelength, int partitions) {
 		Mesh* mesh = new Mesh();
+
+        //Remember to not redundantly define same vertices multiple times, hence reuse edge vertices
+        int vertices_count = (partitions + 1) * partitions * 4 * 3; //front, right, back, left
+        vertices_count += (partitions - 1) * (partitions - 1) * 2 * 3;
+
+        //indices_count = partitions * partitions * 6 * 2 * 3; //n * n squares per side (* 6) each consisting of two triangles (* 2) of three indices each (* 3)
+        int indices_count = partitions * partitions * 6 * 2 * 3;
+
+        mesh->_vertices.resize(vertices_count);
+        mesh->_indices.resize(indices_count);
 
         float half_side = sidelength / 2.0;
         float stepsize = sidelength / partitions;
@@ -207,12 +235,9 @@ public:
                         z = current_col;
                         break;
                     }
-                    //(offset_side + offset_row + col) * 3 + 0
-                    mesh->_vertices.push_back(x);
-                    //(offset_side + offset_row + col) * 3 + 1
-                    mesh->_vertices.push_back(y);
-                    //(offset_side + offset_row + col) * 3 + 2
-                    mesh->_vertices.push_back(z);
+                    mesh->_vertices[(offset_side + offset_row + col) * 3 + 0] = x;
+                    mesh->_vertices[(offset_side + offset_row + col) * 3 + 1] = y;
+                    mesh->_vertices[(offset_side + offset_row + col) * 3 + 2] = z;
 
 
                     if (row < partitions) {
@@ -252,5 +277,58 @@ public:
         }
         return mesh;
 	}
+
+    static Mesh* Sphere(float stacks, float sectors, float radius) {
+        Mesh* mesh = new Mesh();
+
+        int i1, i2;
+        float x, y, z;
+        float x1 = 0;
+        float phi = 0;
+        float theta = 0;
+        float sectorstep = (2 * PI) / sectors;
+        float stackstep = PI / stacks;
+        for (int i = 0; i <= stacks; i++)
+        {
+            float phi = PI / 2 - i * stackstep;
+            x1 = radius * cos(phi);
+            z = radius * sin(phi);
+            for (int j = 0; j <= sectors; j++)
+            {
+                theta = j * sectorstep;
+                //vertex calculation
+                x = x1 * cos(theta);
+                y = x1 * sin(theta);
+                mesh->_vertices.push_back(x);
+                mesh->_vertices.push_back(y);
+                mesh->_vertices.push_back(z);
+            }
+        }
+        //indexing
+        for (int i = 0; i < stacks; i++)
+        {
+            i1 = i * (sectors + 1);//current stack
+            i2 = i1 + sectors + 1;//next stack
+
+            for (int j = 0; j < sectors; j++)
+            {
+                if (i != 0)
+                {
+                    mesh->_indices.push_back(i1);
+                    mesh->_indices.push_back(i2);
+                    mesh->_indices.push_back(i1 + 1);
+                }
+                if (i != (stacks - 1))
+                {
+                    mesh->_indices.push_back(i1 + 1);
+                    mesh->_indices.push_back(i2);
+                    mesh->_indices.push_back(i2 + 1);
+                }
+                i1++; i2++;
+            }
+        }
+
+        return mesh;
+    }
 };
 #endif

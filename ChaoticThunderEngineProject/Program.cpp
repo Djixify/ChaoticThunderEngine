@@ -10,6 +10,7 @@
 #include "File.hpp"
 #include "Controller.hpp"
 #include "imgui.h"
+#include "Mesh.hpp"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "Graphics.hpp"
@@ -65,99 +66,6 @@ void TestFunction() {
     filestream.close();
 
     printf("%d\n", logger.IsValid());
-}
-
-
-void SquareMesh(float width, float height, int xpart, int ypart, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
-    vertices_count = 3 * (xpart + 1) * (ypart + 1);
-    indices_count  = 6 * xpart * ypart;
-    
-    vertices = new float[vertices_count]; // array coordinates times 3 so that each position stores one coordinate axis
-    indices  = new unsigned int[indices_count]; // indices for 2 triangles for every 4 vertices
-    float halfwidth = width * 0.5f;
-    float currentx  = -halfwidth;
-    float currenty  = -height * 0.5f;
-    float stepsizex = width / xpart;
-    float stepsizey = height / ypart;
-
-    for (int i = 0; i <= ypart; i++) //vertex generation
-    {
-        currentx = -halfwidth;
-        for (int j = 0; j <= xpart; j++)
-        {
-            vertices[3 * (i * (xpart + 1) + j)]     = currentx;
-            vertices[3 * (i * (xpart + 1) + j) + 1] = currenty;
-            vertices[3 * (i * (xpart + 1) + j) + 2] = 0.0f;
-            currentx += stepsizex;
-        }
-        currenty += stepsizey;
-    }   
-
-    for (int i = 0; i < ypart; i++) 
-    {
-        for (int j = 0; j < xpart; j++) {
-            indices[6 * (i * xpart + j)]     = i       * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 1] = i       * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 2] = (i + 1) * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 3] = i       * (xpart + 1) + j;
-            indices[6 * (i * xpart + j) + 4] = (i + 1) * (xpart + 1) + j + 1;
-            indices[6 * (i * xpart + j) + 5] = (i + 1) * (xpart + 1) + j;
-        }
-    }
-}
-
-//TODO: mpofmz
-void Cube(float width, float height, float depth, unsigned int*& indices, unsigned int& indices_count, float*& vertices, unsigned int& vertices_count) {
-
-    vertices_count = 8 * 3;
-    indices_count = 12 * 3;
-
-    vertices = new float[vertices_count];
-    indices = new unsigned int[indices_count];
-    float halfwidth = width * 0.5f;
-    float halfheight = height * 0.5f;
-    float halfdepth = depth * 0.5f;
-
-    int i = 0;
-    int j = 0;
-
-    //front                   
-    // x // y // z //   -  // -x = left // -y = down // -z = away from camera // 0.0 = center world     
-
-    vertices[i++] = -halfwidth; vertices[i++] = halfheight; vertices[i++] = halfdepth; //0  
-    vertices[i++] = halfwidth; vertices[i++] = halfheight; vertices[i++] = halfdepth; //1
-    vertices[i++] = -halfwidth; vertices[i++] = -halfheight; vertices[i++] = halfdepth; //2
-    vertices[i++] = halfwidth; vertices[i++] = -halfheight; vertices[i++] = halfdepth; //3
-
-    //back  
-    vertices[i++] = -halfwidth; vertices[i++] = halfheight; vertices[i++] = -halfdepth; //4
-    vertices[i++] = halfwidth; vertices[i++] = halfheight; vertices[i++] = -halfdepth; //5
-    vertices[i++] = -halfwidth; vertices[i++] = -halfheight; vertices[i++] = -halfdepth; //6
-    vertices[i++] = halfwidth; vertices[i++] = -halfheight; vertices[i++] = -halfdepth; //7
-
-    //front
-    indices[j++] = 0; indices[j++] = 1; indices[j++] = 2; //front left
-    indices[j++] = 1; indices[j++] = 3; indices[j++] = 2; //front right
-
-    //right
-    indices[j++] = 1; indices[j++] = 5; indices[j++] = 3; //right left
-    indices[j++] = 5; indices[j++] = 7; indices[j++] = 3; //right right
-  
-    //back
-    indices[j++] = 5; indices[j++] = 4; indices[j++] = 7; //front left
-    indices[j++] = 4; indices[j++] = 6; indices[j++] = 7; //front right
-
-    //left
-    indices[j++] = 4; indices[j++] = 0; indices[j++] = 6; //right left
-    indices[j++] = 0; indices[j++] = 2; indices[j++] = 6; //right right
-
-    //top
-    indices[j++] = 4; indices[j++] = 5; indices[j++] = 0; //front left
-    indices[j++] = 5; indices[j++] = 1; indices[j++] = 0; //front right
-
-    //bottom
-    indices[j++] = 2; indices[j++] = 3; indices[j++] = 6; //right left
-    indices[j++] = 3; indices[j++] = 7; indices[j++] = 6; //right right
 }
 
 static void glfw_error_callback(int error, const char* description)
@@ -228,7 +136,8 @@ int main(int argc, const char* argv[]) {
     //SquareMesh(2.0, 2.0, 100, 100, indices, indices_count, vertices, vertices_count);
     //EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
     //Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
-    MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
+    //MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
+    Mesh* mesh = Mesh::Sphere(50, 50, 30);
 
     //Debugging mesh information:
     if (vertices_count + indices_count < 100) {
@@ -267,8 +176,8 @@ int main(int argc, const char* argv[]) {
     mainwindow.AddShader("blue", 2, scalingvertexinfo, bluefragmentinfo);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
-    VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * vertices_count, vertices);
-    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * indices_count, indices);
+    VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * mesh->_vertices.size(), &mesh->_vertices[0]);
+    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * mesh->_indices.size(), &mesh->_indices[0]);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
     
     glEnable(GL_DEPTH_TEST); // enable depth-testing
