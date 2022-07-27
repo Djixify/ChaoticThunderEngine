@@ -108,47 +108,6 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
-    unsigned int indices_count = 0, vertices_count = 0;
-#define SIMPLE false
-#if SIMPLE
-    float vertices[] = {
-         0.0f,  0.7f, -0.5f,  // top center
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f,  // top left 
-         0.0f, -0.7f, 0.0f   // bottom center
-    };
-    unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 4,   // first triangle
-        1, 2, 3,   // second triangle
-        3, 4, 1,    // third triangle
-        2, 3, 5
-    };
-
-    vertices_count = sizeof(vertices) / 4;
-    indices_count = sizeof(indices) / 4;
-#else
-    float* vertices = 0;
-    unsigned int* indices = 0;
-
-    //MakeNgon(6, 0.5f, 0, 0, indices, indices_count, vertices, vertices_count);
-    //SquareMesh(2.0, 2.0, 100, 100, indices, indices_count, vertices, vertices_count);
-    //EquilateralMesh(0.5, 0.5, 0.02, indices, indices_count, vertices, vertices_count);
-    //Cube(5.0, 2.0, 2.0, indices, indices_count, vertices, vertices_count);
-    //MeshCube(2, 40, indices, indices_count, vertices, vertices_count);
-    Mesh* mesh = Mesh::Sphere(50, 50, 30);
-
-    //Debugging mesh information:
-    if (vertices_count + indices_count < 100) {
-        for (int i = 0; i < vertices_count / 3; i++) {
-            Debug::Logger::Console(Debug::Level::INFO, "Vertex %d: %f, %f, %f", i, vertices[3 * i], vertices[3 * i + 1], vertices[3 * i + 2]);
-        }
-        for (int i = 0; i < indices_count / 3; i++) {
-            Debug::Logger::Console(Debug::Level::INFO, "Triangle %d: %d, %d, %d", i, indices[3 * i], indices[3 * i + 1], indices[3 * i + 2]);
-        }
-    }
-#endif
 
     //Load shaders into main window
     std::string fragmentshaderfolder = "shaderprograms";
@@ -174,6 +133,8 @@ int main(int argc, const char* argv[]) {
     mainwindow.AddShader("green", 2, cameravertexinfo, greenfragmentinfo);
     mainwindow.AddShader("red", 2, sinwavevertexinfo, redfragmentinfo);
     mainwindow.AddShader("blue", 2, scalingvertexinfo, bluefragmentinfo);
+
+    Mesh* mesh = Mesh::Sphere(50, 50, 30);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * mesh->_vertices.size(), &mesh->_vertices[0]);
