@@ -178,5 +178,7 @@ int main(int argc, const char* argv[]) {
 
     Graphics::TerminateImGUI();
 
+    Controller::Instance()->ClearWindows();
+
     glfwTerminate();
 }

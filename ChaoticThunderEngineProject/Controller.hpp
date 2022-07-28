@@ -87,6 +87,10 @@ public:
     /// Remove window at the given index
     /// </summary>
     void RemoveWindow(int i);
+    /// <summary>
+    /// Destroys and clears all windows in the controller
+    /// </summary>
+    void ClearWindows();
 
     /// <summary>
     /// Gets the number of allowed vertex attributes provided by opengl
