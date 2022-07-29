@@ -1,4 +1,5 @@
 #include "File.hpp"
+#include <filesystem>
 
 namespace File {
     std::string CurrentDirectory() {
@@ -8,6 +9,20 @@ namespace File {
     std::string GetParent(std::string path) {
         size_t index = path.find_last_of(pathSeperator);
         return path.substr(0, index);
+    }
+
+
+    std::vector<std::string> GetFilesInDirectory(std::string path) {
+        std::vector<std::string> files;
+        std::filesystem::directory_iterator directoryiter(path);
+        for (std::filesystem::directory_entry entry : directoryiter) {
+            if (entry.is_regular_file()) {
+                std::wstring name = entry.path().native();
+                std::string str_path = std::string(name.begin(), name.end());
+                files.push_back(str_path);
+            }
+        }
+        return files;
     }
 
     std::string CombinePath(int count, std::string args...) {

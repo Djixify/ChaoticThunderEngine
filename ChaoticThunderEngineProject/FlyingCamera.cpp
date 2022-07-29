@@ -81,7 +81,7 @@ void FlyingCamera::ProcessScrollWheel(double xoffset, double yoffset)
 }
 
 glm::mat4x4 FlyingCamera::GetProjectionMatrix(Window* window) {
-	return glm::perspective(Fov, window->GetAspectRatio(), Near_plane, Far_plane);
+	return glm::perspective(glm::radians(Fov), window->GetAspectRatio(), Near_plane, Far_plane);
 }
 
 glm::mat4x4 FlyingCamera::GetViewMatrix() {

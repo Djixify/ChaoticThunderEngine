@@ -110,31 +110,14 @@ int main(int argc, const char* argv[]) {
 
 
     //Load shaders into main window
-    std::string fragmentshaderfolder = "shaderprograms";
-    std::string circlepatternfragment = "circlepattern.frag";
-    std::string scalingvertex = "scaling.vert";
-    std::string cameravertex = "camera.vert";
-    std::string sinwavevertex = "sinwave.vert";
-    std::string redtrianglefragment = "red.frag";
-    std::string bluetrianglefragment = "oscillatingblue.frag"; 
-    std::string greentrianglefragment = "green.frag";
+    std::string shadersubfolder = "shaderprograms";
+    std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), shadersubfolder);
 
-    std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), fragmentshaderfolder);
-    //load_shader circleshaderinfo{ FRAGMENT, FileUtility::CombinePath(2, shaderfolder, circlepatternfragment) };
-    //Shader circleShader(secondarywindow, 1, circleshaderinfo);
-    load_shader scalingvertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, scalingvertex) };
-    load_shader cameravertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, cameravertex) };
-    load_shader sinwavevertexinfo{ shader_type::VERTEX, File::CombinePath(2, shaderfolder, sinwavevertex) };
+    mainwindow.AddShader("green", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("greensimple"))));
+    mainwindow.AddShader("red", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("redwaving"))));
+    mainwindow.AddShader("blue", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("blueglow"))));
 
-    load_shader redfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, redtrianglefragment) };
-    load_shader bluefragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, bluetrianglefragment) };
-    load_shader greenfragmentinfo{ shader_type::FRAGMENT, File::CombinePath(2, shaderfolder, greentrianglefragment) };
-
-    mainwindow.AddShader("green", 2, cameravertexinfo, greenfragmentinfo);
-    mainwindow.AddShader("red", 2, sinwavevertexinfo, redfragmentinfo);
-    mainwindow.AddShader("blue", 2, scalingvertexinfo, bluefragmentinfo);
-
-    Mesh* mesh = Mesh::Sphere(50, 50, 30);
+    Mesh* mesh = Mesh::Sphere(50, 50, 3);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * mesh->_vertices.size(), &mesh->_vertices[0]);

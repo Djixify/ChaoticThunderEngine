@@ -228,6 +228,11 @@ void Window::SetCursorInputType(Controls::cursor_input_type input_type)
     _invalid_prev_pos = true;
 }
 
+void Window::AddShader(std::string shader_name, std::vector<load_shader> shaders) 
+{
+    _shaders.insert_or_assign(shader_name, std::make_shared<Shader>(this, shaders));
+}
+
 void Window::AddShader(std::string shader_name, int count, load_shader shaders...)
 {
     std::vector<load_shader> paths;

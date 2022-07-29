@@ -70,6 +70,7 @@ public:
     float GetDeltaTimeSec();
     void Clear();
 
+    void AddShader(std::string shader_name, std::vector<load_shader> shaders);
     void AddShader(std::string shader_name, int count, load_shader shaders...);
     void RemoveShader(std::string shader_name);
     Shader* GetShader(std::string shader_name);
