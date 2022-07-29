@@ -117,6 +117,8 @@ int main(int argc, const char* argv[]) {
     mainwindow.AddShader("red", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("redwaving"))));
     mainwindow.AddShader("blue", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("blueglow"))));
 
+    std::vector<std::pair<std::string, std::vector<load_shader>>> test = load_shader::LoadProgramSubfolders(shaderfolder);
+
     Mesh* mesh = Mesh::Sphere(50, 50, 3);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");

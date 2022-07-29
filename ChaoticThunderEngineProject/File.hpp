@@ -14,7 +14,8 @@ namespace File {
 
     std::string CurrentDirectory();
     std::string GetParent(std::string path);
-    std::vector<std::string> GetFilesInDirectory(std::string path);
+    std::vector<std::string> GetFiles(std::string path);
+    std::vector<std::string> GetDirectories(std::string path);
     std::string CombinePath(int count, std::string args...);
 }
 #endif

@@ -45,7 +45,7 @@ struct load_shader {
         std::vector<load_shader> program;
 
         //Iterate through files to find appropriate programs
-        for (std::string file : File::GetFilesInDirectory(path)) {
+        for (std::string file : File::GetFiles(path)) {
             for (int file_ext_iter = 0; file_ext_iter < 5; file_ext_iter++) {
                 if (file.substr(file.length() - 5, 5).compare(extensions[file_ext_iter]) == 0) {
                     int position = 0;
@@ -76,6 +76,21 @@ struct load_shader {
 
         return program;
     }
+
+    static std::vector<std::pair<std::string, std::vector<load_shader>>> LoadProgramSubfolders(std::string path) {
+        std::vector<std::pair<std::string, std::vector<load_shader>>> programs;
+        for (std::string programfolder : File::GetDirectories(path)) {
+            try {
+                std::vector<load_shader> program = LoadProgramFolder(programfolder);
+                int offset = program[0].path.find_last_of('\\');
+                offset = offset > -1 ? offset : program[0].path.find_last_of('/');
+            }
+            catch (Exception err) {
+                Debug::Logger::Console(Debug::Level::WARNING, "Invalid shader program found in %s", programfolder);
+            }
+        }
+        return programs;
+    }
 };
 
 struct vertex_attribute {
@@ -85,31 +100,5 @@ struct vertex_attribute {
     GLuint stride;
     attribute_type type;
     GLuint offset;
-};
-
-struct vertex_xyz {
-    float x, y, z;
-    vertex_xyz(float x, float y, float z) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
-};
-
-struct vertex_xyz_rgb : vertex_xyz {
-    float r, g, b;
-    vertex_xyz_rgb(float x, float y, float z, float r, float g, float b) : vertex_xyz(x,y,z) {
-        this->r = r;
-        this->g = g;
-        this->b = b;
-    }
-};
-
-struct vertex_xyz_txy : vertex_xyz {
-    float x, y, z, tx, ty;
-    vertex_xyz_txy(float x, float y, float z, float tx, float ty) : vertex_xyz(x, y, z) {
-        this->tx = tx;
-        this->ty = ty;
-    }
 };
 #endif

@@ -12,7 +12,7 @@ namespace File {
     }
 
 
-    std::vector<std::string> GetFilesInDirectory(std::string path) {
+    std::vector<std::string> GetFiles(std::string path) {
         std::vector<std::string> files;
         std::filesystem::directory_iterator directoryiter(path);
         for (std::filesystem::directory_entry entry : directoryiter) {
@@ -23,6 +23,19 @@ namespace File {
             }
         }
         return files;
+    }
+
+    std::vector<std::string> GetDirectories(std::string path) {
+        std::vector<std::string> dirs;
+        std::filesystem::directory_iterator directoryiter(path);
+        for (std::filesystem::directory_entry entry : directoryiter) {
+            if (entry.is_directory()) {
+                std::wstring name = entry.path().native();
+                std::string str_path = std::string(name.begin(), name.end());
+                dirs.push_back(str_path);
+            }
+        }
+        return dirs;
     }
 
     std::string CombinePath(int count, std::string args...) {
