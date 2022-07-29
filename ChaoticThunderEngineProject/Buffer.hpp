@@ -35,7 +35,7 @@ public:
     char AttributeCount();
 
     VertexDataBuffer* CreateVertexBuffer(buffer_storage_type storage_type = buffer_storage_type::STATIC);
-    VertexDataBuffer* CreateVertexBuffer(unsigned int byte_size, void* data, buffer_storage_type storage_type = buffer_storage_type::STATIC);
+    VertexDataBuffer* CreateVertexBuffer(size_t byte_size, void* data, buffer_storage_type storage_type = buffer_storage_type::STATIC);
 };
 
 
@@ -57,10 +57,10 @@ public:
     ~VertexDataBuffer();
     unsigned int GetID();
     void SetActive();
-    void Write(unsigned int byte_size, void* data);
+    void Write(size_t byte_size, void* data);
 
     VertexIndexBuffer* CreateIndexBuffer(buffer_storage_type storage_type = buffer_storage_type::STATIC);
-    VertexIndexBuffer* CreateIndexBuffer(unsigned int count, unsigned int* indicies, buffer_storage_type storage_type = buffer_storage_type::STATIC);
+    VertexIndexBuffer* CreateIndexBuffer(size_t count, unsigned int* indicies, buffer_storage_type storage_type = buffer_storage_type::STATIC);
 };
 
 
@@ -84,7 +84,7 @@ public:
     ~VertexIndexBuffer();
     unsigned int GetID();
     void SetActive();
-    void Write(unsigned int count, unsigned int* indicies);
+    void Write(size_t count, unsigned int* indicies);
     void Draw();
     void Draw(int offset, int count);
 };

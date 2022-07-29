@@ -23,17 +23,17 @@ precision mediump float;
 
 void TestFunction() {
 
-
+    /*
     // call a function in another file
     std::cout << "Hello other world!" << std::endl;
 
     Debug::Logger::Console(Debug::Level::INFO, "%10d ::: %-15d ::: %10f", 9001, 42, 23.2);
     Debug::Logger::Console(Debug::Level::INFO, "%10d ::: %-15d ::: %10f", 69, 360, 1000.2);
 
-    std::string currentPath = File::CurrentDirectory();
-    std::string parent = File::GetParent(currentPath);
+    std::string currentPath = std::filesystem::current_path().generic_u8string();
+    std::string parent = std::filesystem::current_path().parent_path().generic_u8string();
     std::string file = "Somefile.uwu";
-    std::string firstuwu = File::CombinePath(2, currentPath, file);
+    std::string firstuwu = std::filesystem::current_path().concat(currentPath, file).generic_u8string();
 
     std::cout << currentPath << std::endl;
     std::cout << parent << std::endl;
@@ -59,13 +59,14 @@ void TestFunction() {
 
     logger.Log(Debug::Level::INFO, "Im a title", "Hello from the log! 3");
 
-    logger.Log(Debug::Level::INFO, "Im your execution path!: %s", File::CurrentDirectory());
+    logger.Log(Debug::Level::INFO, "Im your execution path!: %s", std::filesystem::current_path());
 
     printf("%d\n", logger.IsValid());
 
     filestream.close();
 
     printf("%d\n", logger.IsValid());
+    */
 }
 
 static void glfw_error_callback(int error, const char* description)
@@ -108,23 +109,27 @@ int main(int argc, const char* argv[]) {
         return 0;
     }
 
+    
 
     //Load shaders into main window
-    std::string shadersubfolder = "shaderprograms";
-    std::string shaderfolder = File::CombinePath(2, File::CurrentDirectory(), shadersubfolder);
+    std::filesystem::path shaderfolder = std::filesystem::current_path() / "shaderprograms";
 
-    mainwindow.AddShader("green", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("greensimple"))));
-    mainwindow.AddShader("red", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("redwaving"))));
-    mainwindow.AddShader("blue", load_shader::LoadProgramFolder(File::CombinePath(2, shaderfolder, std::string("blueglow"))));
-
-    std::vector<std::pair<std::string, std::vector<load_shader>>> test = load_shader::LoadProgramSubfolders(shaderfolder);
+    for (std::pair<std::string, std::vector<load_shader>> programfolder : load_shader::LoadProgramSubfolders(shaderfolder)) {
+        try {
+            mainwindow.AddShader(programfolder.first, programfolder.second);
+        }
+        catch (Exception& err) {
+            Debug::Logger::Console(Debug::Level::WARNING, "Invalid program during compilation in %s, error:\n %s", programfolder.first.c_str(), err.what());
+        }
+        
+    }
 
     Mesh* mesh = Mesh::Sphere(50, 50, 3);
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * mesh->_vertices.size(), &mesh->_vertices[0]);
-    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * mesh->_indices.size(), &mesh->_indices[0]);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
+    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * mesh->_indices.size(), &mesh->_indices[0]);
     
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be drawn
@@ -135,24 +140,19 @@ int main(int argc, const char* argv[]) {
     bool shouldClose = false;
     while (!shouldClose)
     {
-        float currentFrame = static_cast<float>(glfwGetTime());
-
         //Debug::Logger::console("Displaying window " + i);
         Window* window = Controller::Instance()->GetContextWindow();
 
+        //Run at the start of every render loop
         window->Clear();
         window->UpdateTime();
         window->ProcessKeyContinuous();
         Graphics::UpdateVariablesImGUI(window);
 
-        float constant_timemultiplier = 1.0f;
-        //window->GetActiveCamera()->Position.y = glm::cos(window->GetCurrentTimeSec() * constant_timemultiplier);
-        //window->GetActiveCamera()->Position.z = glm::sin(window->GetCurrentTimeSec() * constant_timemultiplier);
-
-        //window->GetActiveCamera()->Front = -window->GetActiveCamera()->Position;
-
+        //Render stuff here
         indexmainbuffer->Draw();
 
+        //After rendering stuff
         Graphics::RenderImGUI(window);
 
         glfwSwapBuffers(window->GetGLContext());

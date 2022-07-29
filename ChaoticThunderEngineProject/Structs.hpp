@@ -12,7 +12,7 @@
 /// </summary>
 struct load_shader {
     shader_type type;
-    std::string path;
+    std::filesystem::path path;
 
     /// <summary>
     /// Takes a directory path and iterates through the files of the directory
@@ -22,7 +22,7 @@ struct load_shader {
     /// </summary>
     /// <param name="path">The directory to be iterated through</param>
     /// <returns>The ordered vector of shaders to create a program</returns>
-    static std::vector<load_shader> LoadProgramFolder(std::string path) {
+    static std::vector<load_shader> LoadProgramFolder(std::filesystem::path path) {
         //Mostly for readibility, could just be instanciated in the array instead
         std::string vertex_ext = ".vert";
         std::string control_tessellation_ext = ".tesc";
@@ -45,9 +45,9 @@ struct load_shader {
         std::vector<load_shader> program;
 
         //Iterate through files to find appropriate programs
-        for (std::string file : File::GetFiles(path)) {
+        for (std::filesystem::path file : File::GetFiles(path)) {
             for (int file_ext_iter = 0; file_ext_iter < 5; file_ext_iter++) {
-                if (file.substr(file.length() - 5, 5).compare(extensions[file_ext_iter]) == 0) {
+                if (file.extension().compare(extensions[file_ext_iter]) == 0) {
                     int position = 0;
                     for (int i = 0; i < 5; i++)
                         position += pipeline_indices[i] ? 1 : 0;
@@ -77,16 +77,17 @@ struct load_shader {
         return program;
     }
 
-    static std::vector<std::pair<std::string, std::vector<load_shader>>> LoadProgramSubfolders(std::string path) {
+    static std::vector<std::pair<std::string, std::vector<load_shader>>> LoadProgramSubfolders(std::filesystem::path path) {
         std::vector<std::pair<std::string, std::vector<load_shader>>> programs;
-        for (std::string programfolder : File::GetDirectories(path)) {
+        for (std::filesystem::path programfolder : File::GetDirectories(path)) {
             try {
                 std::vector<load_shader> program = LoadProgramFolder(programfolder);
-                int offset = program[0].path.find_last_of('\\');
-                offset = offset > -1 ? offset : program[0].path.find_last_of('/');
+                std::string filename = program[0].path.parent_path().filename().generic_u8string();
+                std::pair bundled{ filename, program };
+                programs.push_back(bundled);
             }
-            catch (Exception err) {
-                Debug::Logger::Console(Debug::Level::WARNING, "Invalid shader program found in %s", programfolder);
+            catch (Exception& err) {
+                Debug::Logger::Console(Debug::Level::WARNING, "Invalid shader program found in %s, error:\n %s", programfolder.generic_u8string().c_str(), err.what());
             }
         }
         return programs;

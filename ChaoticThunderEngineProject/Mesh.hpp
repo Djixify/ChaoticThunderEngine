@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <cmath>
-#define PI 3.14159265358979323846
+#define PI 3.14159265358979323846f
 
 class Mesh {
 private:
@@ -73,12 +73,12 @@ public:
         float currentx = -halfwidth;
         float currenty = -height * 0.5f;
         float stepsizex = triangle_side_length;
-        float stepsizey = std::sqrt(triangle_side_length * triangle_side_length - (triangle_side_length * 0.5) * (triangle_side_length * 0.5));
+        float stepsizey = std::sqrt(triangle_side_length * triangle_side_length - (triangle_side_length * 0.5f) * (triangle_side_length * 0.5f));
 
         for (int i = 0; i <= ypart; i++) //vertex generation
         {
             currentx = -halfwidth;
-            float offset = i % 2 == 0 ? triangle_side_length * 0.5 : 0;
+            float offset = i % 2 == 0.f ? triangle_side_length * 0.5f : 0.f;
             for (int j = 0; j <= xpart; j++)
             {
                 mesh->_vertices[3 * (i * (xpart + 1) + j)] = currentx + offset;
@@ -104,7 +104,7 @@ public:
         return mesh;
 	}
 
-	static Mesh* EquilateralNPolygon(float n, float radius) {
+	static Mesh* EquilateralNPolygon(int n, float radius) {
 		Mesh* mesh = new Mesh();
 
         int vertices_count = (n + 1) * 3; // n + 1 vertices (introducing center vertex)
@@ -200,7 +200,7 @@ public:
         mesh->_vertices.resize(vertices_count);
         mesh->_indices.resize(indices_count);
 
-        float half_side = sidelength / 2.0;
+        float half_side = sidelength / 2.0f;
         float stepsize = sidelength / partitions;
         int current_index_iter = 0;
 
@@ -278,7 +278,7 @@ public:
         return mesh;
 	}
 
-    static Mesh* Sphere(float stacks, float sectors, float radius) {
+    static Mesh* Sphere(int stacks, int sectors, float radius) {
         Mesh* mesh = new Mesh();
 
         int i1, i2;

@@ -10,12 +10,7 @@
 #include "Debug.hpp"
 
 namespace File {
-    const char pathSeperator = '/'; //May vary between operations systems
-
-    std::string CurrentDirectory();
-    std::string GetParent(std::string path);
-    std::vector<std::string> GetFiles(std::string path);
-    std::vector<std::string> GetDirectories(std::string path);
-    std::string CombinePath(int count, std::string args...);
+    std::vector<std::filesystem::path> GetFiles(std::filesystem::path path);
+    std::vector<std::filesystem::path> GetDirectories(std::filesystem::path path);
 }
 #endif

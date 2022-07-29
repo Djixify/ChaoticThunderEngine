@@ -104,7 +104,7 @@ public:
     /// </summary>
     /// <param name="msg">Message to write to the instance</param>
     void ThrowException(std::string msg) {
-        throw this->runtime_err.SetMessage(msg);
+        throw *this->runtime_err.SetMessage(msg);
     }
 
     /// <summary>
