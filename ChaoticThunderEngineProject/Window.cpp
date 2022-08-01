@@ -274,6 +274,7 @@ void Window::SetActive() const
     glfwMakeContextCurrent(this->GetGLContext());
 }
 
+/*
 ArrayBuffer* Window::AddArrayBuffer(std::string label)
 {
     this->_buffers.insert_or_assign(label, std::make_shared<ArrayBuffer>(this));
@@ -295,6 +296,7 @@ void Window::RemoveArrayBuffer(std::string label) {
     else
         Debug::Logger::Console(Debug::Level::DESTRUCTION, "Could not find array buffer by label %s in shader", label);
 }
+*/
 
 BaseCamera* Window::GetActiveCamera() {
     return _cameras[_activecamera].get();

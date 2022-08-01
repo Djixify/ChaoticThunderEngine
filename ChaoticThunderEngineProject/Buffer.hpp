@@ -19,12 +19,11 @@ class Window;
 /// </summary>
 class ArrayBuffer {
 private:
-    Window* _window;
     unsigned int _bindingID;
     std::vector<vertex_attribute> _attributes;
     std::vector<std::shared_ptr<VertexDataBuffer>> _vbos;
 public:
-    ArrayBuffer(Window* window);
+    ArrayBuffer();
     ~ArrayBuffer();
     unsigned int GetID();
     void SetActive();

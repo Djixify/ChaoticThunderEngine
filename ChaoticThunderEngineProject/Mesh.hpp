@@ -3,16 +3,24 @@
 
 #include <vector>
 #include <cmath>
+#include "glm.hpp"
+#include "buffer.hpp"
 #define PI 3.14159265358979323846f
 
 class Mesh {
 private:
+    std::shared_ptr<ArrayBuffer> _arraybuffer;
+    std::shared_ptr<VertexDataBuffer> _vertexdatabuffer;
+    std::shared_ptr<VertexIndexBuffer> _vertexindexbuffer;
 
-	Mesh();
+    std::vector<float> _vertices;
+    std::vector<unsigned int> _indices;
+    
+    Mesh();
 public:
 	~Mesh();
-	std::vector<float> _vertices;
-	std::vector<unsigned int> _indices;
+
+    void Draw();
 
 	static Mesh* SquareTriangleMesh(float width, float height, int xpartitions, int ypartitions) {
 		Mesh* mesh = new Mesh();
@@ -54,8 +62,56 @@ public:
             }
         }
 
+        mesh->_vertexdatabuffer->Write(mesh->_vertices.size() * sizeof(float), )
+
         return mesh;
 	}
+
+    static Mesh* SquareTriangleMeshWithNormals(float width, float height, int xpartitions, int ypartitions) {
+        Mesh* mesh = new Mesh();
+
+        int vertices_count = 6 * (xpartitions + 1) * (ypartitions + 1);
+        int indices_count = 6 * xpartitions * ypartitions;
+
+        mesh->_vertices.resize(vertices_count);
+        mesh->_indices.resize(indices_count);
+
+        float halfwidth = width * 0.5f;
+        float currentx = -halfwidth;
+        float currenty = -height * 0.5f;
+        float stepsizex = width / xpartitions;
+        float stepsizey = height / ypartitions;
+
+        for (int i = 0; i <= ypartitions; i++) //vertex generation
+        {
+            currentx = -halfwidth;
+            for (int j = 0; j <= xpartitions; j++)
+            {
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j)] = currentx;
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 1] = currenty;
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 2] = 0.0f;
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 3] = 0;
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 4] = 0;
+                mesh->_vertices[3 * (i * (xpartitions + 1) + j) + 5] = -1;
+                currentx += stepsizex;
+            }
+            currenty += stepsizey;
+        }
+
+        for (int i = 0; i < ypartitions; i++)
+        {
+            for (int j = 0; j < xpartitions; j++) {
+                mesh->_indices[6 * (i * xpartitions + j)] = i * (xpartitions + 1) + j;
+                mesh->_indices[6 * (i * xpartitions + j) + 1] = i * (xpartitions + 1) + j + 1;
+                mesh->_indices[6 * (i * xpartitions + j) + 2] = (i + 1) * (xpartitions + 1) + j + 1;
+                mesh->_indices[6 * (i * xpartitions + j) + 3] = i * (xpartitions + 1) + j;
+                mesh->_indices[6 * (i * xpartitions + j) + 4] = (i + 1) * (xpartitions + 1) + j + 1;
+                mesh->_indices[6 * (i * xpartitions + j) + 5] = (i + 1) * (xpartitions + 1) + j;
+            }
+        }
+
+        return mesh;
+    }
 
 	static Mesh* EquilateralTriangleMesh(float width, float height, float triangle_side_length) {
 		Mesh* mesh = new Mesh();
@@ -302,6 +358,63 @@ public:
                 mesh->_vertices.push_back(x);
                 mesh->_vertices.push_back(y);
                 mesh->_vertices.push_back(z);
+            }
+        }
+        //indexing
+        for (int i = 0; i < stacks; i++)
+        {
+            i1 = i * (sectors + 1);//current stack
+            i2 = i1 + sectors + 1;//next stack
+
+            for (int j = 0; j < sectors; j++)
+            {
+                if (i != 0)
+                {
+                    mesh->_indices.push_back(i1);
+                    mesh->_indices.push_back(i2);
+                    mesh->_indices.push_back(i1 + 1);
+                }
+                if (i != (stacks - 1))
+                {
+                    mesh->_indices.push_back(i1 + 1);
+                    mesh->_indices.push_back(i2);
+                    mesh->_indices.push_back(i2 + 1);
+                }
+                i1++; i2++;
+            }
+        }
+
+        return mesh;
+    }
+
+    static Mesh* SphereWithNormals(int stacks, int sectors, float radius) {
+        Mesh* mesh = new Mesh();
+
+        int i1, i2;
+        float x, y, z;
+        float x1 = 0;
+        float phi = 0;
+        float theta = 0;
+        float sectorstep = (2 * PI) / sectors;
+        float stackstep = PI / stacks;
+        for (int i = 0; i <= stacks; i++)
+        {
+            float phi = PI / 2 - i * stackstep;
+            x1 = radius * cos(phi);
+            z = radius * sin(phi);
+            for (int j = 0; j <= sectors; j++)
+            {
+                theta = j * sectorstep;
+                //vertex calculation
+                x = x1 * cos(theta);
+                y = x1 * sin(theta);
+                mesh->_vertices.push_back(x);
+                mesh->_vertices.push_back(y);
+                mesh->_vertices.push_back(z);
+                float length = glm::length(glm::vec3{ x,y,z });
+                mesh->_vertices.push_back(x / length);
+                mesh->_vertices.push_back(y / length);
+                mesh->_vertices.push_back(z / length);
             }
         }
         //indexing

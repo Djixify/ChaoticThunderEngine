@@ -23,7 +23,6 @@ precision mediump float;
 
 void TestFunction() {
 
-    /*
     // call a function in another file
     std::cout << "Hello other world!" << std::endl;
 
@@ -33,7 +32,7 @@ void TestFunction() {
     std::string currentPath = std::filesystem::current_path().generic_u8string();
     std::string parent = std::filesystem::current_path().parent_path().generic_u8string();
     std::string file = "Somefile.uwu";
-    std::string firstuwu = std::filesystem::current_path().concat(currentPath, file).generic_u8string();
+    std::string firstuwu = (std::filesystem::current_path() / file).generic_u8string();
 
     std::cout << currentPath << std::endl;
     std::cout << parent << std::endl;
@@ -66,7 +65,6 @@ void TestFunction() {
     filestream.close();
 
     printf("%d\n", logger.IsValid());
-    */
 }
 
 static void glfw_error_callback(int error, const char* description)
@@ -124,11 +122,14 @@ int main(int argc, const char* argv[]) {
         
     }
 
-    Mesh* mesh = Mesh::Sphere(50, 50, 3);
+    //Mesh* mesh = Mesh::SphereWithNormals(50, 50, 3);
+    Mesh* mesh = Mesh::SquareTriangleMeshWithNormals(2, 2, 10, 10);
+
 
     ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
     VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * mesh->_vertices.size(), &mesh->_vertices[0]);
     arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
+    arraymainbuffer->AddAttribute(1, 3, attribute_type::FLOAT32, true); //Normals
     VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * mesh->_indices.size(), &mesh->_indices[0]);
     
     glEnable(GL_DEPTH_TEST); // enable depth-testing
@@ -149,8 +150,10 @@ int main(int argc, const char* argv[]) {
         window->ProcessKeyContinuous();
         Graphics::UpdateVariablesImGUI(window);
 
-        //Render stuff here
+        //Render stuff her
         indexmainbuffer->Draw();
+        //window->GetShader(std::string("blueglow"))->Use();
+        //indexmainbuffer->Draw();
 
         //After rendering stuff
         Graphics::RenderImGUI(window);
