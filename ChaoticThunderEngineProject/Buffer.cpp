@@ -5,9 +5,7 @@
 ///           Array buffer          ///
 ///////////////////////////////////////
 
-ArrayBuffer::ArrayBuffer(Window* window) : _window(window) {
-    this->_window->SetActive();
-
+ArrayBuffer::ArrayBuffer() {
     glGenVertexArrays(1, &_bindingID);
     Debug::Logger::ConsoleOpenGLError("During generation of array buffer");
 
@@ -26,8 +24,6 @@ ArrayBuffer::~ArrayBuffer() {
 unsigned int ArrayBuffer::GetID() { return _bindingID; }
 
 void ArrayBuffer::SetActive() {
-    this->_window->SetActive();
-
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context array buffer: %d", this->_bindingID);
     
     glBindVertexArray(_bindingID);
@@ -134,14 +130,14 @@ char ArrayBuffer::AttributeCount()
 }
 
 VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(buffer_storage_type storage_type) {
-    this->_vbos.push_back(std::shared_ptr<VertexDataBuffer>(new VertexDataBuffer(this, storage_type)));
-    return this->_vbos.back().get();
+    this->_vbos.push_back(new VertexDataBuffer(this, storage_type));
+    return this->_vbos.back();
 }
 
-VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(unsigned int byte_size, void* data, buffer_storage_type storage_type) {
-    this->_vbos.push_back(std::shared_ptr<VertexDataBuffer>(new VertexDataBuffer(this, storage_type)));
+VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(size_t byte_size, void* data, buffer_storage_type storage_type) {
+    this->_vbos.push_back(new VertexDataBuffer(this, storage_type));
     this->_vbos.back()->Write(byte_size, data);
-    return this->_vbos.back().get();
+    return this->_vbos.back();
 }
 
 
@@ -180,7 +176,7 @@ void VertexDataBuffer::SetActive() {
     Debug::Logger::ConsoleOpenGLError("During binding vertex data buffer");
 }
 
-void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
+void VertexDataBuffer::Write(size_t byte_size, void* data) {
     this->SetActive();
 
     glBufferData(GL_ARRAY_BUFFER, byte_size, data, (GLenum)this->_storage_type);
@@ -190,14 +186,14 @@ void VertexDataBuffer::Write(unsigned int byte_size, void* data) {
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(buffer_storage_type storage_type) {
-    this->_ebos.push_back(std::shared_ptr<VertexIndexBuffer>(new VertexIndexBuffer(this, storage_type)));
-    return this->_ebos.back().get();
+    this->_ebos.push_back(new VertexIndexBuffer(this, storage_type));
+    return this->_ebos.back();
 }
 
-VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(unsigned int count, unsigned int* indicies, buffer_storage_type storage_type) {
-    this->_ebos.push_back(std::shared_ptr<VertexIndexBuffer>(new VertexIndexBuffer(this, storage_type)));
+VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(size_t count, unsigned int* indicies, buffer_storage_type storage_type) {
+    this->_ebos.push_back(new VertexIndexBuffer(this, storage_type));
     this->_ebos.back()->Write(count, indicies);
-    return this->_ebos.back().get();
+    return this->_ebos.back();
 }
 
 ///////////////////////////////////////
@@ -233,7 +229,7 @@ void VertexIndexBuffer::SetActive() {
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context index buffer: %d", _bindingID);
 }
 
-void VertexIndexBuffer::Write(unsigned int count, unsigned int* indicies) {
+void VertexIndexBuffer::Write(size_t count, unsigned int* indicies) {
     this->SetActive();
 
     Debug::Logger::Console(Debug::Level::WRITING, "Writing %d indicies into index buffer %d", count, this->_bindingID);

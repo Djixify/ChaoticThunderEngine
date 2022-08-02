@@ -1,24 +1,25 @@
 #include "File.hpp"
+#include <filesystem>
 
 namespace File {
-    std::string CurrentDirectory() {
-        return std::filesystem::current_path().generic_u8string();
+
+    std::vector<std::filesystem::path> GetFiles(std::filesystem::path path) {
+        std::vector<std::filesystem::path> files;
+        std::filesystem::directory_iterator directoryiter(path);
+        for (std::filesystem::directory_entry entry : directoryiter) {
+            if (entry.is_regular_file())
+                files.push_back(entry.path());
+        }
+        return files;
     }
 
-    std::string GetParent(std::string path) {
-        size_t index = path.find_last_of(pathSeperator);
-        return path.substr(0, index);
-    }
-
-    std::string CombinePath(int count, std::string args...) {
-        va_list folders;
-        std::string path = "";
-
-        va_start(folders, count);
-        for (int i = 0; i < count; i++)
-            path = i == 0 ? va_arg(folders, std::string) : path.append(&pathSeperator).append(va_arg(folders, std::string));
-        va_end(folders);
-
-        return path;
+    std::vector<std::filesystem::path> GetDirectories(std::filesystem::path path) {
+        std::vector<std::filesystem::path> dirs;
+        std::filesystem::directory_iterator directoryiter(path);
+        for (std::filesystem::directory_entry entry : directoryiter) {
+            if (entry.is_directory())
+                dirs.push_back(entry.path());
+        }
+        return dirs;
     }
 }

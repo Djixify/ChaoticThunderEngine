@@ -6,7 +6,7 @@
 #include "Window.hpp"
 
 
-const char* ReadShaderProgram(const std::string path, bool debug_print) {
+const char* ReadShaderProgram(const std::filesystem::path path, bool debug_print) {
     std::string content;
     std::ifstream fileStream(path, std::ios::in);
 
@@ -71,7 +71,7 @@ void Shader::InitializeProgram(std::vector<load_shader> paths) {
     for (std::vector<load_shader>::iterator path = paths.begin(); path != paths.end(); path++) {
         const char* shadersource = ReadShaderProgram(path->path, false);
         if (shadersource == NULL) {
-            Controller::Instance()->ThrowException("Shader could not be read at path " + path->path);
+            Controller::Instance()->ThrowException("Shader could not be read at path " + path->path.generic_u8string());
             return;
         }
 
@@ -159,6 +159,7 @@ void Shader::Use(bool update_global_uniforms)
         int width = 1, height = 1;
         _window->GetSize(width, height);
         this->SetUniform("projection", camera->GetProjectionMatrix(_window));
+        this->SetUniform("viewPos", camera->Position);
         //this->SetUniform("projection", glm::mat4(1.0f));
     }
 }

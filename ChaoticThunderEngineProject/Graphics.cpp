@@ -6,14 +6,17 @@
 #include "Graphics.hpp"
 #include "Debug.hpp"
 
+#define PI 3.14159265358979323846
+
 namespace Graphics {
     bool show_demo_window = false, show_custom_shader_window = false;
     bool fill_mesh = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImVec4 camera_position = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    ImVec4 light_position = ImVec4(0.0f, 10.0f, 0.0f, 0.0f);
+    float mouse_sensitivity = 0.0f;
     int camera_fov = 90;
 
-    float scale_uniform = 1.0f;
     bool has_loaded_shaderfiles = false;
     int selected_program = 0;
     int selected_vertex_shader = 0;
@@ -26,7 +29,7 @@ namespace Graphics {
     float current_time = 0;
 
     void UpdateShaderFiles() {
-        for (const auto& entry : std::filesystem::directory_iterator("shaderprograms")) {
+        for (std::filesystem::directory_entry entry : std::filesystem::directory_iterator("shaderprograms")) {
             std::wstring path = entry.path().native();
             std::string str_path = std::string(path.begin(), path.end());
             std::string vertext = ".vert";
@@ -71,7 +74,8 @@ namespace Graphics {
         if (window->GetShader(programs[selected_program]) != nullptr) {
             Shader* activeshader = window->GetShader(std::string(programs[selected_program]));
             activeshader->Use();
-            activeshader->SetUniform("scale", scale_uniform);
+
+            activeshader->SetUniform("lightPos", glm::vec3(light_position.x, light_position.y, light_position.z));
         }
     }
 
@@ -138,9 +142,9 @@ namespace Graphics {
         ImGui::Combo("Shader program", &selected_program, items, programs.size());
 
         ImGui::Text("Uniforms");
-        ImGui::SliderFloat("Scale", &scale_uniform, 0.1f, 2.0f);  
         std::string time_str = "Time: " + std::to_string(window->GetCurrentTimeSec()) + " sec";
         ImGui::Text(time_str.c_str());
+        ImGui::InputFloat3("Light position", (float*)&light_position); // Edit 3 floats representing a color
 
         ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
         BaseCamera* camera = window->GetActiveCamera();
@@ -153,6 +157,9 @@ namespace Graphics {
 
         //std::string pos_str = "Position: " + std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z);
         //ImGui::Text(pos_str.c_str());
+        mouse_sensitivity = camera->Sensitivity * 1000.f;
+        ImGui::SliderFloat("Mouse sensitivity", &mouse_sensitivity, 10.f, 100.f);
+        camera->Sensitivity = mouse_sensitivity / 1000.f;
         camera_fov = (int)camera->Fov;
         ImGui::SliderInt("Camera FOV", &camera_fov, 45, 135);
         camera->Fov = (float)camera_fov;

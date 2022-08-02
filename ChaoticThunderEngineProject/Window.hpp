@@ -20,9 +20,6 @@ private:
     int _activeshader;
     std::map<std::string, std::shared_ptr<Shader>> _shaders;
 
-    //Buffer related variables
-    std::map<std::string, std::shared_ptr<ArrayBuffer>> _buffers;
-
     //Camera related variables
     int _activecamera;
     std::vector<std::shared_ptr<BaseCamera>> _cameras;
@@ -70,14 +67,11 @@ public:
     float GetDeltaTimeSec();
     void Clear();
 
+    void AddShader(std::string shader_name, std::vector<load_shader> shaders);
     void AddShader(std::string shader_name, int count, load_shader shaders...);
     void RemoveShader(std::string shader_name);
     Shader* GetShader(std::string shader_name);
     std::vector<std::string> GetShaderLabels();
-
-    ArrayBuffer* AddArrayBuffer(std::string label);
-    ArrayBuffer* GetArrayBuffer(std::string label);
-    void RemoveArrayBuffer(std::string label);
 
     BaseCamera* GetActiveCamera();
 };

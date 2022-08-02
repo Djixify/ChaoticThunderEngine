@@ -89,8 +89,6 @@ Window::Window(std::string title, int width, int height, Window* other) :
 }
 
 Window::~Window() {
-
-    _buffers.clear();
     _shaders.clear();
     _cameras.clear();
 }
@@ -228,6 +226,11 @@ void Window::SetCursorInputType(Controls::cursor_input_type input_type)
     _invalid_prev_pos = true;
 }
 
+void Window::AddShader(std::string shader_name, std::vector<load_shader> shaders) 
+{
+    _shaders.insert_or_assign(shader_name, std::make_shared<Shader>(this, shaders));
+}
+
 void Window::AddShader(std::string shader_name, int count, load_shader shaders...)
 {
     std::vector<load_shader> paths;
@@ -269,6 +272,7 @@ void Window::SetActive() const
     glfwMakeContextCurrent(this->GetGLContext());
 }
 
+/*
 ArrayBuffer* Window::AddArrayBuffer(std::string label)
 {
     this->_buffers.insert_or_assign(label, std::make_shared<ArrayBuffer>(this));
@@ -290,6 +294,7 @@ void Window::RemoveArrayBuffer(std::string label) {
     else
         Debug::Logger::Console(Debug::Level::DESTRUCTION, "Could not find array buffer by label %s in shader", label);
 }
+*/
 
 BaseCamera* Window::GetActiveCamera() {
     return _cameras[_activecamera].get();

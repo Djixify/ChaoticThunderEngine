@@ -40,6 +40,10 @@ void FlyingCamera::ProcessKeyContinuous(Window* window)
 		Position -= RightAxis * velocity;
 	if (glfwGetKey(_glfwwindow, (int)Controls::key::D) == GLFW_PRESS)
 		Position += RightAxis * velocity;
+	if (glfwGetKey(_glfwwindow, (int)Controls::key::SPACE) == GLFW_PRESS)
+		Position += UpAxis * velocity;
+	if (glfwGetKey(_glfwwindow, (int)Controls::key::LEFT_CONTROL) == GLFW_PRESS)
+		Position -= UpAxis * velocity;
 }
 
 void FlyingCamera::ProcessMousePosition(double xoffset, double yoffset)
@@ -77,7 +81,7 @@ void FlyingCamera::ProcessScrollWheel(double xoffset, double yoffset)
 }
 
 glm::mat4x4 FlyingCamera::GetProjectionMatrix(Window* window) {
-	return glm::perspective(Fov, window->GetAspectRatio(), Near_plane, Far_plane);
+	return glm::perspective(glm::radians(Fov), window->GetAspectRatio(), Near_plane, Far_plane);
 }
 
 glm::mat4x4 FlyingCamera::GetViewMatrix() {

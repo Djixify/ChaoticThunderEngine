@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<project version="2">
+	<pipeline>
+		<pass name="Compute" type="compute" active="true">
+			<shader type="cs" path="shaders\compute.hlsl" entry="main" />
+			<groupsize x="32" y="32" z="1" />
+			<variables>
+				<variable type="float" name="roll" system="Time" />
+			</variables>
+			<macros />
+		</pass>
+		<pass name="Simple" type="shader" active="true">
+			<shader type="vs" path="shaders\ScreenQuadVS.hlsl" entry="main" />
+			<shader type="ps" path="shaders\ScreenQuadPS.hlsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items>
+				<item name="ScreenQuad" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
+			<itemvalues />
+			<macros />
+		</pass>
+	</pipeline>
+	<objects>
+		<object type="image" name="ComputeOutput" width="512" height="512" format="R32G32B32A32_FLOAT">
+			<bind slot="0" name="Compute" uav="1" />
+			<bind slot="0" name="Simple" uav="0" />
+		</object>
+	</objects>
+	<cameras />
+	<settings>
+		<entry type="property" name="Compute" item="pipe" />
+		<entry type="file" name="Compute" shader="cs" />
+		<entry type="camera" fp="false">
+			<distance>4</distance>
+			<pitch>28</pitch>
+			<yaw>317</yaw>
+			<roll>360</roll>
+		</entry>
+		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
+		<entry type="usealpha" val="false" />
+	</settings>
+	<plugindata />
+</project>

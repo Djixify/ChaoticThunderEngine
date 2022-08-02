@@ -174,6 +174,12 @@ void Controller::RemoveWindow(int i) {
 
 }
 
+void Controller::ClearWindows() {
+    while (this->GetWindowCount() > 0) {
+        this->RemoveWindow(this->GetWindowCount() - 1);
+    }
+}
+
 int Controller::GetMaxNumberOfVertexAttributes()
 {
     int n = 0;

@@ -46,6 +46,9 @@
     <Filter Include="Source Files\Camera">
       <UniqueIdentifier>{3db5c276-39ec-46e1-8f6c-54ac0dc87902}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{922359ea-b460-4b29-b2b0-3de7b2c7f524}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="program.cpp">
@@ -90,6 +93,9 @@
     <ClCompile Include="FlyingCamera.cpp">
       <Filter>Source Files\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
@@ -131,6 +137,9 @@
     </ClInclude>
     <ClInclude Include="FlyingCamera.hpp">
       <Filter>Header Files\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

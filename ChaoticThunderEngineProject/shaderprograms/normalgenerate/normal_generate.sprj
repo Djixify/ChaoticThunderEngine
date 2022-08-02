@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<project version="2">
+	<pipeline>
+		<pass name="normal_generate" type="shader" active="true" patchverts="1">
+			<shader type="vs" path="normal_generate.vert" entry="main" />
+			<shader type="ps" path="normal_generate.frag" entry="main" />
+			<shader used="true" type="gs" path="normal_generate.geom" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items>
+				<item name="Floor" type="geometry">
+					<type>Plane</type>
+					<width>50</width>
+					<height>50</height>
+					<depth>1</depth>
+					<pitch>1.57079637</pitch>
+					<x>-0.180125475</x>
+					<y>-1.32000005</y>
+					<topology>TriangleList</topology>
+				</item>
+				<item name="Light" type="geometry">
+					<type>Sphere</type>
+					<width>0.200000003</width>
+					<height>1</height>
+					<depth>1</depth>
+					<x>-1.50061703</x>
+					<y>4.52028561</y>
+					<z>4.29589224</z>
+					<topology>TriangleList</topology>
+				</item>
+				<item name="Ball" type="geometry">
+					<type>Sphere</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
+			<itemvalues>
+				<value variable="lightPos" for="Floor">
+					<row>
+						<value>Light</value>
+						<value>Position</value>
+					</row>
+				</value>
+				<value variable="color" for="Light">
+					<row>
+						<value>0.99227798</value>
+						<value>0.975168288</value>
+						<value>0.490392238</value>
+					</row>
+				</value>
+				<value variable="color" for="Floor">
+					<row>
+						<value>0.391722351</value>
+						<value>0.548262537</value>
+						<value>0.16934751</value>
+					</row>
+				</value>
+				<value variable="color" for="Ball">
+					<row>
+						<value>0.849420846</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</value>
+				<value variable="lightPos" for="Ball">
+					<row>
+						<value>Light</value>
+						<value>Position</value>
+					</row>
+				</value>
+			</itemvalues>
+			<variables>
+				<variable type="float4x4" name="projection" system="Projection" />
+				<variable type="float4x4" name="view" system="View" />
+				<variable type="float3" name="viewPos" system="CameraPosition3" />
+				<variable type="float4x4" name="model" system="GeometryTransform" />
+				<variable type="float3" name="color">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float3" name="lightPos" system="PickPosition" />
+			</variables>
+			<macros />
+		</pass>
+		<pass name="normals_show" type="shader" active="true" patchverts="1">
+			<shader type="vs" path="..\normaltest\normal_visual.vert" entry="main" />
+			<shader type="ps" path="..\normaltest\normal_visual.frag" entry="main" />
+			<shader used="true" type="gs" path="..\normaltest\normal_visual.geom" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items />
+			<itemvalues />
+			<variables>
+				<variable type="float4x4" name="view" system="View" />
+				<variable type="float4x4" name="projection" system="Projection" />
+			</variables>
+			<macros />
+		</pass>
+	</pipeline>
+	<objects />
+	<cameras />
+	<settings>
+		<entry type="property" name="Light" item="pipe" />
+		<entry type="file" name="normal_generate" shader="vs" />
+		<entry type="file" name="normal_generate" shader="ps" />
+		<entry type="file" name="normal_generate" shader="gs" />
+		<entry type="file" name="normals_show" shader="gs" />
+		<entry type="pinned" name="color" owner="normal_generate" />
+		<entry type="camera" fp="false">
+			<distance>22</distance>
+			<pitch>32</pitch>
+			<yaw>179</yaw>
+			<roll>360</roll>
+		</entry>
+		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
+		<entry type="usealpha" val="false" />
+		<entry type="bkpt" file="C:/Users/chaos/Desktop/ChaoticThunderEngine/ChaoticThunderEngineProject/shaderprograms/normalgenerate/shaders/normal_generate_normal_generatePS.glsl" line="29" use_cond="false" cond="" enabled="true" />
+		<entry type="bkpt" file="C:/Users/chaos/Desktop/ChaoticThunderEngine/ChaoticThunderEngineProject/shaderprograms/normalgenerate/shaders/normal_generate_normal_generatePS.glsl" line="28" use_cond="false" cond="" enabled="true" />
+	</settings>
+	<plugindata />
+</project>
