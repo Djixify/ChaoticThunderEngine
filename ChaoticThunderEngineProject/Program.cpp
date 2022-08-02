@@ -122,16 +122,10 @@ int main(int argc, const char* argv[]) {
         
     }
 
-    //Mesh* mesh = Mesh::SphereWithNormals(50, 50, 3);
-    Mesh* mesh = Mesh::SquareTriangleMeshWithNormals(2, 2, 10, 10);
 
+    Mesh* mesh1 = Mesh::MeshedCube(2.0, 3);
+    Mesh* mesh2 = Mesh::SphereWithNormals(4, 4, 0.2);
 
-    ArrayBuffer* arraymainbuffer = mainwindow.AddArrayBuffer("positions");
-    VertexDataBuffer* datamainbuffer = arraymainbuffer->CreateVertexBuffer(sizeof(float) * mesh->_vertices.size(), &mesh->_vertices[0]);
-    arraymainbuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
-    arraymainbuffer->AddAttribute(1, 3, attribute_type::FLOAT32, true); //Normals
-    VertexIndexBuffer* indexmainbuffer = datamainbuffer->CreateIndexBuffer(sizeof(unsigned int) * mesh->_indices.size(), &mesh->_indices[0]);
-    
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be drawn
 
@@ -151,9 +145,13 @@ int main(int argc, const char* argv[]) {
         Graphics::UpdateVariablesImGUI(window);
 
         //Render stuff her
-        indexmainbuffer->Draw();
-        //window->GetShader(std::string("blueglow"))->Use();
-        //indexmainbuffer->Draw();
+        mesh1->Draw();
+        mesh2->Draw();
+
+        window->GetShader("normaltest")->Use();
+        //Render stuff her
+        mesh1->Draw();
+        mesh2->Draw();
 
         //After rendering stuff
         Graphics::RenderImGUI(window);
@@ -167,6 +165,9 @@ int main(int argc, const char* argv[]) {
     Graphics::TerminateImGUI();
 
     Controller::Instance()->ClearWindows();
+
+    delete mesh1;
+    delete mesh2;
 
     glfwTerminate();
 }

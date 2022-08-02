@@ -10,7 +10,7 @@ uniform mat4 view;
 
 void main()
 {
-    mat3 normalMatrix = mat3(transpose(inverse(view * model)));
+    mat3 normalMatrix = mat3(transpose(inverse(view)));
     vs_out.normal = vec3(vec4(normalMatrix * aNormal, 0.0));
     gl_Position = view * vec4(aPos, 1.0); 
 }

@@ -21,7 +21,7 @@ class ArrayBuffer {
 private:
     unsigned int _bindingID;
     std::vector<vertex_attribute> _attributes;
-    std::vector<std::shared_ptr<VertexDataBuffer>> _vbos;
+    std::vector<VertexDataBuffer*> _vbos;
 public:
     ArrayBuffer();
     ~ArrayBuffer();
@@ -48,7 +48,7 @@ private:
     GLuint _bindingID;
     buffer_storage_type _storage_type;
     unsigned int _buffer_size;
-    std::vector<std::shared_ptr<VertexIndexBuffer>> _ebos;
+    std::vector<VertexIndexBuffer*> _ebos;
 
     VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type storage_type = buffer_storage_type::STATIC);
     friend class ArrayBuffer;

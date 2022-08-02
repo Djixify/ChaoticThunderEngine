@@ -130,14 +130,14 @@ char ArrayBuffer::AttributeCount()
 }
 
 VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(buffer_storage_type storage_type) {
-    this->_vbos.push_back(std::shared_ptr<VertexDataBuffer>(new VertexDataBuffer(this, storage_type)));
-    return this->_vbos.back().get();
+    this->_vbos.push_back(new VertexDataBuffer(this, storage_type));
+    return this->_vbos.back();
 }
 
 VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(size_t byte_size, void* data, buffer_storage_type storage_type) {
-    this->_vbos.push_back(std::shared_ptr<VertexDataBuffer>(new VertexDataBuffer(this, storage_type)));
+    this->_vbos.push_back(new VertexDataBuffer(this, storage_type));
     this->_vbos.back()->Write(byte_size, data);
-    return this->_vbos.back().get();
+    return this->_vbos.back();
 }
 
 
@@ -186,14 +186,14 @@ void VertexDataBuffer::Write(size_t byte_size, void* data) {
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(buffer_storage_type storage_type) {
-    this->_ebos.push_back(std::shared_ptr<VertexIndexBuffer>(new VertexIndexBuffer(this, storage_type)));
-    return this->_ebos.back().get();
+    this->_ebos.push_back(new VertexIndexBuffer(this, storage_type));
+    return this->_ebos.back();
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(size_t count, unsigned int* indicies, buffer_storage_type storage_type) {
-    this->_ebos.push_back(std::shared_ptr<VertexIndexBuffer>(new VertexIndexBuffer(this, storage_type)));
+    this->_ebos.push_back(new VertexIndexBuffer(this, storage_type));
     this->_ebos.back()->Write(count, indicies);
-    return this->_ebos.back().get();
+    return this->_ebos.back();
 }
 
 ///////////////////////////////////////

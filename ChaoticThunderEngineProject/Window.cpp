@@ -89,8 +89,6 @@ Window::Window(std::string title, int width, int height, Window* other) :
 }
 
 Window::~Window() {
-
-    _buffers.clear();
     _shaders.clear();
     _cameras.clear();
 }

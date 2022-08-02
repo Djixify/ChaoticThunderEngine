@@ -1,0 +1,94 @@
+CodeUI.Compile F5
+CodeUI.Save CTRL S
+CodeUI.SwitchView ALT F2
+CodeUI.ToggleStatusbar CTRL SHIFT F2
+Editor.AutocompleteDown Down
+Editor.AutocompleteOpen CTRL Space
+Editor.AutocompleteSelect Tab
+Editor.AutocompleteSelectActive Return
+Editor.AutocompleteUp Up
+Editor.BackwardDelete Backspace
+Editor.BackwardDeleteWord CTRL Backspace
+Editor.CommentLines CTRL SHIFT K
+Editor.Copy CTRL C
+Editor.Cut CTRL X
+Editor.DebugBreakpoint F9
+Editor.DebugContinue F5
+Editor.DebugJumpHere CTRL ALT H
+Editor.DebugStep F10
+Editor.DebugStepInto F11
+Editor.DebugStepOut SHIFT F11
+Editor.DebugStop SHIFT F5
+Editor.DeleteLeft SHIFT Backspace
+Editor.DeleteRight SHIFT Delete
+Editor.DuplicateLine CTRL D
+Editor.Find CTRL F
+Editor.FindNext F3
+Editor.ForwardDelete Delete
+Editor.ForwardDeleteWord CTRL Delete
+Editor.Indent Tab
+Editor.MoveBottom CTRL End
+Editor.MoveDown Down
+Editor.MoveDownBlock PageDown
+Editor.MoveEndLine End
+Editor.MoveLeft Left
+Editor.MoveRight Right
+Editor.MoveStartLine Home
+Editor.MoveTop CTRL Home
+Editor.MoveUp Up
+Editor.MoveUpBlock PageUp
+Editor.MoveWordLeft CTRL Left
+Editor.MoveWordRight CTRL Right
+Editor.NewLine Return
+Editor.OverwriteCursor Insert
+Editor.Paste CTRL V
+Editor.Redo CTRL Y
+Editor.Replace CTRL H
+Editor.SelectAll CTRL A
+Editor.SelectBottom CTRL SHIFT End
+Editor.SelectDown SHIFT Down
+Editor.SelectDownBlock SHIFT PageDown
+Editor.SelectEndLine SHIFT End
+Editor.SelectLeft SHIFT Left
+Editor.SelectRight SHIFT Right
+Editor.SelectStartLine SHIFT Home
+Editor.SelectTop CTRL SHIFT Home
+Editor.SelectUp SHIFT Up
+Editor.SelectUpBlock SHIFT PageUp
+Editor.SelectWordLeft CTRL SHIFT Left
+Editor.SelectWordRight CTRL SHIFT Right
+Editor.UncommentLines CTRL SHIFT U
+Editor.Undo CTRL Z
+Editor.Unindent SHIFT Tab
+Gizmo.Position CTRL G P
+Gizmo.Rotation CTRL G R
+Gizmo.Scale CTRL G S
+Preview.Delete Delete
+Preview.Duplicate SHIFT D
+Preview.IncreaseTime CTRL Right
+Preview.IncreaseTimeFast CTRL SHIFT Right
+Preview.SaveImage CTRL R
+Preview.SelectAll SHIFT A
+Preview.TogglePause Space
+Preview.ToggleStatusbar CTRL SHIFT F3
+Preview.Unselect CTRL SHIFT Delete
+Project.New CTRL N N
+Project.NewAudio CTRL N A
+Project.NewBuffer CTRL N B
+Project.NewCubeMap CTRL N C
+Project.NewRenderTexture CTRL N R
+Project.NewShaderPass CTRL N P
+Project.NewTexture CTRL N T
+Project.Open CTRL O
+Project.Rebuild CTRL F5
+Project.Save CTRL S
+Project.SaveAs CTRL P A
+Window.Exit ALT F4
+Workspace.HideEditor CTRL W E
+Workspace.HidePinned CTRL W N
+Workspace.HidePipeline CTRL W L
+Workspace.HidePreview CTRL W P
+Workspace.HideProperties CTRL W R
+Workspace.Options CTRL W O
+Workspace.PerformanceMode F
+Workspace.ToggleToolbar CTRL SHIFT F1
