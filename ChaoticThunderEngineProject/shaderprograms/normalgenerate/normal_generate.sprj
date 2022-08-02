@@ -27,9 +27,9 @@
 					<width>0.200000003</width>
 					<height>1</height>
 					<depth>1</depth>
-					<x>-1.50061703</x>
-					<y>4.52028561</y>
-					<z>4.29589224</z>
+					<x>-3.66197252</x>
+					<y>0.974259377</y>
+					<z>0.512805462</z>
 					<topology>TriangleList</topology>
 				</item>
 				<item name="Ball" type="geometry">
@@ -37,6 +37,7 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
+					<z>-0.186065197</z>
 					<topology>TriangleList</topology>
 				</item>
 			</items>
@@ -120,9 +121,9 @@
 		<entry type="file" name="normals_show" shader="gs" />
 		<entry type="pinned" name="color" owner="normal_generate" />
 		<entry type="camera" fp="false">
-			<distance>22</distance>
-			<pitch>32</pitch>
-			<yaw>179</yaw>
+			<distance>12</distance>
+			<pitch>52</pitch>
+			<yaw>170</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

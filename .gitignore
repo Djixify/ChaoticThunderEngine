@@ -4,3 +4,7 @@ ChaoticThunderEngineProject/x64/Debug
 x64/Debug
 ChaoticThunderEngineProject/imgui.ini
 *.log
+SHADERed/data/preload.dat
+SHADERed/data/workspace.dat
+SHADERed/info.dat
+*.sprj
