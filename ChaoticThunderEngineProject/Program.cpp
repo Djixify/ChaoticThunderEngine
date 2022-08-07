@@ -14,7 +14,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "Graphics.hpp"
-#include "objLoader.hpp"
+#include "ObjLoader.hpp"
 
 #define PI 3.14159265358979323846
 
@@ -83,7 +83,7 @@ int main(int argc, const char* argv[]) {
 
     Debug::SetLogLevels(511 - (int)Debug::Level::CONTEXT);
 
-    Window mainwindow("Main window", 800, 800);
+    Window mainwindow("Main window", 1720, 1280);
     //Window secondarywindow("Secondary window", 400, 400, &mainwindow);
 
     try {
@@ -127,7 +127,7 @@ int main(int argc, const char* argv[]) {
     Mesh* mesh1 = Mesh::MeshedCube(2.0, 3);
     std::vector<float>vertices;
     std::vector<unsigned int> indices;
-    objLoad("C:\\Users\\User\\Downloads\\coffee_cup_obj.obj",vertices, indices);
+    ObjLoad("C:\\Users\\chaos\\Downloads\\coffee_cup_obj.obj",vertices, indices);
     Mesh* mesh2 = new Mesh(vertices, indices);
 
     glEnable(GL_DEPTH_TEST); // enable depth-testing

@@ -20,6 +20,12 @@ public:
 
     void Draw();
 
+    static Mesh* LoadObj(std::filesystem::path path) {
+        //Do ObjLoad stuff here (body of the function)
+
+        //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it 
+    }
+
 	static Mesh* SquareTriangleMesh(float width, float height, int xpartitions, int ypartitions) {
 		Mesh* mesh = new Mesh();
 

@@ -4,4 +4,4 @@
 #include <vector>
 #include <glm.hpp>
 
-void objLoad(const char* path, std::vector <float>& vertices, std::vector<unsigned int>& vertindices);
+void ObjLoad(const char* path, std::vector <float>& vertices, std::vector<unsigned int>& vertindices);
