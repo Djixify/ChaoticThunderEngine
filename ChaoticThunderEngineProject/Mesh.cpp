@@ -7,9 +7,9 @@ Mesh::Mesh() {
 }
 
 Mesh:: ~Mesh() {
-	delete _arraybuffer;
-	delete _vertexdatabuffer;
 	delete _vertexindexbuffer;
+	delete _vertexdatabuffer;
+	delete _arraybuffer;
 }
 
 void Mesh::Draw() {
