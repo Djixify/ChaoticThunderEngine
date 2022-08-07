@@ -27,25 +27,26 @@
 					<width>0.200000003</width>
 					<height>1</height>
 					<depth>1</depth>
-					<x>-3.66197252</x>
+					<x>-7.74331427</x>
 					<y>0.974259377</y>
 					<z>0.512805462</z>
 					<topology>TriangleList</topology>
 				</item>
 				<item name="Ball" type="geometry">
 					<type>Sphere</type>
-					<width>1</width>
+					<width>3</width>
 					<height>1</height>
 					<depth>1</depth>
-					<z>-0.186065197</z>
+					<y>1.45144224</y>
 					<topology>TriangleList</topology>
 				</item>
 			</items>
 			<itemvalues>
 				<value variable="lightPos" for="Floor">
 					<row>
-						<value>Light</value>
-						<value>Position</value>
+						<value>6.99929047</value>
+						<value>-1.31990051</value>
+						<value>10.0180788</value>
 					</row>
 				</value>
 				<value variable="color" for="Light">
@@ -64,15 +65,16 @@
 				</value>
 				<value variable="color" for="Ball">
 					<row>
-						<value>0.849420846</value>
+						<value>0.714285731</value>
 						<value>0</value>
 						<value>0</value>
 					</row>
 				</value>
 				<value variable="lightPos" for="Ball">
 					<row>
-						<value>Light</value>
-						<value>Position</value>
+						<value>6.99929047</value>
+						<value>-1.31990051</value>
+						<value>10.0180788</value>
 					</row>
 				</value>
 			</itemvalues>
@@ -102,7 +104,18 @@
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
 			<rendertexture />
-			<items />
+			<items>
+				<item name="normatest" type="geometry">
+					<type>Sphere</type>
+					<width>3</width>
+					<height>1</height>
+					<depth>1</depth>
+					<x>0.119999997</x>
+					<y>2.12764025</y>
+					<z>10.0230188</z>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
 			<itemvalues />
 			<variables>
 				<variable type="float4x4" name="view" system="View" />
@@ -114,16 +127,14 @@
 	<objects />
 	<cameras />
 	<settings>
-		<entry type="property" name="Light" item="pipe" />
-		<entry type="file" name="normal_generate" shader="vs" />
-		<entry type="file" name="normal_generate" shader="ps" />
-		<entry type="file" name="normal_generate" shader="gs" />
+		<entry type="property" name="Floor" item="pipe" />
+		<entry type="file" name="normals_show" shader="ps" />
 		<entry type="file" name="normals_show" shader="gs" />
 		<entry type="pinned" name="color" owner="normal_generate" />
 		<entry type="camera" fp="false">
-			<distance>12</distance>
-			<pitch>52</pitch>
-			<yaw>170</yaw>
+			<distance>35</distance>
+			<pitch>37</pitch>
+			<yaw>275</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

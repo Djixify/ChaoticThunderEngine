@@ -17,9 +17,9 @@ Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices
 	_vertexindexbuffer->Write(vertindices.size() * sizeof(unsigned int), &vertindices[0]);
 }
 Mesh:: ~Mesh() {
-	delete _arraybuffer;
-	delete _vertexdatabuffer;
 	delete _vertexindexbuffer;
+	delete _vertexdatabuffer;
+	delete _arraybuffer;
 }
 
 void Mesh::Draw() {

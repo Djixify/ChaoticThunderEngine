@@ -5,20 +5,31 @@
 ///           Array buffer          ///
 ///////////////////////////////////////
 
+int ArrayBuffer::_alive_buffers = 0;
+
 ArrayBuffer::ArrayBuffer() {
     glGenVertexArrays(1, &_bindingID);
     Debug::Logger::ConsoleOpenGLError("During generation of array buffer");
 
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex array buffer at %d", this->_bindingID);
+
+    ArrayBuffer::_alive_buffers++;
 }
 
 ArrayBuffer::~ArrayBuffer() {
     _vbos.clear();
 
+    int curr_bound = -1;
+    glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &curr_bound);
+    if (curr_bound == _bindingID)
+        glBindVertexArray(0);
+
     glDeleteVertexArrays(1, &_bindingID);
     Debug::Logger::ConsoleOpenGLError("During destruction of array buffer");
 
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destoryed vertex array buffer at %d", this->_bindingID);
+
+    ArrayBuffer::_alive_buffers--;
 }
 
 unsigned int ArrayBuffer::GetID() { return _bindingID; }
@@ -145,6 +156,9 @@ VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(size_t byte_size, void* data, 
 ///       Vertex data buffer        ///
 ///////////////////////////////////////
 
+int VertexDataBuffer::_alive_buffers = 0;
+int VertexDataBuffer::_memory_used = 0;
+
 VertexDataBuffer::VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type storage_type) : _parent(parent), _storage_type(storage_type) {
     this->_parent->SetActive();
     this->_buffer_size = 0;
@@ -155,14 +169,21 @@ VertexDataBuffer::VertexDataBuffer(ArrayBuffer* parent, buffer_storage_type stor
     Debug::Logger::ConsoleOpenGLError("During setting buffer as vertex data buffer");
 
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex data buffer at id: %d", _bindingID);
+
+    VertexDataBuffer::_alive_buffers++;
 }
 
 VertexDataBuffer::~VertexDataBuffer() {
     _ebos.clear();
-
-    glDeleteBuffers(1, &_bindingID);
-    Debug::Logger::ConsoleOpenGLError("During deletion of vertex data buffer");
+    try {
+        glDeleteBuffers(1, &_bindingID);
+        Debug::Logger::ConsoleOpenGLError("During deletion of vertex data buffer");
+    }
+    catch (std::runtime_error ex) {}
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed vertex data buffer at %d", _bindingID);
+
+    VertexDataBuffer::_alive_buffers--;
+    VertexDataBuffer::_memory_used -= this->_buffer_size;
 }
 
 unsigned int VertexDataBuffer::GetID() { return this->_bindingID; }
@@ -181,8 +202,11 @@ void VertexDataBuffer::Write(size_t byte_size, void* data) {
 
     glBufferData(GL_ARRAY_BUFFER, byte_size, data, (GLenum)this->_storage_type);
     Debug::Logger::ConsoleOpenGLError("During writing to vertex data buffer");
+
     Debug::Logger::Console(Debug::Level::WRITING, "Writing %d bytes of data buffer %d", byte_size, this->_bindingID);
+    VertexDataBuffer::_memory_used -= this->_buffer_size;
     this->_buffer_size = byte_size;
+    VertexDataBuffer::_memory_used += this->_buffer_size;
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(buffer_storage_type storage_type) {
@@ -200,6 +224,9 @@ VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(size_t count, unsigned in
 ///       Vertex index buffer       ///
 ///////////////////////////////////////
 
+int VertexIndexBuffer::_alive_buffers = 0;
+int VertexIndexBuffer::_memory_used = 0;
+
 VertexIndexBuffer::VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_type storage_type) : _parent(parent), _storage_type(storage_type), _buffer_size(0) {
     this->_parent->SetActive();
 
@@ -208,6 +235,8 @@ VertexIndexBuffer::VertexIndexBuffer(VertexDataBuffer* parent, buffer_storage_ty
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bindingID);
     Debug::Logger::ConsoleOpenGLError("During setting buffer as vertex index buffer");
     Debug::Logger::Console(Debug::Level::CONSTRUCTION, "Created vertex index/element buffer at %d", this->_bindingID);
+
+    VertexIndexBuffer::_alive_buffers++;
 }
 
 VertexIndexBuffer::~VertexIndexBuffer() {
@@ -216,6 +245,9 @@ VertexIndexBuffer::~VertexIndexBuffer() {
         Debug::Logger::ConsoleOpenGLError("During deletion of vertex index buffer");
     } catch (std::runtime_error ex) { }
     Debug::Logger::Console(Debug::Level::DESTRUCTION, "Destroyed vertex index/element buffer at %d", _bindingID);
+
+    VertexIndexBuffer::_alive_buffers--;
+    VertexIndexBuffer::_memory_used -= this->_buffer_size;
 }
 
 
@@ -229,14 +261,16 @@ void VertexIndexBuffer::SetActive() {
     Debug::Logger::Console(Debug::Level::CONTEXT, "Setting context index buffer: %d", _bindingID);
 }
 
-void VertexIndexBuffer::Write(size_t count, unsigned int* indicies) {
+void VertexIndexBuffer::Write(size_t byte_size, unsigned int* indicies) {
     this->SetActive();
 
-    Debug::Logger::Console(Debug::Level::WRITING, "Writing %d indicies into index buffer %d", count, this->_bindingID);
+    Debug::Logger::Console(Debug::Level::WRITING, "Writing %d indicies into index buffer %d", byte_size / 4, this->_bindingID);
 
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, indicies, (GLenum)this->_storage_type);
-    Debug::Logger::ConsoleOpenGLError("During writing to vertex index buffer");
-    this->_buffer_size = count;
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, byte_size, indicies, (GLenum)this->_storage_type);
+    Debug::Logger::ConsoleOpenGLError("During writing to vertex index buffer"); 
+    VertexIndexBuffer::_memory_used -= this->_buffer_size;
+    this->_buffer_size = byte_size;
+    VertexIndexBuffer::_memory_used += this->_buffer_size;
 }
 
 void VertexIndexBuffer::Draw() {

@@ -1,10 +1,27 @@
 #include <cstdarg>
+#include <sstream>
 #include "Shader.hpp"
 #include "File.hpp"
 #include "Controller.hpp"
 #include "Buffer.hpp"
 #include "Window.hpp"
 
+const char* ReadShaderProgramFast(const std::filesystem::path path, bool debug_print) {
+
+    std::ifstream fileStream(path, std::ios::in);
+    if (!fileStream.is_open()) {
+        Debug::Logger::Console(Debug::Level::WARNING, "Could not read file %s. File does not exist.", path);
+        return 0;
+    }
+    std::stringstream strstm;
+    strstm << fileStream.rdbuf();
+    fileStream.close();
+
+    std::string content = strstm.str();
+    char* res = new char[content.size() + 1];
+    strcpy_s(res, content.size() + 1, content.c_str());
+    return res;
+}
 
 const char* ReadShaderProgram(const std::filesystem::path path, bool debug_print) {
     std::string content;
@@ -69,7 +86,7 @@ void Shader::InitializeProgram(std::vector<load_shader> paths) {
     //Read each shader and compile them
     int i = 0;
     for (std::vector<load_shader>::iterator path = paths.begin(); path != paths.end(); path++) {
-        const char* shadersource = ReadShaderProgram(path->path, false);
+        const char* shadersource = ReadShaderProgramFast(path->path, false);
         if (shadersource == NULL) {
             Controller::Instance()->ThrowException("Shader could not be read at path " + path->path.generic_u8string());
             return;
@@ -82,6 +99,8 @@ void Shader::InitializeProgram(std::vector<load_shader> paths) {
         Debug::Logger::ConsoleOpenGLError("During setting shader source");
         glCompileShader(shader_id);
         Debug::Logger::ConsoleOpenGLError("During compilation of shader");
+
+        delete[] shadersource;
 
         //Check for success
         VerifyShader(this->_window, shader_id);

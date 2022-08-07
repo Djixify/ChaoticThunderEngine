@@ -101,6 +101,28 @@ int main(int argc, const char* argv[]) {
         int nrAttributes;
         glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
         Debug::Logger::Console(Debug::Level::INFO, "Maximum nr of vertex attributes supported: %d", nrAttributes);
+        int computeshadersharedmemory;
+        glGetIntegerv(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &computeshadersharedmemory);
+        Debug::Logger::Console(Debug::Level::INFO, "Compute shader max shared memory: %dB", computeshadersharedmemory);
+        int computeshaderuniformblocks;
+        glGetIntegerv(GL_MAX_COMPUTE_UNIFORM_BLOCKS, &computeshaderuniformblocks);
+        Debug::Logger::Console(Debug::Level::INFO, "Compute shader max uniform components (float, integer, boolean): %d", computeshaderuniformblocks);
+        int computeshaderuniformcomponents;
+        glGetIntegerv(GL_MAX_COMPUTE_UNIFORM_COMPONENTS, &computeshaderuniformcomponents);
+        Debug::Logger::Console(Debug::Level::INFO, "Compute shader max uniform components (float, integer, boolean): %d", computeshaderuniformcomponents);
+        glm::ivec3 maxworkgroupsize;
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &maxworkgroupsize.x);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &maxworkgroupsize.y);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &maxworkgroupsize.z);
+        Debug::Logger::Console(Debug::Level::INFO, "Compute shader max workgroup size: (%d, %d, %d)", maxworkgroupsize.x, maxworkgroupsize.y, maxworkgroupsize.z);
+        glm::ivec3 maxworkgroupcount;
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxworkgroupcount.x);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &maxworkgroupcount.y);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &maxworkgroupcount.z);
+        Debug::Logger::Console(Debug::Level::INFO, "Compute shader max workgroup count: (%d, %d, %d)", maxworkgroupcount.x, maxworkgroupcount.y, maxworkgroupcount.z);
+        int computeshaderworkgroupinvocations;
+        glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &computeshaderworkgroupinvocations);
+        Debug::Logger::Console(Debug::Level::INFO, "Compute shader single local work group invocations that may be dispatched: %d", computeshaderworkgroupinvocations);
     }
     catch (const char* ex) {
         std::cerr << ex << std::endl;
