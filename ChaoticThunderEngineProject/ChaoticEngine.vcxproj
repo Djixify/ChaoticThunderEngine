@@ -31,6 +31,7 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="objLoader.cpp" />
     <ClCompile Include="program.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="FlyingCamera.hpp" />
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="Mesh.hpp" />
+    <ClInclude Include="objLoader.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Structs.hpp" />
     <ClInclude Include="Window.hpp" />

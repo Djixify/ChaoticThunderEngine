@@ -14,6 +14,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "Graphics.hpp"
+#include "objLoader.hpp"
 
 #define PI 3.14159265358979323846
 
@@ -124,7 +125,10 @@ int main(int argc, const char* argv[]) {
 
 
     Mesh* mesh1 = Mesh::MeshedCube(2.0, 3);
-    Mesh* mesh2 = Mesh::SphereWithNormals(4, 4, 0.2);
+    std::vector<float>vertices;
+    std::vector<unsigned int> indices;
+    objLoad("C:\\Users\\User\\Downloads\\coffee_cup_obj.obj",vertices, indices);
+    Mesh* mesh2 = new Mesh(vertices, indices);
 
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be drawn
@@ -145,12 +149,12 @@ int main(int argc, const char* argv[]) {
         Graphics::UpdateVariablesImGUI(window);
 
         //Render stuff her
-        mesh1->Draw();
+        //mesh1->Draw();
         mesh2->Draw();
 
         window->GetShader("normaltest")->Use();
         //Render stuff her
-        mesh1->Draw();
+        //mesh1->Draw();
         mesh2->Draw();
 
         //After rendering stuff

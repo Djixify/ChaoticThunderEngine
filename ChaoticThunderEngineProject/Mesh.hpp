@@ -15,6 +15,7 @@ private:
     
     Mesh();
 public:
+    Mesh(std::vector <float>& vertices, std::vector<unsigned int> &vertindices);
 	~Mesh();
 
     void Draw();
