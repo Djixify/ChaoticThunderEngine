@@ -177,7 +177,7 @@ int main(int argc, const char* argv[]) {
         window->GetShader("normaltest")->Use();
         //Render stuff her
         //mesh1->Draw();
-        mesh2->Draw();
+        //mesh2->Draw();
 
         //After rendering stuff
         Graphics::RenderImGUI(window);
