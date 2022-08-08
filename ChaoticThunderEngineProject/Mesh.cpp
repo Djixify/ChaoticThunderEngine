@@ -17,6 +17,16 @@ Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices
 	_arraybuffer->AddAttribute(2, 2, attribute_type::FLOAT32, false);
 	_vertexindexbuffer->Write(vertindices.size() * sizeof(unsigned int), &vertindices[0]);
 }
+
+Mesh::Mesh(std::vector <float>& vertices) {
+    _arraybuffer = new ArrayBuffer();
+    _vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
+    _vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
+    _arraybuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
+    _arraybuffer->AddAttribute(1, 3, attribute_type::FLOAT32, false);
+    _arraybuffer->AddAttribute(2, 2, attribute_type::FLOAT32, false);
+}
+
 Mesh:: ~Mesh() {
 	delete _vertexindexbuffer;
 	delete _vertexdatabuffer;
@@ -24,7 +34,10 @@ Mesh:: ~Mesh() {
 }
 
 void Mesh::Draw() {
-	_vertexindexbuffer->Draw();
+    if (_vertexindexbuffer != NULL)
+        _vertexindexbuffer->Draw();
+    else
+        _vertexdatabuffer->Draw();
 }
 
 

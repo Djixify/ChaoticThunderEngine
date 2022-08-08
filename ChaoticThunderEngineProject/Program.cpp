@@ -131,7 +131,6 @@ int main(int argc, const char* argv[]) {
     }
 
     
-
     //Load shaders into main window
     std::filesystem::path shaderfolder = std::filesystem::current_path() / "shaderprograms";
 
@@ -149,8 +148,9 @@ int main(int argc, const char* argv[]) {
     Mesh* mesh1 = Mesh::MeshedCube(2.0, 3);
     std::vector<float>vertices;
     std::vector<unsigned int> indices;
-    ObjLoad("C:\\Users\\chaos\\Downloads\\coffee_cup_obj.obj",vertices, indices);
-    Mesh* mesh2 = new Mesh(vertices, indices);
+    //ObjLoad(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Coffeecup" / "coffee_cup_obj.obj", vertices, indices);
+    ObjLoad(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Cube" / "cube.obj", vertices);
+    Mesh* mesh2 = new Mesh(vertices);
 
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be drawn
@@ -174,10 +174,12 @@ int main(int argc, const char* argv[]) {
         //mesh1->Draw();
         mesh2->Draw();
 
-        window->GetShader("normaltest")->Use();
-        //Render stuff her
-        //mesh1->Draw();
-        //mesh2->Draw();
+        if (Graphics::ShouldRenderNormals()) {
+            window->GetShader("normaltest")->Use();
+            //Render stuff her
+            //mesh1->Draw();
+            mesh2->Draw();
+        }
 
         //After rendering stuff
         Graphics::RenderImGUI(window);

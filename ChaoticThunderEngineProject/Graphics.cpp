@@ -11,9 +11,11 @@
 namespace Graphics {
     bool show_demo_window = false, show_info_window = false;
     bool fill_mesh = true;
+    bool render_normals = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImVec4 camera_position = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
     ImVec4 light_position = ImVec4(0.0f, 10.0f, 0.0f, 0.0f);
+    bool circling_light = false;
     float mouse_sensitivity = 0.0f;
     int camera_fov = 90;
 
@@ -56,9 +58,12 @@ namespace Graphics {
         if (window->GetShader(programs[selected_program]) != nullptr) {
             Shader* activeshader = window->GetShader(std::string(programs[selected_program]));
             activeshader->Use();
-
-            activeshader->SetUniform("lightPos", glm::vec3(light_position.x, light_position.y, light_position.z));
+            activeshader->SetUniform("lightpos", glm::vec3(light_position.x, light_position.y, light_position.z));
         }
+    }
+
+    bool ShouldRenderNormals() {
+        return render_normals;
     }
 
     void MainSettingsWindow(Window* window) {
@@ -71,6 +76,7 @@ namespace Graphics {
         ImGui::Text("Rendering");
         ImGui::Checkbox("OpenGL state info window", &show_info_window);
         ImGui::Checkbox("Fill mesh", &fill_mesh);
+        ImGui::Checkbox("Render normals", &render_normals);
         ImGui::ColorEdit3("Clear color", (float*)&clear_color); // Edit 3 floats representing a color
         window->ClearColor.x = clear_color.x;
         window->ClearColor.y = clear_color.y;
@@ -86,6 +92,10 @@ namespace Graphics {
         std::string time_str = "Time: " + std::to_string(window->GetCurrentTimeSec()) + " sec";
         ImGui::Text(time_str.c_str());
         ImGui::InputFloat3("Light position", (float*)&light_position); // Edit 3 floats representing a color
+        ImGui::Checkbox("Circling light", &circling_light);
+        if (circling_light) {
+            light_position = ImVec4(glm::sin(window->GetCurrentTimeSec()) * 10, 0, glm::cos(window->GetCurrentTimeSec()) * 10, 0);
+        }
 
         ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
         BaseCamera* camera = window->GetActiveCamera();
@@ -138,7 +148,7 @@ namespace Graphics {
 
         unsigned char out_bool = 0;
         glGetBooleanv(GL_CULL_FACE, &out_bool);
-        tmp = "Culling polygon faces: " + std::to_string(out_bool);
+        tmp = "Culling polygon faces: " + std::string(out_bool == false ? "false" : "true");
         ImGui::Text(tmp.c_str());
 
         int out_int = 0;

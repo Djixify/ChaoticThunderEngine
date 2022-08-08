@@ -5,5 +5,5 @@
 #include <glm.hpp>
 #include <filesystem>
 
-void ObjLoad(const char* path, std::vector <float>& vertices, std::vector<unsigned int>& vertindices);
+void ObjLoad(std::filesystem::path path, std::vector <float>& vertices);
 bool ObjLoad2(std::filesystem::path path, std::vector<float>& vertices, std::vector<unsigned int>& indices);

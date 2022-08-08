@@ -135,9 +135,18 @@ void ArrayBuffer::RemoveAttribute(GLuint location)
     Controller::Instance()->ThrowException("Not implemented");
 }
 
-char ArrayBuffer::AttributeCount()
+int ArrayBuffer::AttributeCount()
 {
     return _attributes.size();
+}
+
+int ArrayBuffer::AttributeTotalSize()
+{
+    int size = 0;
+    for (int i = 0; i < _attributes.size(); i++) {
+        size += _attributes[i].count;
+    }
+    return size;
 }
 
 VertexDataBuffer* ArrayBuffer::CreateVertexBuffer(buffer_storage_type storage_type) {
@@ -207,6 +216,11 @@ void VertexDataBuffer::Write(size_t byte_size, void* data) {
     VertexDataBuffer::_memory_used -= this->_buffer_size;
     this->_buffer_size = byte_size;
     VertexDataBuffer::_memory_used += this->_buffer_size;
+}
+
+void VertexDataBuffer::Draw() {
+    int attributesize = _parent->AttributeTotalSize();
+    glDrawArrays(GL_TRIANGLES, 0, this->_buffer_size / attributesize);
 }
 
 VertexIndexBuffer* VertexDataBuffer::CreateIndexBuffer(buffer_storage_type storage_type) {

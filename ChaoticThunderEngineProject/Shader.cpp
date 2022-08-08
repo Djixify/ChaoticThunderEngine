@@ -178,7 +178,7 @@ void Shader::Use(bool update_global_uniforms)
         int width = 1, height = 1;
         _window->GetSize(width, height);
         this->SetUniform("projection", camera->GetProjectionMatrix(_window));
-        this->SetUniform("viewPos", camera->Position);
+        this->SetUniform("camerapos", camera->Position);
         //this->SetUniform("projection", glm::mat4(1.0f));
     }
 }

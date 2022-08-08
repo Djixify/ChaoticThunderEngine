@@ -11,6 +11,7 @@ namespace Graphics {
     void UpdateVariablesImGUI(Window* window);
     void ClearWindow(Window* window);
     void RenderImGUI(Window* window);
+    bool ShouldRenderNormals();
     void TerminateImGUI();
 }
 

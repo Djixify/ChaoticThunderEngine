@@ -40,7 +40,8 @@ public:
     void AddAttribute(GLuint location, GLint count, attribute_type attr, bool normalized = false);
     void SetAttribute(GLuint location, GLint count, attribute_type attr, bool normalized = false);
     void RemoveAttribute(GLuint location);
-    char AttributeCount();
+    int AttributeCount();
+    int AttributeTotalSize();
 
     VertexDataBuffer* CreateVertexBuffer(buffer_storage_type storage_type = buffer_storage_type::STATIC);
     VertexDataBuffer* CreateVertexBuffer(size_t byte_size, void* data, buffer_storage_type storage_type = buffer_storage_type::STATIC);
@@ -72,6 +73,8 @@ public:
     unsigned int GetID();
     void SetActive();
     void Write(size_t byte_size, void* data);
+
+    void Draw();
 
     VertexIndexBuffer* CreateIndexBuffer(buffer_storage_type storage_type = buffer_storage_type::STATIC);
     VertexIndexBuffer* CreateIndexBuffer(size_t count, unsigned int* indicies, buffer_storage_type storage_type = buffer_storage_type::STATIC);
