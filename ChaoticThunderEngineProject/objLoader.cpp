@@ -17,7 +17,7 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 		Controller::Instance()->ThrowException("Could not find file at location: " + path.generic_string());
 	}
 
-	int faces = 0;
+	int vertex_count = 0;
 	while (1) {
 		char header[100]; //first word of line
 		int res = fscanf(file, "%s", header);
@@ -32,13 +32,14 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 		}//reads the UV vertices and pushes them into a temp vector
 		else if (strncmp(header, "vt", 2) == 0) {
 			glm::vec2 uvert;
-			fscanf_s(file, "%f %f\n", &uvert.x, &uvert.y);
+			fscanf(file, "%f %f\n", &uvert.x, &uvert.y);
 			tempuv.push_back(uvert);
 		}//reads the geometric vertices and pushes them into a temp vector
 		else if (strncmp(header, "v", 1) == 0) {
 			glm::vec3 geovert;
 			int matches = fscanf(file, "%f %f %f\n", &geovert.x, &geovert.y, &geovert.z);
-			tempvert.push_back(geovert);
+			if (matches == 3)
+				tempvert.push_back(geovert);
 		}
 		else if (strncmp(header, "f", 1) == 0) {
 			unsigned int vertIndex[4], vertUV[4], vertNormal[4];
@@ -53,7 +54,7 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 				normindices.push_back(vertNormal[0]);
 				normindices.push_back(vertNormal[1]);
 				normindices.push_back(vertNormal[2]);
-				++faces;
+				vertex_count += 3;
 			}
 			else if (indices == 12) {
 				vertindices.push_back(vertIndex[0]);
@@ -74,7 +75,7 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 				normindices.push_back(vertNormal[0]);
 				normindices.push_back(vertNormal[2]);
 				normindices.push_back(vertNormal[3]);
-				++++faces;
+				vertex_count += 6;
 			}
 			else {
 				printf("Not a standard .obj file, cannot read\n");
@@ -87,22 +88,22 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 	if (vertindices.size() != normindices.size() || vertindices.size() != uvindices.size())
 		Controller::Instance()->ThrowException("Vectors not of equal size");
 
-	vertices.resize(faces * 8);
+	vertices.resize(vertex_count * 8);
 	for (int i = 0; i < vertices.size(); i++) {
 		vertices[i] = 0.0f;
 	}
-	for (int i = 0; i < faces; i++) {
+	for (int i = 0; i < vertex_count; i++) {
 		glm::vec3 vertex = tempvert[vertindices[i] - 1];
 		glm::vec2 uv = tempuv[uvindices[i] - 1];
 		glm::vec3 normal = tempnormal[normindices[i] - 1];
-		int offset = (i - 1) * 8;
+		int offset = i * 8;
 		vertices[offset + 0] = vertex.x;
 		vertices[offset + 1] = vertex.y;
 		vertices[offset + 2] = vertex.z;
-		vertices[offset + 3] = normal.x;
-		vertices[offset + 4] = normal.y;
-		vertices[offset + 5] = normal.z;
-		vertices[offset + 6] = uv.x;
-		vertices[offset + 7] = uv.y;
+		vertices[offset + 3] = uv.x;
+		vertices[offset + 4] = uv.y;
+		vertices[offset + 5] = normal.x;
+		vertices[offset + 6] = normal.y;
+		vertices[offset + 7] = normal.z;
 	}
 }

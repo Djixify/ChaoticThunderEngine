@@ -15,8 +15,8 @@ private:
     
     Mesh();
 public:
-    Mesh(std::vector <float>& vertices, std::vector<unsigned int> &vertindices);
-    Mesh(std::vector <float>& vertices);
+    Mesh(std::vector <float>& vertices, std::vector<attribute_setting> attrs);
+    Mesh(std::vector <float>& vertices, std::vector<unsigned int> &vertindices, std::vector<attribute_setting> attrs);
 	~Mesh();
 
     void Draw();

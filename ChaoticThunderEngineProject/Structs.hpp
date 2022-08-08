@@ -94,6 +94,14 @@ struct load_shader {
     }
 };
 
+
+struct attribute_setting {
+    GLuint location;
+    GLint count;
+    attribute_type type;
+    bool normalized;
+};
+
 struct vertex_attribute {
     bool normalized;
     GLuint location;

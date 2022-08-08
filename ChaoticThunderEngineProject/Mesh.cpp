@@ -7,25 +7,27 @@ Mesh::Mesh() {
 	_vertexindexbuffer = _vertexdatabuffer->CreateIndexBuffer();
 }
 
-Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices) {
+Mesh::Mesh(std::vector<float>& vertices, std::vector<attribute_setting> attrs) {
+    _arraybuffer = new ArrayBuffer();
+    _vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
+    _vertexindexbuffer = NULL;
+    _vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
+    for (int i = 0; i < attrs.size(); i++) {
+        _arraybuffer->AddAttribute(attrs[i].location, attrs[i].count, attrs[i].type, attrs[i].normalized);
+    }
+}
+
+Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices, std::vector<attribute_setting> attrs) {
 	_arraybuffer = new ArrayBuffer();
 	_vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
 	_vertexindexbuffer = _vertexdatabuffer->CreateIndexBuffer();
 	_vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
-	_arraybuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
-	_arraybuffer->AddAttribute(1, 3, attribute_type::FLOAT32, false);
-	_arraybuffer->AddAttribute(2, 2, attribute_type::FLOAT32, false);
+	_arraybuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
+    _arraybuffer->AddAttribute(1, 2, attribute_type::FLOAT32, false); //UVs
+    _arraybuffer->AddAttribute(2, 3, attribute_type::FLOAT32, false); //Normals
 	_vertexindexbuffer->Write(vertindices.size() * sizeof(unsigned int), &vertindices[0]);
 }
 
-Mesh::Mesh(std::vector <float>& vertices) {
-    _arraybuffer = new ArrayBuffer();
-    _vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
-    _vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
-    _arraybuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false);
-    _arraybuffer->AddAttribute(1, 3, attribute_type::FLOAT32, false);
-    _arraybuffer->AddAttribute(2, 2, attribute_type::FLOAT32, false);
-}
 
 Mesh:: ~Mesh() {
 	delete _vertexindexbuffer;
@@ -45,49 +47,45 @@ bool IsWhitespace(char c) {
     return c == ' ' || c == '\t';
 }
 
+bool IsNotNewLine(char c) {
+    return c != '\n';
+}
+
 bool IsWhitespaceOrNewline(char c) {
     return c == ' ' || c == '\t' || c == '\n';
 }
 
-bool IsDecimal(char c) {
-    return c == '.' || IsDecimal(c); //ASCII 0-9 and .
+bool IsInteger(char c) {
+    return c == '-' || (c >= 48 && c <= 57);
 }
 
-bool IsInteger(char c) {
-    return c >= 48 && c <= 57;
+bool IsDecimal(char c) {
+    return c == '.' || IsInteger(c); //ASCII 0-9 and .
 }
 
 bool IsFaceComponent(char c) {
-    return IsInteger(c) || "/";
+    return IsInteger(c) || c == '/';
 }
 
 bool SkipWhile(std::string& text, bool (*condition)(char), int& pointer) {
     int old_pointer = pointer;
-    char curr_char = ' ';
-    bool success = true;
-    while (success && condition(curr_char)) {
+    if (!condition(text[pointer]))
+        return false;
+    do {
         pointer++;
-        success = text[pointer] != '\0' && pointer < text.size();
-    }
-
-    if (!success)
-        pointer = old_pointer;
-    return success;
+    } while (text[pointer] != '\0' && pointer < text.size() && condition(text[pointer]));
+    return true;
 }
 
 bool ConsumeWhile(std::string& text, bool (*condition)(char), int& pointer, std::string& out_str) {
     int old_pointer = pointer;
-    char curr_char = ' ';
-    bool success = true;
-    while (success && condition(curr_char)) {
+    if (!condition(text[pointer]))
+        return false;
+    do {
         pointer++;
-        success = text[pointer] != '\0' && pointer < text.size();
-    }
-    if (success)
-        out_str = text.substr(old_pointer, pointer - old_pointer);
-    else
-        pointer = old_pointer;
-    return success;
+    } while (text[pointer] != '\0' && pointer < text.size() && condition(text[pointer]));
+    out_str = text.substr(old_pointer, pointer - old_pointer);
+    return true;
 }
 
 Mesh* Mesh::LoadObj(std::filesystem::path path) {
@@ -109,7 +107,9 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
         int offset = 0;
         std::string line;
         std::getline(fs, line);
-        if (std::strncmp(line.c_str(), "vn", 2) && SkipWhile(line, IsWhitespace, ++++offset)) {
+        if (line[0] == '#' || line.size() < 3)
+            continue;
+        if (std::strncmp(line.c_str(), "vn", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
             std::string out_x, out_y, out_z;
             if (ConsumeWhile(line, IsDecimal, offset, out_x)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -123,7 +123,7 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
                 normals.push_back(normal);
             }
         }
-        else if (std::strncmp(line.c_str(), "vt", 2) && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (std::strncmp(line.c_str(), "vt", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
             std::string out_u, out_v;
             if (ConsumeWhile(line, IsDecimal, offset, out_u)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -134,7 +134,7 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
                 texturecoords.push_back(texturecoord);
             }
         }
-        else if (std::strncmp(line.c_str(), "v", 1) && SkipWhile(line, IsWhitespace, ++offset)) {
+        else if (std::strncmp(line.c_str(), "v", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
             std::string out_x, out_y, out_z;
             if (ConsumeWhile(line, IsDecimal, offset, out_x)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -148,7 +148,7 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
                 positions.push_back(position);
             }
         }
-        else if (std::strncmp(line.c_str(), "f", 1) && SkipWhile(line, IsWhitespace, ++offset)) {
+        else if (std::strncmp(line.c_str(), "f", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
             std::string out_comp;
             std::vector<glm::ivec3> facecomponents;
             while (ConsumeWhile(line, IsFaceComponent, offset, out_comp)) {
@@ -157,23 +157,26 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
                 int component_last_offset = 0;
                 if ((component_offset = out_comp.find_first_of("/", component_last_offset)) != std::string::npos) {
                     facecomponent.x = std::stoi(out_comp.substr(component_last_offset, component_offset - component_last_offset));
-                    component_last_offset = component_offset + 1;
-                    //Format: "f v1/vt1 v2/vt2 v3/vt3 ..."
-                    if (component_offset = out_comp.find_first_of("/", component_last_offset) && component_offset > component_last_offset) { 
-                        facecomponent.y = std::stoi(out_comp.substr(component_last_offset, component_offset - component_last_offset));
-                    }
-                    component_last_offset = component_offset + 1;
+                    component_last_offset = component_offset+1;
                     //Format: "f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ..."
                     if ((component_offset = out_comp.find_first_of("/", component_last_offset)) != std::string::npos) {
-                        facecomponent.z = std::stoi(out_comp.substr(component_last_offset, component_offset - component_last_offset));
+                        if (component_offset > component_last_offset)
+                            facecomponent.y = std::stoi(out_comp.substr(component_last_offset, component_offset - component_last_offset));
+                        component_offset++;
+                        facecomponent.z = std::stoi(out_comp.substr(component_offset, out_comp.size() - component_offset));
+                    }
+                    else {//Format: "f v1/vt1 v2/vt2 v3/vt3 ..."
+                        facecomponent.y = std::stoi(out_comp.substr(component_last_offset));
                     }
                 } 
                 else { //Format: "f v1 v2 v3 ..."
                     facecomponent.x = std::stoi(out_comp);
                 }
-                triangleindices.push_back(facecomponent);
+                facecomponents.push_back(facecomponent);
+                SkipWhile(line, IsWhitespace, offset);
             }
             int facecomponents_count = facecomponents.size();
+
             if (facecomponents_count < 3)
                 Controller::Instance()->ThrowException("Not enough components found for face in .obj file, expected atleast 3 components");
             for (int i = 0; i < facecomponents_count - 2; i++) { //Assuming triangle fan for any face consisting of 4+ vertices
@@ -182,12 +185,44 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
                 triangleindices.push_back(facecomponents[i+2]);
             }
         }
-        SkipWhile(line, IsWhitespaceOrNewline, offset);
     }
-
     fs.close();
 
     //TODO: create vertex data array (index array exists as positions vector)
+    bool has_normals = triangleindices.back().z > -1;
+    bool has_uvs = triangleindices.back().y > -1;
+    int vertex_size = 3 + (has_normals ? 3 : 0) + (has_uvs ? 2 : 0);
+    int vertices_size = triangleindices.size() * vertex_size;
+    std::vector<float> vertices(vertices_size);
+    for (int i = 0; i < triangleindices.size(); i++) {
+        glm::ivec3 triangle = triangleindices[i];
+        int offset = i * vertex_size;
+        int current_pointer = 0;
+        glm::vec3 position = positions[triangle.x - 1];
+        vertices[offset + current_pointer++] = position.x;
+        vertices[offset + current_pointer++] = position.y;
+        vertices[offset + current_pointer++] = position.z;
+        if (has_uvs) {
+            glm::vec2 uv = texturecoords[triangle.y - 1];
+            vertices[offset + current_pointer++] = uv.x;
+            vertices[offset + current_pointer++] = uv.y;
+        }
+        if (has_normals) {
+            glm::vec3 normal = normals[triangle.z - 1];
+            vertices[offset + current_pointer++] = normal.x;
+            vertices[offset + current_pointer++] = normal.y;
+            vertices[offset + current_pointer++] = normal.z;
+        }
+    }
 
-    //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it 
+    std::vector<attribute_setting> attributesettings;
+    attributesettings.push_back({ 0, 3, attribute_type::FLOAT32, false });
+    if (has_uvs)
+        attributesettings.push_back({ 1, 2, attribute_type::FLOAT32, false });
+    if (has_normals)
+        attributesettings.push_back({ 2, 3, attribute_type::FLOAT32, false });
+
+    //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it
+    Mesh* mesh = new Mesh(vertices, attributesettings);
+    return mesh;
 }

@@ -94,7 +94,7 @@ namespace Graphics {
         ImGui::InputFloat3("Light position", (float*)&light_position); // Edit 3 floats representing a color
         ImGui::Checkbox("Circling light", &circling_light);
         if (circling_light) {
-            light_position = ImVec4(glm::sin(window->GetCurrentTimeSec()) * 10, 0, glm::cos(window->GetCurrentTimeSec()) * 10, 0);
+            light_position = ImVec4(glm::sin(window->GetCurrentTimeSec()) * 10, 5, glm::cos(window->GetCurrentTimeSec()) * 10, 0);
         }
 
         ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
