@@ -13,6 +13,7 @@ FlyingCamera::FlyingCamera(glm::vec3 position, glm::vec3 up, float yaw , float p
 	Near_plane = NEAR_PLANE;
 	Far_plane = FAR_PLANE;
 	_constrain_pitch = true;
+	_attach_mouse = false;
 
 	Position = position;
 	WorldUp = up;
@@ -21,7 +22,13 @@ FlyingCamera::FlyingCamera(glm::vec3 position, glm::vec3 up, float yaw , float p
 	UpdateCameraVectors();
 }
 
-void FlyingCamera::ProcessKeyChanged(int key, int scancode, int action, int mods) {}
+void FlyingCamera::ProcessKeyChanged(int key, int scancode, int action, int mods) {
+
+	if (key == (int)Controls::key::Q && action == (int)Controls::key_interaction::RELEASE)
+		_attach_mouse = true;
+	else if (key == (int)Controls::key::E && action == (int)Controls::key_interaction::RELEASE)
+		_attach_mouse = false;
+}
 
 void FlyingCamera::ProcessKeyContinuous(Window* window)
 {
@@ -48,6 +55,9 @@ void FlyingCamera::ProcessKeyContinuous(Window* window)
 
 void FlyingCamera::ProcessMousePosition(double xoffset, double yoffset)
 {
+	if (!_attach_mouse)
+		return;
+
 	xoffset *= Sensitivity;
 	yoffset *= Sensitivity;
 

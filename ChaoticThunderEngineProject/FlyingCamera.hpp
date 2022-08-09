@@ -17,6 +17,7 @@ class FlyingCamera : public BaseCamera
 {
 private:
 	bool _constrain_pitch;
+	bool _attach_mouse;
 public:
 	//vector constructor
 	FlyingCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
