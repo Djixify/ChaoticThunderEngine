@@ -14,8 +14,16 @@ namespace Graphics {
     bool render_normals = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImVec4 camera_position = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    ImVec4 model_color = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
+
     ImVec4 light_position = ImVec4(0.0f, 10.0f, 0.0f, 0.0f);
     bool circling_light = false;
+    float ambient_light = 0.2f;
+    bool use_blinn_lighting = false;
+    ImVec4 specular_light = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+    float diffuse_light_threshold = 90.0f;
+    float diffuse_falloff = 0.00001f;
+
     float mouse_sensitivity = 0.0f;
     int camera_fov = 90;
 
@@ -59,6 +67,12 @@ namespace Graphics {
             Shader* activeshader = window->GetShader(std::string(programs[selected_program]));
             activeshader->Use();
             activeshader->SetUniform("lightpos", glm::vec3(light_position.x, light_position.y, light_position.z));
+            activeshader->SetUniform("blinnlighting", use_blinn_lighting);
+            activeshader->SetUniform("ambientlight", ambient_light);
+            activeshader->SetUniform("specular_color", glm::vec3(specular_light.x, specular_light.y, specular_light.z));
+            activeshader->SetUniform("diffuse_cutoff", (diffuse_light_threshold / 90 - 1));
+            activeshader->SetUniform("diffuse_falloff", diffuse_falloff);
+            activeshader->SetUniform("model_color", glm::vec3(model_color.x, model_color.y, model_color.z));
         }
     }
 
@@ -91,11 +105,26 @@ namespace Graphics {
         ImGui::Text("Uniforms");
         std::string time_str = "Time: " + std::to_string(window->GetCurrentTimeSec()) + " sec";
         ImGui::Text(time_str.c_str());
+        ImGui::ColorEdit3("Model color", (float*)&model_color); // Edit 3 floats representing a color
         ImGui::InputFloat3("Light position", (float*)&light_position); // Edit 3 floats representing a color
         ImGui::Checkbox("Circling light", &circling_light);
         if (circling_light) {
-            light_position = ImVec4(glm::sin(window->GetCurrentTimeSec()) * 10, 5, glm::cos(window->GetCurrentTimeSec()) * 10, 0);
+            light_position = ImVec4(glm::sin(window->GetCurrentTimeSec()) * 10, light_position.y, glm::cos(window->GetCurrentTimeSec()) * 10, 0);
         }
+
+        /*
+        float ambient_light = 0.2f;
+        bool use_blinn_lighting = false;
+        ImVec4 specular_light = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
+        float diffuse_light_threshold = 0.0;
+        bool diffuse_falloff_gradual = false;*/
+        ImGui::Checkbox("Blinn lighting", &use_blinn_lighting);
+        ImGui::SliderFloat("Ambient light", &ambient_light, 0.0f, 1.0f);
+        ImGui::ColorEdit3("Specular light", (float*)&specular_light); // Edit 3 floats representing a color
+        ImGui::SliderFloat("Diffuse cutoff angle", &diffuse_light_threshold, 0.f, 180.f);
+        ImGui::SliderFloat("Diffuse falloff", &diffuse_falloff, -5, 5);
+        if (diffuse_falloff == 0.0f)
+            diffuse_falloff += 0.000001f;
 
         ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
         BaseCamera* camera = window->GetActiveCamera();
