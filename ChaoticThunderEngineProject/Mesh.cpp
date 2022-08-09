@@ -160,7 +160,7 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
                     component_last_offset = component_offset+1;
                     //Format: "f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ..."
                     if ((component_offset = out_comp.find_first_of("/", component_last_offset)) != std::string::npos) {
-                        if (component_offset > component_last_offset)
+                        if (component_offset > component_last_offset) //If fails, do "f v1//vn1 v2//vn2 v3//vn3"
                             facecomponent.y = std::stoi(out_comp.substr(component_last_offset, component_offset - component_last_offset));
                         component_offset++;
                         facecomponent.z = std::stoi(out_comp.substr(component_offset, out_comp.size() - component_offset));
@@ -220,7 +220,7 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
     if (has_uvs)
         attributesettings.push_back({ 1, 2, attribute_type::FLOAT32, false });
     if (has_normals)
-        attributesettings.push_back({ 2, 3, attribute_type::FLOAT32, false });
+        attributesettings.push_back({ has_uvs ? 2U : 1U, 3, attribute_type::FLOAT32, false });
 
     //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it
     Mesh* mesh = new Mesh(vertices, attributesettings);
