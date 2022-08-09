@@ -12,9 +12,8 @@ Mesh::Mesh(std::vector<float>& vertices, std::vector<attribute_setting> attrs) {
     _vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
     _vertexindexbuffer = NULL;
     _vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
-    for (int i = 0; i < attrs.size(); i++) {
+    for (int i = 0; i < attrs.size(); i++)
         _arraybuffer->AddAttribute(attrs[i].location, attrs[i].count, attrs[i].type, attrs[i].normalized);
-    }
 }
 
 Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices, std::vector<attribute_setting> attrs) {
@@ -22,9 +21,8 @@ Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices
 	_vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
 	_vertexindexbuffer = _vertexdatabuffer->CreateIndexBuffer();
 	_vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
-	_arraybuffer->AddAttribute(0, 3, attribute_type::FLOAT32, false); //Positions
-    _arraybuffer->AddAttribute(1, 2, attribute_type::FLOAT32, false); //UVs
-    _arraybuffer->AddAttribute(2, 3, attribute_type::FLOAT32, false); //Normals
+    for (int i = 0; i < attrs.size(); i++)
+        _arraybuffer->AddAttribute(attrs[i].location, attrs[i].count, attrs[i].type, attrs[i].normalized);
 	_vertexindexbuffer->Write(vertindices.size() * sizeof(unsigned int), &vertindices[0]);
 }
 

@@ -11,34 +11,34 @@ in VS_OUT {
 } gs_in[];
 
 out GS_OUT {
-	vec3 position;
-	vec3 normal;
+    vec3 position;
+    vec3 normal;
 } gs_out;
 
-vec3 GetNormal()
+//out vec3 position;
+//out vec3 normal;
+
+vec3 GetNormal(vec3 v1, vec3 v2, vec3 v3)
 {
-   vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
-   vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+   vec3 a = vec3(v1) - vec3(v2);
+   vec3 b = vec3(v3) - vec3(v2);
    return normalize(cross(a, b));
 }
 
 void main()
 {
-    vec3 _normal = GetNormal();
-    gl_Position = gl_in[0].gl_Position;
+    vec3 _normal = -GetNormal(gs_in[0].position, gs_in[1].position, gs_in[2].position);
+    gl_Position = projection * gl_in[0].gl_Position;
+    gs_out.position = gs_in[0].position;
     gs_out.normal = _normal;
-    //gs_out.normal = normalize(gl_in[0].gl_Position).xyz;
-    gs_out.position = gl_in[0].gl_Position.xyz;
     EmitVertex();
-    gl_Position = gl_in[1].gl_Position;
+    gl_Position = projection * gl_in[1].gl_Position;
+    gs_out.position = gs_in[1].position;
     gs_out.normal = _normal;
-    //gs_out.normal = normalize(gl_in[1].gl_Position).xyz;
-    gs_out.position = gl_in[1].gl_Position.xyz;
     EmitVertex();
-    gl_Position = gl_in[2].gl_Position;
+    gl_Position = projection * gl_in[2].gl_Position;
+    gs_out.position = gs_in[2].position;
     gs_out.normal = _normal;
-    //gs_out.normal = normalize(gl_in[2].gl_Position).xyz;
-    gs_out.position = gl_in[2].gl_Position.xyz;
     EmitVertex();
     EndPrimitive();
 }
