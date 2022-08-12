@@ -32,6 +32,7 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="OrbitingCamera.cpp" />
     <ClCompile Include="program.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="ObjLoader.hpp" />
+    <ClInclude Include="OrbitingCamera.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Structs.hpp" />
     <ClInclude Include="Window.hpp" />

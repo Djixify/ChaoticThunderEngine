@@ -5,6 +5,7 @@
 #include "Controller.hpp"
 #include "Shader.hpp"
 #include "FlyingCamera.hpp"
+#include "OrbitingCamera.hpp"
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
@@ -68,7 +69,8 @@ Window::Window(std::string title, int width, int height, Window* other) :
     ClearColor = glm::vec4{ 0.5f, 0.5f, 0.5f, 1.0f };
 
     //Initialize a single camera to be the default view
-    BaseCamera* camera = new FlyingCamera();
+    //BaseCamera* camera = new FlyingCamera();
+    BaseCamera* camera = new OrbitingCamera();
     _cameras.push_back(std::shared_ptr<BaseCamera>(camera));
     _activecamera = 0;
 
@@ -111,6 +113,7 @@ void Window::ProcessKeyContinuous()
     BaseCamera* camera = Controller::Instance()->GetContextWindow()->GetActiveCamera();
     camera->ProcessKeyContinuous(this);
 }
+
 
 void Window::ProcessMousePosition(GLFWwindow* window, double xpos, double ypos)                
 {

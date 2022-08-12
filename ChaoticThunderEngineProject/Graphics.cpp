@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include "Graphics.hpp"
+#include "OrbitingCamera.hpp"
 #include "Debug.hpp"
 
 #define PI 3.14159265358979323846
@@ -15,6 +16,7 @@ namespace Graphics {
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImVec4 camera_position = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
     ImVec4 model_color = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
+    ImVec4 pivot_position = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 
     ImVec4 light_position = ImVec4(0.0f, 10.0f, 0.0f, 0.0f);
     bool circling_light = false;
@@ -127,13 +129,22 @@ namespace Graphics {
             diffuse_falloff += 0.000001f;
 
         ImGui::Text("Camera (press Q to lock mouse, E to unlock)");
-        BaseCamera* camera = window->GetActiveCamera();
-        glm::vec3 pos = window->GetActiveCamera()->Position;
+        //BaseCamera* camera = window->GetActiveCamera();
+        OrbitingCamera* camera = (OrbitingCamera*)window->GetActiveCamera();
+        glm::vec3 pos = camera->Position;
+        glm::vec3 pivot = camera->Pivot;
         camera_position = ImVec4(pos.x, pos.y, pos.z, 1.0f);
-        ImGui::InputFloat3("Position", (float*)&camera_position); // Edit 3 floats representing a color
+        pivot_position = ImVec4(pivot.x, pivot.y, pivot.z, 1.0f);
+        ImGui::InputFloat3("Position", (float*)&camera_position); // Edit 3 floats representing the camera position
         camera->Position.x = camera_position.x;
         camera->Position.y = camera_position.y;
         camera->Position.z = camera_position.z;
+        ImGui::InputFloat3("Pivot", (float*)&pivot_position); //Edit 3 floats representing the pivot position
+        camera->Pivot.x = pivot_position.x;
+        camera->Pivot.y = pivot_position.y;
+        camera->Pivot.z = pivot_position.z;
+       
+
 
         //std::string pos_str = "Position: " + std::to_string(pos.x) + " " + std::to_string(pos.y) + " " + std::to_string(pos.z);
         //ImGui::Text(pos_str.c_str());
