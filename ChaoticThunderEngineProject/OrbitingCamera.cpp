@@ -54,11 +54,11 @@ void OrbitingCamera::ProcessKeyContinuous(Window* window) {
 
 void OrbitingCamera::ProcessScrollWheel(double xoffset, double yoffset)
 {
-	Fov -= (float)yoffset;
-	if (Fov < 45.0f)
-		Fov = 45.0f;
-	if (Fov > 135.0f)
-		Fov = 135.0f;
+	Radius -= (float)yoffset*0.1;
+	if (Radius < 0.1f)
+		Radius = 0.1;
+	if (Radius > 10.0f)
+		Radius = 10.0f;
 }
 
 glm::mat4x4 OrbitingCamera::GetProjectionMatrix(Window* window) {
@@ -89,10 +89,10 @@ void OrbitingCamera::ProcessMousePosition(double xoffset, double yoffset) {
 	// constrained so that excessive pitch won't flip screen
 	if (_constrain_pitch)
 	{
-		if (Pitch > 89.0f)
-			Pitch = 89.0f;
-		if (Pitch < -89.0f)
-			Pitch = -89.0f;
+		if (Position.y > Radius)
+			Position.y = Radius;
+		if (Position.y < -Radius)
+			Position.y = -Radius;
 	}
 	UpdateCameraVectors();
 }
@@ -110,9 +110,7 @@ void OrbitingCamera::UpdateCameraVectors()
 {
 	//updates Direction, Right and Up Axis vectors
 	glm::vec3 front;
-	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-	front.y = sin(glm::radians(Pitch));
-	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	front = Position - Pivot;
 	
 	Front = glm::normalize(front);
 	RightAxis = glm::normalize(glm::cross(Front, WorldUp));
