@@ -110,4 +110,13 @@ struct vertex_attribute {
     attribute_type type;
     GLuint offset;
 };
+
+struct image {
+    int width, height, channels;
+    unsigned char* data;
+
+    ~image() {
+        free(data);
+    }
+};
 #endif

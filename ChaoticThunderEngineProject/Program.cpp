@@ -15,6 +15,7 @@
 #include "imgui_impl_opengl3.h"
 #include "Graphics.hpp"
 #include "ObjLoader.hpp"
+#include "stb_image.h"
 
 #define PI 3.14159265358979323846
 
@@ -144,6 +145,21 @@ int main(int argc, const char* argv[]) {
         
     }
 
+    image* wall = File::LoadPNG(std::filesystem::current_path() / "Resources" / "Images" / "wall.png", false);
+
+
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, wall->width, wall->height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall->data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    delete wall;
 
     Mesh* mesh1 = Mesh::MeshedCube(2.0, 3);
     std::vector<float> vertices;
