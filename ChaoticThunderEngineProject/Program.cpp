@@ -7,6 +7,7 @@
 #include <glm.hpp>
 #include <cmath>
 #include "Debug.hpp"
+#include "MeshCollection.hpp"
 #include "File.hpp"
 #include "Controller.hpp"
 #include "imgui.h"
@@ -163,14 +164,11 @@ int main(int argc, const char* argv[]) {
 
     Mesh* mesh1 = Mesh::MeshedCube(2.0, 3);
     std::vector<float> vertices;
-    ObjLoad(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Coffeecup" / "coffee_cup_obj.obj", vertices);
+    //ObjLoad(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Coffeecup" / "coffee_cup_obj.obj", vertices);
     //ObjLoad(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Cube" / "cube.obj", vertices);
     //Mesh* mesh2 = new Mesh(vertices);
     //Mesh* mesh2 = Mesh::LoadObj(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Cube" / "cube.obj");
-    //Mesh* mesh2 = Mesh::LoadObj(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Coffeecup" / "coffee_cup_obj.obj");
-    Mesh* mesh2 = Mesh::LoadObj(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Teapot_no_normals" / "teapot.obj");
-
-
+    MeshCollection* mesh2 = Mesh::LoadObj(std::filesystem::current_path() / "Resources" / "ObjectModels" / "Coffeecup" / "coffee_cup_obj.obj");
 
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // Closest object to the camera will be drawn

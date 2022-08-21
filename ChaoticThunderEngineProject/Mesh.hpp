@@ -7,6 +7,8 @@
 #include "buffer.hpp"
 #define PI 3.14159265358979323846f
 
+class MeshCollection;
+
 class Mesh {
 private:
     ArrayBuffer* _arraybuffer;
@@ -15,13 +17,28 @@ private:
     
     Mesh();
 public:
+    std::string Name; //Used to identify mesh and store it to files using this name
+
     Mesh(std::vector <float>& vertices, std::vector<attribute_setting> attrs);
     Mesh(std::vector <float>& vertices, std::vector<unsigned int> &vertindices, std::vector<attribute_setting> attrs);
 	~Mesh();
 
     void Draw();
 
-    static Mesh* LoadObj(std::filesystem::path path);
+    static MeshCollection* LoadObj(std::filesystem::path path);
+
+    static Mesh* FlatTexturePlane(float width, float height, std::filesystem::path path) {
+        float tmp[] = {
+            // positions          // colors           // texture coords
+             width / 2,  width / 2, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+             width / 2, -width / 2, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+            -width / 2, -width / 2, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+            -width / 2,  width / 2, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+        };
+        //std::vector<float> vertices(tmp);
+
+        Mesh* mesh = new Mesh();
+    }
 
 	static Mesh* SquareTriangleMesh(float width, float height, int xpartitions, int ypartitions) {
 		Mesh* mesh = new Mesh();

@@ -4,6 +4,7 @@
 #include "Debug.hpp"
 #include <fstream>
 
+//[[deprecated]]
 void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 	
 	std::vector <unsigned int> vertindices, uvindices, normindices;

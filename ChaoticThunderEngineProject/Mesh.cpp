@@ -1,5 +1,5 @@
 #include "Mesh.hpp"
-
+#include "MeshCollection.hpp"
 
 Mesh::Mesh() {
 	_arraybuffer = new ArrayBuffer();
@@ -45,12 +45,13 @@ bool IsWhitespace(char c) {
     return c == ' ' || c == '\t';
 }
 
-bool IsNotNewLine(char c) {
-    return c != '\n';
+bool IsNewline(char c) {
+    return c == '\n' || c == '\r';
 }
 
+
 bool IsWhitespaceOrNewline(char c) {
-    return c == ' ' || c == '\t' || c == '\n';
+    return IsWhitespace(c) || IsNewline(c);
 }
 
 bool IsInteger(char c) {
@@ -75,18 +76,59 @@ bool SkipWhile(std::string& text, bool (*condition)(char), int& pointer) {
     return true;
 }
 
-bool ConsumeWhile(std::string& text, bool (*condition)(char), int& pointer, std::string& out_str) {
+bool ConsumeWhile(std::string& text, bool (*condition)(char), int& pointer, std::string& out_str, bool inverted = false) {
     int old_pointer = pointer;
-    if (!condition(text[pointer]))
+    if (!(condition(text[pointer]) ^ inverted))
         return false;
     do {
         pointer++;
-    } while (text[pointer] != '\0' && pointer < text.size() && condition(text[pointer]));
+    } while (text[pointer] != '\0' && pointer < text.size() && (condition(text[pointer]) ^ inverted));
     out_str = text.substr(old_pointer, pointer - old_pointer);
     return true;
 }
 
-Mesh* Mesh::LoadObj(std::filesystem::path path) {
+Mesh* SpawnMeshFromObject(std::string objectname, std::vector<glm::vec3>& positions, std::vector<glm::vec3>& normals, std::vector<glm::vec2>& texturecoords, std::vector<glm::ivec3> triangleindices) {
+    //TODO: create vertex data array (index array exists as positions vector)
+    bool has_normals = triangleindices.back().z > -1;
+    bool has_uvs = triangleindices.back().y > -1;
+    int vertex_size = 3 + (has_normals ? 3 : 0) + (has_uvs ? 2 : 0);
+    int vertices_size = triangleindices.size() * vertex_size;
+    std::vector<float> vertices(vertices_size);
+    for (int i = 0; i < triangleindices.size(); i++) {
+        glm::ivec3 triangle = triangleindices[i];
+        int offset = i * vertex_size;
+        int current_pointer = 0;
+        glm::vec3 position = positions[triangle.x - 1];
+        vertices[offset + current_pointer++] = position.x;
+        vertices[offset + current_pointer++] = position.y;
+        vertices[offset + current_pointer++] = position.z;
+        if (has_uvs) {
+            glm::vec2 uv = texturecoords[triangle.y - 1];
+            vertices[offset + current_pointer++] = uv.x;
+            vertices[offset + current_pointer++] = uv.y;
+        }
+        if (has_normals) {
+            glm::vec3 normal = normals[triangle.z - 1];
+            vertices[offset + current_pointer++] = normal.x;
+            vertices[offset + current_pointer++] = normal.y;
+            vertices[offset + current_pointer++] = normal.z;
+        }
+    }
+
+    std::vector<attribute_setting> attributesettings;
+    attributesettings.push_back({ 0, 3, attribute_type::FLOAT32, false });
+    if (has_uvs)
+        attributesettings.push_back({ 1, 2, attribute_type::FLOAT32, false });
+    if (has_normals)
+        attributesettings.push_back({ has_uvs ? 2U : 1U, 3, attribute_type::FLOAT32, false });
+
+    //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it
+    Mesh* mesh = new Mesh(vertices, attributesettings);
+    mesh->Name = objectname;
+    return mesh;
+}
+
+MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
     //Do ObjLoad stuff here (body of the function)
 
     std::string content;
@@ -97,17 +139,36 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
         return 0;
     }
 
+    MeshCollection* meshes = new MeshCollection();
+
+    int object_count = 0;
+
+    std::string objectname = "default";
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> texturecoords;
     std::vector<glm::ivec3> triangleindices;
-    while (!fs.eof()) {
+    
+    while (fs.good() && !fs.eof()) {
         int offset = 0;
         std::string line;
         std::getline(fs, line);
         if (line[0] == '#' || line.size() < 3)
             continue;
-        if (std::strncmp(line.c_str(), "vn", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        if (std::strncmp(line.c_str(), "o", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
+            std::string tmp;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, tmp, true)) {
+                if (triangleindices.size() > 0) { //We had buffered data, store that to the current object and ready for new one
+                    meshes->Add(SpawnMeshFromObject(objectname, positions, normals, texturecoords, triangleindices));
+                    positions.clear();
+                    normals.clear();
+                    texturecoords.clear();
+                    triangleindices.clear();
+                }
+                objectname = tmp;
+            }
+        }
+        else if (std::strncmp(line.c_str(), "vn", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
             std::string out_x, out_y, out_z;
             if (ConsumeWhile(line, IsDecimal, offset, out_x)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -186,41 +247,18 @@ Mesh* Mesh::LoadObj(std::filesystem::path path) {
     }
     fs.close();
 
-    //TODO: create vertex data array (index array exists as positions vector)
-    bool has_normals = triangleindices.back().z > -1;
-    bool has_uvs = triangleindices.back().y > -1;
-    int vertex_size = 3 + (has_normals ? 3 : 0) + (has_uvs ? 2 : 0);
-    int vertices_size = triangleindices.size() * vertex_size;
-    std::vector<float> vertices(vertices_size);
-    for (int i = 0; i < triangleindices.size(); i++) {
-        glm::ivec3 triangle = triangleindices[i];
-        int offset = i * vertex_size;
-        int current_pointer = 0;
-        glm::vec3 position = positions[triangle.x - 1];
-        vertices[offset + current_pointer++] = position.x;
-        vertices[offset + current_pointer++] = position.y;
-        vertices[offset + current_pointer++] = position.z;
-        if (has_uvs) {
-            glm::vec2 uv = texturecoords[triangle.y - 1];
-            vertices[offset + current_pointer++] = uv.x;
-            vertices[offset + current_pointer++] = uv.y;
-        }
-        if (has_normals) {
-            glm::vec3 normal = normals[triangle.z - 1];
-            vertices[offset + current_pointer++] = normal.x;
-            vertices[offset + current_pointer++] = normal.y;
-            vertices[offset + current_pointer++] = normal.z;
-        }
+    if (!fs.eof())
+        Controller::Instance()->ThrowException("Something went wrong with file at path: " + path.generic_string());
+
+    //Flush remaining data to the latest object:
+    if (triangleindices.size() > 0) { //We had buffered data, store that to the current object and ready for new one
+        meshes->Add(SpawnMeshFromObject(objectname, positions, normals, texturecoords, triangleindices));
+        positions.clear();
+        normals.clear();
+        texturecoords.clear();
+        triangleindices.clear();
     }
 
-    std::vector<attribute_setting> attributesettings;
-    attributesettings.push_back({ 0, 3, attribute_type::FLOAT32, false });
-    if (has_uvs)
-        attributesettings.push_back({ 1, 2, attribute_type::FLOAT32, false });
-    if (has_normals)
-        attributesettings.push_back({ has_uvs ? 2U : 1U, 3, attribute_type::FLOAT32, false });
 
-    //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it
-    Mesh* mesh = new Mesh(vertices, attributesettings);
-    return mesh;
+    return meshes;
 }
