@@ -3,11 +3,10 @@ out vec4 FragColor;
 
 in VS_OUT {
     vec3 FragPos;
-	vec2 Tex
+	vec2 Tex;
     vec3 Normal;
 } fs_in;
 
-uniform sampler2D floorTexture;
 uniform vec3 camerapos;
 uniform float time;
 uniform vec3 model_color;
@@ -18,11 +17,11 @@ uniform vec3 specular_color;
 uniform float diffuse_cutoff;
 uniform float diffuse_falloff;
 
-uniform sampler2D ourTexture;
+uniform sampler2D texture1;
 
 void main()
 {           
-    vec3 color = texture(ourTexture, Tex);
+    vec3 color = vec3(texture(texture1, fs_in.Tex));
     // ambient
     vec3 ambient = ambientlight * color;
     // diffuse

@@ -30,11 +30,14 @@
     <ClCompile Include="Exception.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Material.hpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshCollection.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="program.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Structs.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>

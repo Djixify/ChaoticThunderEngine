@@ -1,5 +1,6 @@
 #include "Mesh.hpp"
 #include "MeshCollection.hpp"
+#include "Material.hpp"
 
 Mesh::Mesh() {
 	_arraybuffer = new ArrayBuffer();
@@ -7,16 +8,16 @@ Mesh::Mesh() {
 	_vertexindexbuffer = _vertexdatabuffer->CreateIndexBuffer();
 }
 
-Mesh::Mesh(std::vector<float>& vertices, std::vector<attribute_setting> attrs) {
+Mesh::Mesh(std::vector<float>& vertices, std::vector<attribute_setting> attrs, std::filesystem::path materialpath) {
     _arraybuffer = new ArrayBuffer();
     _vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
-    _vertexindexbuffer = NULL;
+    _vertexindexbuffer = nullptr;
     _vertexdatabuffer->Write(vertices.size() * sizeof(float), &vertices[0]);
     for (int i = 0; i < attrs.size(); i++)
         _arraybuffer->AddAttribute(attrs[i].location, attrs[i].count, attrs[i].type, attrs[i].normalized);
 }
 
-Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices, std::vector<attribute_setting> attrs) {
+Mesh::Mesh(std::vector <float>& vertices, std::vector<unsigned int>& vertindices, std::vector<attribute_setting> attrs, std::filesystem::path materialpath) {
 	_arraybuffer = new ArrayBuffer();
 	_vertexdatabuffer = _arraybuffer->CreateVertexBuffer();
 	_vertexindexbuffer = _vertexdatabuffer->CreateIndexBuffer();
@@ -87,7 +88,7 @@ bool ConsumeWhile(std::string& text, bool (*condition)(char), int& pointer, std:
     return true;
 }
 
-Mesh* SpawnMeshFromObject(std::string objectname, std::vector<glm::vec3>& positions, std::vector<glm::vec3>& normals, std::vector<glm::vec2>& texturecoords, std::vector<glm::ivec3> triangleindices) {
+Mesh* SpawnMeshFromObject(std::string objectname, std::string materialfile, std::vector<glm::vec3>& positions, std::vector<glm::vec3>& normals, std::vector<glm::vec2>& texturecoords, std::vector<glm::ivec3> triangleindices) {
     //TODO: create vertex data array (index array exists as positions vector)
     bool has_normals = triangleindices.back().z > -1;
     bool has_uvs = triangleindices.back().y > -1;
@@ -123,9 +124,125 @@ Mesh* SpawnMeshFromObject(std::string objectname, std::vector<glm::vec3>& positi
         attributesettings.push_back({ has_uvs ? 2U : 1U, 3, attribute_type::FLOAT32, false });
 
     //Instanciate mesh, fill it (see other static methods for inspiration) with the data from the obj file and return it
-    Mesh* mesh = new Mesh(vertices, attributesettings);
+    Mesh* mesh = new Mesh(vertices, attributesettings, materialfile);
     mesh->Name = objectname;
     return mesh;
+}
+
+std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
+    std::string content;
+    std::ifstream fs(path.generic_string().c_str(), std::ios::in);
+
+    std::map<std::string, Material*> materials;
+    materials["default"] = new Material();
+
+    if (!fs.is_open()) {
+        Debug::Logger::Console(Debug::Level::WARNING, "Could not read file %s. File does not exist.", path);
+        return materials;
+    }
+
+    std::string currentmaterial = "default";
+    while (fs.good() && !fs.eof()) {
+        int offset = 0;
+        std::string line;
+        std::getline(fs, line);
+        if (line[0] == '#' || line.size() < 3)
+            continue;
+        if (std::strncmp(line.c_str(), "newmtl", 6) == 0 && SkipWhile(line, IsWhitespace, ++++++++++++offset)) {
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, currentmaterial, true)) {
+                materials[currentmaterial] = new Material();
+            }
+        }
+        else if (std::strncmp(line.c_str(), "Ns", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string tmp;
+            if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
+                materials[currentmaterial]->specular_highlight = std::stof(tmp);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "Ni", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string tmp;
+            if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
+                materials[currentmaterial]->optical_density = std::stof(tmp);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "d", 1) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string tmp;
+            if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
+                materials[currentmaterial]->dissolve = std::stof(tmp);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "illum", 5) == 0 && SkipWhile(line, IsWhitespace, ++++++++++offset)) {
+            std::string tmp;
+            if (ConsumeWhile(line, IsInteger, offset, tmp)) {
+                materials[currentmaterial]->optical_density = std::stof(tmp);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "map_Bump", 8) && SkipWhile(line, IsWhitespace, ++++++++++++++++offset)) {
+            std::string normaltexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, normaltexturepath, true)) {
+                //Do some path work with the input
+            }
+        }
+        //TODO: map_Ka, map_Kd, map_Ks, map_Ns, refl
+        else if (std::strncmp(line.c_str(), "Ka", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string out_r, out_g, out_b;
+            if (ConsumeWhile(line, IsDecimal, offset, out_r)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_g)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_b)) {
+                glm::vec3 ambient;
+                materials[currentmaterial]->ambient_color.r = std::stof(out_r);
+                materials[currentmaterial]->ambient_color.g = std::stof(out_g);
+                materials[currentmaterial]->ambient_color.b = std::stof(out_b);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "Kd", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string out_r, out_g, out_b;
+            if (ConsumeWhile(line, IsDecimal, offset, out_r)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_g)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_b)) {
+                glm::vec3 ambient;
+                materials[currentmaterial]->diffuse_color.r = std::stof(out_r);
+                materials[currentmaterial]->diffuse_color.g = std::stof(out_g);
+                materials[currentmaterial]->diffuse_color.b = std::stof(out_b);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "Ks", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string out_r, out_g, out_b;
+            if (ConsumeWhile(line, IsDecimal, offset, out_r)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_g)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_b)) {
+                glm::vec3 ambient;
+                materials[currentmaterial]->specular_color.r = std::stof(out_r);
+                materials[currentmaterial]->specular_color.g = std::stof(out_g);
+                materials[currentmaterial]->specular_color.b = std::stof(out_b);
+            }
+        }
+        else if (std::strncmp(line.c_str(), "Ke", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+            std::string out_r, out_g, out_b;
+            if (ConsumeWhile(line, IsDecimal, offset, out_r)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_g)
+                && SkipWhile(line, IsWhitespace, offset)
+                && ConsumeWhile(line, IsDecimal, offset, out_b)) {
+                glm::vec3 ambient;
+                materials[currentmaterial]->emissive_color.r = std::stof(out_r);
+                materials[currentmaterial]->emissive_color.g = std::stof(out_g);
+                materials[currentmaterial]->emissive_color.b = std::stof(out_b);
+            }
+        }
+    }
+    fs.close();
+
+    if (!fs.eof())
+        Controller::Instance()->ThrowException("Something went wrong with file at path: " + path.generic_string());
+
+    return materials;
 }
 
 MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
@@ -144,6 +261,8 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
     int object_count = 0;
 
     std::string objectname = "default";
+    std::string materialfile = "default";
+    std::map<std::string, Material*> materials;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> texturecoords;
@@ -155,11 +274,22 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
         std::getline(fs, line);
         if (line[0] == '#' || line.size() < 3)
             continue;
-        if (std::strncmp(line.c_str(), "o", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
+        if (std::strncmp(line.c_str(), "mtllib", 6) == 0 && SkipWhile(line, IsWhitespace, ++++++++++++offset)) {
+            if (!ConsumeWhile(line, IsWhitespaceOrNewline, offset, materialfile, true)) {
+                materialfile = nullptr;
+            }
+            else {
+                for (std::map<std::string, Material*>::iterator iter = materials.begin(); iter != materials.end(); iter++)
+                    delete iter->second;
+                materials.clear();
+                materials = LoadMTL(path.parent_path() / materialfile);
+            }
+        } //TODO: usemtl
+        else if (std::strncmp(line.c_str(), "o", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
             std::string tmp;
             if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, tmp, true)) {
                 if (triangleindices.size() > 0) { //We had buffered data, store that to the current object and ready for new one
-                    meshes->Add(SpawnMeshFromObject(objectname, positions, normals, texturecoords, triangleindices));
+                    meshes->Add(SpawnMeshFromObject(objectname, materialfile, positions, normals, texturecoords, triangleindices));
                     positions.clear();
                     normals.clear();
                     texturecoords.clear();
@@ -252,7 +382,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
 
     //Flush remaining data to the latest object:
     if (triangleindices.size() > 0) { //We had buffered data, store that to the current object and ready for new one
-        meshes->Add(SpawnMeshFromObject(objectname, positions, normals, texturecoords, triangleindices));
+        meshes->Add(SpawnMeshFromObject(objectname, materialfile, positions, normals, texturecoords, triangleindices));
         positions.clear();
         normals.clear();
         texturecoords.clear();

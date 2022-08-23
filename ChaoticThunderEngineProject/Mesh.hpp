@@ -19,8 +19,8 @@ private:
 public:
     std::string Name; //Used to identify mesh and store it to files using this name
 
-    Mesh(std::vector <float>& vertices, std::vector<attribute_setting> attrs);
-    Mesh(std::vector <float>& vertices, std::vector<unsigned int> &vertindices, std::vector<attribute_setting> attrs);
+    Mesh(std::vector <float>& vertices, std::vector<attribute_setting> attrs, std::filesystem::path materialpath);
+    Mesh(std::vector <float>& vertices, std::vector<unsigned int> &vertindices, std::vector<attribute_setting> attrs, std::filesystem::path materialpath);
 	~Mesh();
 
     void Draw();

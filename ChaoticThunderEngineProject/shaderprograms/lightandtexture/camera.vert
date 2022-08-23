@@ -6,7 +6,7 @@ layout (location = 2) in vec3 aNormal;
 // declare an interface block; see 'Advanced GLSL' for what these are.
 out VS_OUT {
     vec3 FragPos;
-	vec2 Tex
+	vec2 Tex;
     vec3 Normal;
 } vs_out;
 
