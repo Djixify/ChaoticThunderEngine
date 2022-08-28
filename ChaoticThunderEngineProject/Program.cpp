@@ -17,6 +17,7 @@
 #include "Graphics.hpp"
 #include "ObjLoader.hpp"
 #include "stb_image.h"
+#include "Texture.hpp"
 
 #define PI 3.14159265358979323846
 
@@ -146,7 +147,7 @@ int main(int argc, const char* argv[]) {
         
     }
 
-    image* wall = File::LoadPNG(std::filesystem::current_path() / "Resources" / "Images" / "20220326_201405.jpg", false);
+    Texture* wall = new Texture(std::filesystem::current_path() / "Resources" / "Images" / "20220326_201405.jpg", false);
 
 
 

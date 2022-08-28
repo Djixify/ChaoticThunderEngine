@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include "Structs.hpp"
+#include "Texture.hpp"
 
 
 class Material {
@@ -18,7 +19,7 @@ public:
     glm::vec3 specular_color; //Ks, Specular light color (highlight)
     glm::vec3 emissive_color; //Ke, Emissive color
     glm::vec3 transmission_color; //Tf, transmission filter, allows only some % of each color channel through material
-    std::map<std::string, image*> textures;
+    std::map<std::string, Texture*> textures;
 
     Material();
     ~Material();

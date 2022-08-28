@@ -47,6 +47,7 @@ struct vertex_attribute {
 struct image {
     int width, height, channels;
     unsigned char* data;
+    std::filesystem::path path;
 
     ~image() {
         free(data);

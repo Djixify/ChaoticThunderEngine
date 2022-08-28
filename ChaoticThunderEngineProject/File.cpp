@@ -25,10 +25,4 @@ namespace File {
         }
         return dirs;
     }
-
-    image* LoadPNG(std::filesystem::path path, bool has_alpha) {
-        image* result = new image();
-        result->data = stbi_load(path.generic_string().c_str(), &result->width, &result->height, &result->channels, has_alpha ? 4 : 3);
-        return result;
-    }
 }

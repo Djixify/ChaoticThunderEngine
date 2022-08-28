@@ -1,6 +1,8 @@
 #include "Mesh.hpp"
 #include "MeshCollection.hpp"
 #include "Material.hpp"
+#include "File.hpp"
+#include "Texture.hpp"
 
 Mesh::Mesh() {
 	_arraybuffer = new ArrayBuffer();
@@ -88,6 +90,20 @@ bool ConsumeWhile(std::string& text, bool (*condition)(char), int& pointer, std:
     return true;
 }
 
+bool ConsumeKeyword(std::string& text, std::string keyword, int& pointer) {
+    int old_pointer = pointer;
+    int size = keyword.size();
+    bool success = true;
+    for (int i = 0; i < size && success; i++, pointer++) {
+        if (text[pointer] != keyword[i])
+            success = false;
+    }
+    if (!success) {
+        pointer = old_pointer;
+    }
+    return success;
+}
+
 Mesh* SpawnMeshFromObject(std::string objectname, std::string materialfile, std::vector<glm::vec3>& positions, std::vector<glm::vec3>& normals, std::vector<glm::vec2>& texturecoords, std::vector<glm::ivec3> triangleindices) {
     //TODO: create vertex data array (index array exists as positions vector)
     bool has_normals = triangleindices.back().z > -1;
@@ -148,43 +164,98 @@ std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
         std::getline(fs, line);
         if (line[0] == '#' || line.size() < 3)
             continue;
-        if (std::strncmp(line.c_str(), "newmtl", 6) == 0 && SkipWhile(line, IsWhitespace, ++++++++++++offset)) {
+        if (ConsumeKeyword(line, "newmtl", offset) && SkipWhile(line, IsWhitespace, offset)) {
             if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, currentmaterial, true)) {
                 materials[currentmaterial] = new Material();
             }
         }
-        else if (std::strncmp(line.c_str(), "Ns", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "Ns", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string tmp;
             if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
                 materials[currentmaterial]->specular_highlight = std::stof(tmp);
             }
         }
-        else if (std::strncmp(line.c_str(), "Ni", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "Ni", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string tmp;
             if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
                 materials[currentmaterial]->optical_density = std::stof(tmp);
             }
         }
-        else if (std::strncmp(line.c_str(), "d", 1) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "d", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string tmp;
             if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
                 materials[currentmaterial]->dissolve = std::stof(tmp);
             }
         }
-        else if (std::strncmp(line.c_str(), "illum", 5) == 0 && SkipWhile(line, IsWhitespace, ++++++++++offset)) {
+        else if (ConsumeKeyword(line, "illum", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string tmp;
             if (ConsumeWhile(line, IsInteger, offset, tmp)) {
-                materials[currentmaterial]->optical_density = std::stof(tmp);
+                materials[currentmaterial]->illum = std::stof(tmp);
             }
         }
-        else if (std::strncmp(line.c_str(), "map_Bump", 8) && SkipWhile(line, IsWhitespace, ++++++++++++++++offset)) {
+        else if (ConsumeKeyword(line, "sharpness", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string tmp;
+            if (ConsumeWhile(line, IsDecimal, offset, tmp)) {
+                materials[currentmaterial]->sharpness = std::stof(tmp);
+            }
+        }
+        else if (ConsumeKeyword(line, "map_Bump", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string normaltexturepath;
             if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, normaltexturepath, true)) {
-                //Do some path work with the input
+                std::filesystem::path path(normaltexturepath);
+                std::filesystem::path texturepath = path.parent_path() / normaltexturepath;
+                materials[currentmaterial]->textures["normal_texture"] = new Texture(texturepath, false);
             }
         }
-        //TODO: map_Ka, map_Kd, map_Ks, map_Ns, refl
-        else if (std::strncmp(line.c_str(), "Ka", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "map_Ka", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string ambienttexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, ambienttexturepath, true)) {
+                std::filesystem::path path(ambienttexturepath);
+                std::filesystem::path texturepath = path.parent_path() / ambienttexturepath;
+                materials[currentmaterial]->textures["ambient_texture"] = new Texture(texturepath, false);
+            }
+        }
+        else if (ConsumeKeyword(line, "map_Kd", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string diffusetexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, diffusetexturepath, true)) {
+                std::filesystem::path path(diffusetexturepath);
+                std::filesystem::path texturepath = path.parent_path() / diffusetexturepath;
+                materials[currentmaterial]->textures["diffuse_texture"] = new Texture(texturepath, false);
+            }
+        }
+        else if (ConsumeKeyword(line, "map_Ks", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string speculartexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, speculartexturepath, true)) {
+                std::filesystem::path path(speculartexturepath);
+                std::filesystem::path texturepath = path.parent_path() / speculartexturepath;
+                materials[currentmaterial]->textures["specular_texture"] = new Texture(texturepath, false);
+            }
+        }
+        else if (ConsumeKeyword(line, "map_Ks", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string speculartexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, speculartexturepath, true)) {
+                std::filesystem::path path(speculartexturepath);
+                std::filesystem::path texturepath = path.parent_path() / speculartexturepath;
+                materials[currentmaterial]->textures["specular_texture"] = new Texture(texturepath, false);
+            }
+        }
+        else if (ConsumeKeyword(line, "map_Ns", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string specularhighlighttexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, specularhighlighttexturepath, true)) {
+                std::filesystem::path path(specularhighlighttexturepath);
+                std::filesystem::path texturepath = path.parent_path() / specularhighlighttexturepath;
+                materials[currentmaterial]->textures["specular_highlight_texture"] = new Texture(texturepath, false);
+            }
+        }
+        else if (ConsumeKeyword(line, "refl", offset) && SkipWhile(line, IsWhitespace, offset)) {
+            std::string reflectivitytexturepath;
+            if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, reflectivitytexturepath, true)) {
+                std::filesystem::path path(reflectivitytexturepath);
+                std::filesystem::path texturepath = path.parent_path() / reflectivitytexturepath;
+                materials[currentmaterial]->textures["reflectivity_texture"] = new Texture(texturepath, false);
+            }
+        }
+        else if (ConsumeKeyword(line, "Ka", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_r, out_g, out_b;
             if (ConsumeWhile(line, IsDecimal, offset, out_r)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -197,7 +268,7 @@ std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
                 materials[currentmaterial]->ambient_color.b = std::stof(out_b);
             }
         }
-        else if (std::strncmp(line.c_str(), "Kd", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "Kd", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_r, out_g, out_b;
             if (ConsumeWhile(line, IsDecimal, offset, out_r)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -210,7 +281,7 @@ std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
                 materials[currentmaterial]->diffuse_color.b = std::stof(out_b);
             }
         }
-        else if (std::strncmp(line.c_str(), "Ks", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "Ks", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_r, out_g, out_b;
             if (ConsumeWhile(line, IsDecimal, offset, out_r)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -223,7 +294,7 @@ std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
                 materials[currentmaterial]->specular_color.b = std::stof(out_b);
             }
         }
-        else if (std::strncmp(line.c_str(), "Ke", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "Ke", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_r, out_g, out_b;
             if (ConsumeWhile(line, IsDecimal, offset, out_r)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -274,7 +345,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
         std::getline(fs, line);
         if (line[0] == '#' || line.size() < 3)
             continue;
-        if (std::strncmp(line.c_str(), "mtllib", 6) == 0 && SkipWhile(line, IsWhitespace, ++++++++++++offset)) {
+        if (ConsumeKeyword(line, "mtllib", offset) && SkipWhile(line, IsWhitespace, offset)) {
             if (!ConsumeWhile(line, IsWhitespaceOrNewline, offset, materialfile, true)) {
                 materialfile = nullptr;
             }
@@ -285,7 +356,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
                 materials = LoadMTL(path.parent_path() / materialfile);
             }
         } //TODO: usemtl
-        else if (std::strncmp(line.c_str(), "o", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
+        else if (ConsumeKeyword(line, "o", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string tmp;
             if (ConsumeWhile(line, IsWhitespaceOrNewline, offset, tmp, true)) {
                 if (triangleindices.size() > 0) { //We had buffered data, store that to the current object and ready for new one
@@ -298,7 +369,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
                 objectname = tmp;
             }
         }
-        else if (std::strncmp(line.c_str(), "vn", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "vn", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_x, out_y, out_z;
             if (ConsumeWhile(line, IsDecimal, offset, out_x)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -312,7 +383,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
                 normals.push_back(normal);
             }
         }
-        else if (std::strncmp(line.c_str(), "vt", 2) == 0 && SkipWhile(line, IsWhitespace, ++++offset)) {
+        else if (ConsumeKeyword(line, "vt", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_u, out_v;
             if (ConsumeWhile(line, IsDecimal, offset, out_u)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -323,7 +394,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
                 texturecoords.push_back(texturecoord);
             }
         }
-        else if (std::strncmp(line.c_str(), "v", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
+        else if (ConsumeKeyword(line, "v", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_x, out_y, out_z;
             if (ConsumeWhile(line, IsDecimal, offset, out_x)
                 && SkipWhile(line, IsWhitespace, offset)
@@ -337,7 +408,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
                 positions.push_back(position);
             }
         }
-        else if (std::strncmp(line.c_str(), "f", 1) == 0 && SkipWhile(line, IsWhitespace, ++offset)) {
+        else if (ConsumeKeyword(line, "f", offset) && SkipWhile(line, IsWhitespace, offset)) {
             std::string out_comp;
             std::vector<glm::ivec3> facecomponents;
             while (ConsumeWhile(line, IsFaceComponent, offset, out_comp)) {
