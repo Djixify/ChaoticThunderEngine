@@ -38,6 +38,7 @@
     <ClCompile Include="program.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Structs.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +56,7 @@
     <ClInclude Include="ObjLoader.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Structs.hpp" />
+    <ClInclude Include="Texture.hpp" />
     <ClInclude Include="Window.hpp" />
   </ItemGroup>
   <ItemGroup>

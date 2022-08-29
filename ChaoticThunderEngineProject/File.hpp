@@ -13,6 +13,5 @@
 namespace File {
     std::vector<std::filesystem::path> GetFiles(std::filesystem::path path);
     std::vector<std::filesystem::path> GetDirectories(std::filesystem::path path);
-    image* LoadPNG(std::filesystem::path path, bool has_alpha = true);
 }
 #endif

@@ -1,6 +1,6 @@
-#include <filesystem>
 #ifndef OBJECTS_TEXTURE
 #define OBJECTS_TEXTURE
+#include <filesystem>
 
 class Texture {
 private:

@@ -6,7 +6,6 @@
 #include "Structs.hpp"
 #include "Texture.hpp"
 
-
 class Material {
 public:
     float specular_highlight; //Ns, 0 to 1000, how wide the specular highlight should be

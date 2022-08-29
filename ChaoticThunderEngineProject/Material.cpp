@@ -1,4 +1,5 @@
 #include "Material.hpp"
+#include "Texture.hpp"
 
 Material::Material() :
     specular_highlight(360.f),
@@ -15,8 +16,8 @@ Material::Material() :
 
 }
 
-Material:: ~Material() {
-    for (std::map<std::string, image*>::iterator iter = textures.begin(); iter != textures.end(); iter++)
+Material::~Material() {
+    for (std::map<std::string, Texture*>::iterator iter = textures.begin(); iter != textures.end(); iter++)
         delete iter->second;
     textures.clear();
 }
