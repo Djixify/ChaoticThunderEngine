@@ -17,7 +17,7 @@ public:
     void LoadCPU();
     void TransferToGPU(bool destroy_cpu_copy = true);
 
-    void SetActive();
+    void SetActive(int i = 0);
 
     void FreeCPU();
     void FreeGPU();

@@ -25,7 +25,7 @@ void Texture::TransferToGPU(bool destroy_cpu_copy) {
         LoadCPU();
 
     glGenTextures(1, &this->_texture_ID);
-    SetActive();
+    glBindTexture(GL_TEXTURE_2D, this->_texture_ID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -40,7 +40,8 @@ void Texture::TransferToGPU(bool destroy_cpu_copy) {
         FreeCPU();
 }
 
-void Texture::SetActive() {
+void Texture::SetActive(int i) {
+    glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, this->_texture_ID);
 }
 

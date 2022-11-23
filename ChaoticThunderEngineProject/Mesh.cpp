@@ -145,16 +145,17 @@ Mesh* SpawnMeshFromObject(std::string objectname, std::string materialfile, std:
     return mesh;
 }
 
-std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
+
+void LoadMTL(std::map<std::string, Material*> materials, std::filesystem::path path) {
     std::string content;
     std::ifstream fs(path.generic_string().c_str(), std::ios::in);
 
-    std::map<std::string, Material*> materials;
-    materials["default"] = new Material();
+    if (materials.find("default") == materials.end())
+        materials["default"] = new Material();
 
     if (!fs.is_open()) {
         Debug::Logger::Console(Debug::Level::WARNING, "Could not read file %s. File does not exist.", path);
-        return materials;
+        return;
     }
 
     std::string currentmaterial = "default";
@@ -312,8 +313,6 @@ std::map<std::string, Material*> LoadMTL(std::filesystem::path path) {
 
     if (!fs.eof())
         Controller::Instance()->ThrowException("Something went wrong with file at path: " + path.generic_string());
-
-    return materials;
 }
 
 MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
@@ -333,7 +332,6 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
 
     std::string objectname = "default";
     std::string materialfile = "default";
-    std::map<std::string, Material*> materials;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> texturecoords;
@@ -350,10 +348,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
                 materialfile = nullptr;
             }
             else {
-                for (std::map<std::string, Material*>::iterator iter = materials.begin(); iter != materials.end(); iter++)
-                    delete iter->second;
-                materials.clear();
-                materials = LoadMTL(path.parent_path() / materialfile);
+                LoadMTL(materials, path.parent_path() / materialfile);
             }
         } //TODO: usemtl
         else if (ConsumeKeyword(line, "o", offset) && SkipWhile(line, IsWhitespace, offset)) {
