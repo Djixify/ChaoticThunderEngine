@@ -6,11 +6,11 @@
 
 class Exception : public std::exception {
 private:
-    std::string message;
+	std::string message;
 public:
-    Exception* SetMessage(std::string msg);
+	Exception* SetMessage(std::string msg);
 
-    virtual const char* what() const throw();
+	virtual const char* what() const throw();
 };
 
 #endif

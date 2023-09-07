@@ -1,4 +1,3 @@
-
 #ifndef OBJECTS_MESH_COLLECTION
 #define OBJECTS_MESH_COLLECTION
 #include <vector>
@@ -11,7 +10,7 @@ private:
 	std::map<std::string, Material*> _materials;
 public:
 	~MeshCollection();
-	
+
 	void Add(Mesh* mesh);
 	void Remove(int i);
 	const Mesh* Get(int i);

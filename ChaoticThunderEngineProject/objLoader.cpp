@@ -6,12 +6,11 @@
 
 //[[deprecated]]
 void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
-	
 	std::vector <unsigned int> vertindices, uvindices, normindices;
 	std::vector <glm::vec3> tempvert;
 	std::vector <glm::vec2> tempuv;
 	std::vector <glm::vec3> tempnormal;
-	
+
 	FILE* file = fopen(path.generic_string().c_str(), "r");
 
 	if (file == NULL) {
@@ -26,7 +25,7 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 			break;		 //quits when file ends
 
 		//reads the normal vertices and pushes them into a temp vector
-		if (strncmp(header, "vn", 2) == 0) { 
+		if (strncmp(header, "vn", 2) == 0) {
 			glm::vec3 normvert;
 			fscanf(file, "%f %f %f\n", &normvert.x, &normvert.y, &normvert.z);
 			tempnormal.push_back(normvert);
@@ -83,7 +82,6 @@ void ObjLoad(std::filesystem::path path, std::vector<float>& vertices) {
 				exit(1);
 			}
 		}
-
 	}
 
 	if (vertindices.size() != normindices.size() || vertindices.size() != uvindices.size())

@@ -336,6 +336,7 @@ MeshCollection* Mesh::LoadObj(std::filesystem::path path) {
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> texturecoords;
     std::vector<glm::ivec3> triangleindices;
+    std::map<std::string, Material*> materials;
     
     while (fs.good() && !fs.eof()) {
         int offset = 0;

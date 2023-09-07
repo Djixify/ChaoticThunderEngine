@@ -37,6 +37,7 @@ void MeshCollection::RemoveMaterial(std::string name) {
 }
 Material* MeshCollection::GetMaterial(std::string name) {
 	Controller::Instance()->ThrowException("Not implemented yet");
+	return NULL;
 }
 
 int MeshCollection::MergeCompatibleMeshes() {

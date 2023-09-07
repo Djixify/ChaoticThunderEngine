@@ -44,4 +44,4 @@ public:
 	virtual glm::mat4x4 GetProjectionMatrix(Window* window) = 0;
 	virtual glm::mat4x4 GetViewMatrix() = 0;
 };
-#endif 
+#endif

@@ -7,12 +7,12 @@
 #include "Window.hpp"
 
 namespace Graphics {
-    void InitializeImGUI(Window* window);
-    void UpdateVariablesImGUI(Window* window);
-    void ClearWindow(Window* window);
-    void RenderImGUI(Window* window);
-    bool ShouldRenderNormals();
-    void TerminateImGUI();
+	void InitializeImGUI(Window* window);
+	void UpdateVariablesImGUI(Window* window);
+	void ClearWindow(Window* window);
+	void RenderImGUI(Window* window);
+	bool ShouldRenderNormals();
+	void TerminateImGUI();
 }
 
 #endif

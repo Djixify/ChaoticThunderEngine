@@ -11,7 +11,7 @@
 #include "Structs.hpp"
 
 namespace File {
-    std::vector<std::filesystem::path> GetFiles(std::filesystem::path path);
-    std::vector<std::filesystem::path> GetDirectories(std::filesystem::path path);
+	std::vector<std::filesystem::path> GetFiles(std::filesystem::path path);
+	std::vector<std::filesystem::path> GetDirectories(std::filesystem::path path);
 }
 #endif

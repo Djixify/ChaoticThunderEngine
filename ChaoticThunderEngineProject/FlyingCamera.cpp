@@ -1,10 +1,9 @@
-
 #include <iostream>
 #include "Window.hpp"
 #include "FlyingCamera.hpp"
 
 //vector constructor
-FlyingCamera::FlyingCamera(glm::vec3 position, glm::vec3 up, float yaw , float pitch)
+FlyingCamera::FlyingCamera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 {
 	Front = glm::vec3(0.0f, 0.0f, -1.0f);
 	MoveSpeed = SPEED;
@@ -23,7 +22,6 @@ FlyingCamera::FlyingCamera(glm::vec3 position, glm::vec3 up, float yaw , float p
 }
 
 void FlyingCamera::ProcessKeyChanged(int key, int scancode, int action, int mods) {
-
 	if (key == (int)Controls::key::Q && action == (int)Controls::key_interaction::RELEASE)
 		_attach_mouse = true;
 	else if (key == (int)Controls::key::E && action == (int)Controls::key_interaction::RELEASE)
@@ -33,9 +31,9 @@ void FlyingCamera::ProcessKeyChanged(int key, int scancode, int action, int mods
 void FlyingCamera::ProcessKeyContinuous(Window* window)
 {
 	GLFWwindow* _glfwwindow = window->GetGLContext();
-	
+
 	bool shift_held = glfwGetKey(_glfwwindow, (int)Controls::key::LEFT_SHIFT) == GLFW_PRESS;
-	float velocity = MoveSpeed * window->GetDeltaTimeSec(); 
+	float velocity = MoveSpeed * window->GetDeltaTimeSec();
 	if (shift_held)
 		velocity *= 4;
 
@@ -109,4 +107,3 @@ void FlyingCamera::UpdateCameraVectors()
 	RightAxis = glm::normalize(glm::cross(Front, WorldUp));
 	UpAxis = glm::normalize(glm::cross(RightAxis, Front));
 }
-
